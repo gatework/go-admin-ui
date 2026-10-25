@@ -24,7 +24,6 @@
         <HeaderIconButton
           :tooltip="themeLabel"
           :aria-label="themeLabel"
-          motion="spin"
           @click="appStore.toggleTheme()"
         >
           <icon-sun-fill v-if="appStore.darkMode" /><icon-moon-fill v-else />

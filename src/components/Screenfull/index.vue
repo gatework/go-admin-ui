@@ -1,5 +1,5 @@
 <template>
-  <HeaderIconButton v-if="enabled" type="button" class="screenfull-button" :aria-label="$t(isFullscreen ? 'layout.exitFullscreen' : 'layout.enterFullscreen')" :aria-pressed="isFullscreen" @click="click">
+  <HeaderIconButton v-if="enabled" class="screenfull-button" :aria-label="$t(isFullscreen ? 'layout.exitFullscreen' : 'layout.enterFullscreen')" :aria-pressed="isFullscreen" @click="click">
     <icon-fullscreen-exit v-if="isFullscreen" /><icon-fullscreen v-else />
   </HeaderIconButton>
 </template>

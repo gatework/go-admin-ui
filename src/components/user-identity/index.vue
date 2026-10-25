@@ -22,7 +22,7 @@
         :aria-label="statusLabel"
       />
     </span>
-    <span class="user-identity__copy">
+    <span v-if="!avatarOnly" class="user-identity__copy">
       <strong :title="displayName">{{ displayName }}</strong>
       <small :title="secondaryText">{{ secondaryText }}</small>
     </span>
@@ -40,6 +40,7 @@ const props = withDefaults(
     subtitle?: string;
     size?: number;
     compact?: boolean;
+    avatarOnly?: boolean;
     online?: boolean;
     statusLabel?: string;
   }>(),
@@ -50,6 +51,7 @@ const props = withDefaults(
     subtitle: '',
     size: 38,
     compact: false,
+    avatarOnly: false,
     online: false,
     statusLabel: 'Online'
   }

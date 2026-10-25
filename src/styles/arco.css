@@ -1,6 +1,9 @@
 /* Application surfaces consume Arco's semantic colours, including teleported
    popups under body. Arco owns the palette and component appearance. */
 body {
+  --border-radius-small: var(--motor-radius-xs);
+  --border-radius-medium: var(--motor-radius-sm);
+  --border-radius-large: var(--motor-radius-md);
   --ga-brand: rgb(var(--primary-6));
   --ga-text-link: rgb(var(--link-6));
   --ga-success: rgb(var(--success-6));

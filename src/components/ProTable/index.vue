@@ -2,7 +2,7 @@
   <div ref="rootRef" class="pro-table" :class="{ 'pro-table--flat': !panels }">
     <div v-if="asCards && $slots.search" class="pro-table__filter-bar">
       <a-button type="text" :aria-expanded="filtersOpen" @click="filtersOpen = !filtersOpen">
-        <icon-search />{{ $t('components.proTable.filters') }}<template v-if="activeFilters"> · {{ activeFilters }}</template>
+        <template #icon><icon-search /></template>{{ $t('components.proTable.filters') }}<template v-if="activeFilters"> · {{ activeFilters }}</template>
       </a-button>
     </div>
     <a-drawer
@@ -46,7 +46,7 @@
       <div class="pro-table__data">
         <div v-if="$slots.toolbar && !asCards" class="pro-table__toolbar">
           <slot name="toolbar" />
-          <a-button class="pro-table__refresh" :loading="table.loading" shape="circle" :title="$t('common.refresh')" :aria-label="$t('common.refresh')" @click="table.getList"><icon-refresh /></a-button>
+          <a-button class="pro-table__refresh" :loading="table.loading" shape="circle" :title="$t('common.refresh')" :aria-label="$t('common.refresh')" @click="table.getList"><template #icon><icon-refresh /></template></a-button>
         </div>
         <MobileCards
           v-if="asCards"
@@ -89,7 +89,7 @@
         <div v-if="asCards && $slots.toolbar" class="pro-table__fab">
           <div v-show="fabOpen" class="pro-table__fab-menu">
             <slot name="toolbar" />
-            <a-button class="pro-table__fab-refresh" :loading="table.loading" @click="table.getList"><icon-refresh />{{ $t('common.refresh') }}</a-button>
+            <a-button class="pro-table__fab-refresh" :loading="table.loading" @click="table.getList"><template #icon><icon-refresh /></template>{{ $t('common.refresh') }}</a-button>
           </div>
           <button type="button" class="pro-table__fab-btn" :class="{ 'is-open': fabOpen }" :aria-expanded="fabOpen" :aria-label="$t('components.proTable.pageActions')" @click="fabOpen = !fabOpen"><icon-plus /></button>
         </div>
@@ -678,18 +678,6 @@ defineExpose({
   margin-bottom: 12px;
 }
 
-/*
- * One step down from the page's default button. These are secondary to the
- * table -- the row is chrome above the data, not the point of the screen --
- * and at the default 32px with 14px text they carried more weight than the
- * rows they act on.
- */
-.pro-table__toolbar :deep(.arco-btn) {
-  height: 28px;
-  padding: 0 12px;
-  font-size: 13px;
-}
-
 .pro-table__toolbar :deep(.pro-table__refresh) {
   flex-shrink: 0;
   /*
@@ -703,10 +691,6 @@ defineExpose({
   /* It re-reads what is on screen rather than changing it, so it sits slightly
      apart from the actions instead of in the same run. */
   margin-left: 4px;
-  /* Square: overrides the toolbar's button padding, which would stretch a
-     circular icon button into a lozenge. */
-  width: 28px;
-  padding: 0;
 }
 
 /* a-table renders the cell, so this needs :deep to reach it. Lives with the

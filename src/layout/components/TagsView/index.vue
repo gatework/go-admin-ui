@@ -1,10 +1,10 @@
 <template>
-  <div id="tags-view-container" class="tags-view-container" :class="`tabs-${preferences.tabStyle}`" @wheel="wheelTabs">
+  <div id="tags-view-container" class="tags-view-container" :class="`tabs-${preferences.tabStyle}`" @wheel.capture="wheelTabs" @keydown.delete="closeFocusedTag">
     <AppTabs :active-key="$route.fullPath" :type="preferences.tabStyle === 'plain' ? 'line' : preferences.tabStyle === 'card' ? 'card-gutter' : 'card'" size="small" editable hide-content @change="selectTab" @delete="closeSelectedTag">
       <a-tab-pane v-for="item in visitedViews" :key="item.fullPath" :closable="!isAffix(item)">
         <template #title>
           <AppDropdown trigger="contextMenu" @select="tagAction($event, item)">
-            <span class="tags-view-item" :draggable="preferences.tabDraggable" @dragstart="dragged = item.fullPath" @dragover.prevent @drop.prevent="moveTab(item)" @auxclick="middleClose($event, item)"><MenuIcon v-if="preferences.tabShowIcon && item.meta?.icon" :name="item.meta.icon" />{{ routeTitle(item) }}</span>
+            <span class="tags-view-item" :title="routeTitle(item)" :draggable="preferences.tabDraggable" @dragstart="dragged = item.fullPath" @dragover.prevent @drop.prevent="moveTab(item)" @auxclick="middleClose($event, item)"><MenuIcon v-if="preferences.tabShowIcon && item.meta?.icon" :name="item.meta.icon" /><span class="tags-view-label">{{ routeTitle(item) }}</span></span>
             <template #content>
               <a-doption value="refresh">{{ $t('layout.tagsView.refresh') }}</a-doption>
               <a-doption v-if="!isAffix(item)" value="close">{{ $t('layout.tagsView.close') }}</a-doption>
@@ -92,9 +92,18 @@ export default {
       } catch { /* Damaged or unavailable storage starts with current routes. */ }
     },
     wheelTabs(event) {
-      if (!this.preferences.tabWheelable) return
-      const scroller = this.$el.querySelector('.arco-tabs-nav-tab')
-      if (scroller && scroller.scrollWidth > scroller.clientWidth) { event.preventDefault(); scroller.scrollLeft += event.deltaY || event.deltaX }
+      // Arco owns the scroll offset, arrows and active-tab positioning.
+      if (!this.preferences.tabWheelable && event.target.closest('.arco-tabs-nav-tab')) event.stopPropagation()
+    },
+    async closeFocusedTag(event) {
+      if (!event.target.classList.contains('arco-tabs-tab')) return
+      const tabs = Array.from(this.$el.querySelectorAll('.arco-tabs-tab'))
+      const item = this.visitedViews[tabs.indexOf(event.target)]
+      if (!item || this.isAffix(item)) return
+      event.preventDefault()
+      await this.closeSelectedTag(item)
+      await this.$nextTick()
+      this.$el.querySelector('.arco-tabs-tab-active')?.focus()
     },
     moveTab(item) {
       if (!this.preferences.tabDraggable || !this.dragged) return
@@ -187,7 +196,7 @@ export default {
         const path = this.visitedViews[index]
         const { visitedViews } = useTagsViewStore().delView(path)
         if (this.editableTabsValue === path.fullPath) {
-          this.toLastView(visitedViews, path)
+          return this.toLastView(visitedViews, path)
         }
       }
     },
@@ -205,15 +214,15 @@ export default {
     toLastView(visitedViews, view) {
       const latestView = visitedViews.slice(-1)[0]
       if (latestView) {
-        this.$router.push(latestView.fullPath).catch(err => err)
+        return this.$router.push(latestView.fullPath).catch(err => err)
       } else {
         // now the default is to redirect to the home page if there is no tags-view,
         // you can adjust it according to your needs.
         if (view.name === 'Dashboard') {
           // to reload home page
-          this.$router.replace({ path: '/redirect' + view.fullPath })
+          return this.$router.replace({ path: '/redirect' + view.fullPath })
         } else {
-          this.$router.push('/')
+          return this.$router.push('/')
         }
       }
     }
@@ -228,8 +237,16 @@ export default {
   background: var(--ga-bg-container); border-bottom: 1px solid var(--ga-border-light);
   overflow: hidden;
   :deep(.arco-tabs) { flex: 1; min-width: 0; }
-  :deep(.arco-tabs-nav-tab-list) { overflow-x: auto; scrollbar-width: none; }
-  .tags-view-item { display: inline-flex; align-items: center; gap: 6px; }
+  :deep(.arco-tabs-tab) { max-width: 200px; }
+  :deep(.arco-tabs-tab-title) { min-width: 0; }
+  .tags-view-item { display: inline-flex; max-width: 100%; align-items: center; gap: 6px; vertical-align: middle; }
+  .tags-view-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  :deep(.arco-tabs-tab-close-btn) { display: none; flex-shrink: 0; }
+  :deep(.arco-tabs-tab:hover .arco-tabs-tab-close-btn),
+  :deep(.arco-tabs-tab:focus-visible .arco-tabs-tab-close-btn) { display: inline-flex; }
   :deep(.arco-tabs-nav::before) { display: none; }
+}
+@media (hover: none) {
+  .tags-view-container :deep(.arco-tabs-tab-active .arco-tabs-tab-close-btn) { display: inline-flex; }
 }
 </style>

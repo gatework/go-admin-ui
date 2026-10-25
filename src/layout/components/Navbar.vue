@@ -19,12 +19,12 @@
         </template>
       </AppDropdown>
       <LangSelect v-if="preferences.widgetLocale" id="lang-select" />
-      <HeaderIconButton v-if="preferences.widgetTheme" :tooltip="$t(preferences.darkMode ? 'settings.navbar.theme.toLight' : 'settings.navbar.theme.toDark')" motion="pulse" @click="preferences.toggleTheme()"><icon-sun-fill v-if="preferences.darkMode" /><icon-moon-fill v-else /></HeaderIconButton>
+      <HeaderIconButton v-if="preferences.widgetTheme" :tooltip="$t(preferences.darkMode ? 'settings.navbar.theme.toLight' : 'settings.navbar.theme.toDark')" @click="preferences.toggleTheme()"><icon-sun-fill v-if="preferences.darkMode" /><icon-moon-fill v-else /></HeaderIconButton>
       <Screenfull v-if="preferences.widgetFullscreen && app.device !== 'mobile'" id="screenfull" />
       <HeaderIconButton v-if="preferences.widgetLock" :tooltip="$t('settings.lock.now')" @click="lockNow"><icon-lock /></HeaderIconButton>
       <HeaderIconButton id="layout-settings" :tooltip="$t('settings.title')" :aria-expanded="settingsOpen" @click="$emit('open-settings')"><icon-settings /></HeaderIconButton>
       <AppDropdown trigger="click" position="br" :popup-max-height="false">
-        <button type="button" class="user-trigger avatar-wrapper" :aria-label="$t('layout.accountMenu')"><UserIdentity :name="user.name" :avatar-url="user.avatar" :subtitle="user.roles.join(', ')" :size="32" :status-label="$t('navbar.online')" compact online /></button>
+        <button type="button" class="user-trigger avatar-wrapper" :aria-label="$t('layout.accountMenu')"><UserIdentity :name="user.name" :avatar-url="user.avatar" :size="32" :status-label="$t('navbar.online')" avatar-only online /></button>
         <template #content>
           <div class="user-menu-head"><UserIdentity :name="user.name" :avatar-url="user.avatar" :subtitle="user.roles.join(', ')" :status-label="$t('navbar.online')" online /></div>
           <a-doption @click="router.push('/profile/index')"><template #icon><icon-user /></template>{{ $t('navbar.account') }}</a-doption>
@@ -76,12 +76,18 @@ const lockNow = async() => {
 const logout = async() => { try { await confirmAction({ content: t('layout.logoutConfirm'), okText: t('layout.logout') }); await user.LogOut(); await router.replace('/login') } catch { /* Cancel or reported API error. */ } }
 </script>
 <style scoped lang="scss">
-.header-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; height: var(--ga-header-h); padding: 0 16px; background: var(--ga-bg-container); border-bottom: 1px solid var(--ga-border-light); }
+.header-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; height: var(--ga-header-h); padding: 0 16px; background: var(--ga-bg-container); color: var(--ga-text-2); border-bottom: 1px solid var(--ga-border-light); }
+.header-bar :deep(.header-action) {
+  font-size: var(--motor-navigation-icon-size);
+  --color-fill-2: var(--motor-surface-hover);
+  --color-fill-3: var(--ga-border-light);
+}
+.header-bar :deep(.header-action.arco-btn-text:not(.arco-btn-disabled)) { color: inherit; }
 .header-bar__left, .header-bar__right { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .header-bar__left { flex: 1; overflow: hidden; }
 .header-bar__right { flex-shrink: 0; }
 .horizontal-menu { flex: 1; min-width: 0; background: transparent; }
 .user-trigger { padding: 0 4px; border: 0; background: transparent; cursor: pointer; }
 .user-menu-head { padding: 14px; border-bottom: 1px solid var(--motor-border); max-width: 280px; }
-@media (max-width: 991px) { .header-bar { padding: 0 8px; gap: 4px; } .header-bar__right { gap: 0; } .header-brand :deep(.brand__name), .user-trigger :deep(.user-identity__copy) { display: none; } }
+@media (max-width: 991px) { .header-bar { padding: 0 8px; gap: 4px; } .header-bar__right { gap: 0; } .header-brand :deep(.brand__name) { display: none; } }
 </style>

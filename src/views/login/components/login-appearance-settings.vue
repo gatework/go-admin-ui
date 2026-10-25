@@ -21,7 +21,7 @@
         <icon-check v-if="appStore.themePreset === option.value" />
       </button>
     </div>
-    <HeaderIconButton :aria-label="$t('login.appearance.color')" motion="pulse">
+    <HeaderIconButton :aria-label="$t('login.appearance.color')">
       <icon-palette />
     </HeaderIconButton>
   </div>
@@ -29,7 +29,6 @@
     <HeaderIconButton
       :tooltip="$t('login.appearance.layout')"
       :aria-label="$t('login.appearance.layout')"
-      motion="lift"
     >
       <icon-layout />
     </HeaderIconButton>
