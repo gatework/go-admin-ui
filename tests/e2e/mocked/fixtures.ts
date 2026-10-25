@@ -1158,7 +1158,7 @@ export async function installApiMocks(page: Page) {
 }
 
 /** The answer installLoginMocks accepts; anything else is rejected. */
-export const CAPTCHA_ANSWER = '1234'
+export const CAPTCHA_ANSWER = '012345'
 
 /**
  * Mocks for the endpoints reachable *before* a session exists.
