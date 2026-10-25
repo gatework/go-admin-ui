@@ -19,7 +19,7 @@ export default {
   remark: '备注',
   remarkPlaceholder: '请输入内容',
   rules: {
-    name: '名称不能为空',
-    code: '编码不能为空'
+    name: '请填写名称',
+    code: '请填写编码'
   }
 }

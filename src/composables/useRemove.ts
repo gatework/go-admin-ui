@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import type { Ref } from 'vue'
 import { asReportedError } from '@/utils/request'
 import type { ReportedError } from '@/utils/request'
-import { ElMessageBox } from 'element-plus'
+import { confirmAction } from '@/utils/modal'
 import { msgSuccess } from '@/utils/message'
 import { i18n } from '@/lang'
 import type { Id } from '@/types/api'
@@ -10,7 +10,7 @@ import type { Id } from '@/types/api'
 /**
  * Confirm, delete, reload -- the sequence every list page repeats.
  *
- * Kept out of useTable so that composable stays free of Element Plus; deleting
+ * Kept out of useTable so that composable stays free of modal UI dependencies; deleting
  * is the one list action that cannot avoid a dialog.
  *
  *   const { remove, removing } = useRemove({
@@ -110,11 +110,7 @@ export function useRemove(options: UseRemoveOptions): UseRemoveReturn {
         // component instance, so it cannot use useI18n(), and a title resolved
         // when the page loaded would keep that language for the rest of the
         // session. Same reason and same shape as utils/request.ts.
-        await ElMessageBox.confirm(confirmText(ids.length), i18n.global.t('common.notice'), {
-          type: 'warning',
-          confirmButtonText: i18n.global.t('common.confirm'),
-          cancelButtonText: i18n.global.t('common.cancel')
-        })
+        await confirmAction({ content: confirmText(ids.length), okText: i18n.global.t('common.delete') })
       } catch {
         // Dismissing the dialog is a decision, not a failure
         return false

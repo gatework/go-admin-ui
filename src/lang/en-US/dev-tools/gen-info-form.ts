@@ -24,7 +24,7 @@ export default {
     packageName: 'Please enter the app name',
     packageNamePattern: 'Lowercase letters only, e.g. system',
     moduleName: 'Please enter the API path',
-    moduleNamePattern: 'Lowercase letters only, e.g. sys-demo',
+    moduleNamePattern: 'Use lowercase letters and hyphens, ending with a letter, e.g. sys-demo',
     businessName: 'Please enter the business name',
     businessNamePattern: 'Must start with a letter; only a-z and A-Z are allowed',
     functionName: 'Please enter the function name'

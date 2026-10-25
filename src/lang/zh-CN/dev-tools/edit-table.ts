@@ -5,7 +5,7 @@
  * artefacts rather than business concepts, so the English side uses the words a
  * developer already knows (Go Type, JSON Field) instead of a literal rendering.
  *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD R5).
+ * UI copy is maintained with the corresponding English pack.
  */
 export default {
   // ── Tabs ────────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ export default {
 
   // ── Footer ──────────────────────────────────────────────────────
   back: '返回',
-  submit: '提交',
-  validationFailed: '表单校验未通过，请重新检查提交内容',
+  submit: '保存生成配置',
+  validationFailed: '配置未保存，请检查各标签页中标出的必填项和格式。',
   saveSuccess: '保存成功'
 }

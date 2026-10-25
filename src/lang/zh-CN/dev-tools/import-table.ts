@@ -12,9 +12,10 @@
  * it -- promoting a word used once would be the opposite of what common.ts is
  * for. The dialog's two buttons are common.dialogConfirm/dialogCancel.
  *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD R5).
+ * UI copy is maintained with the corresponding English pack.
  */
 export default {
+  submit: '导入所选表',
   title: '导入表',
 
   tableName: '表名称',

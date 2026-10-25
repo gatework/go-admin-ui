@@ -1,9 +1,10 @@
 <template>
-  <el-color-picker
+  <a-color-picker
     v-model="theme"
-    :predefine="['#1890FF', '#F5222D', '#FA541C','#FAAD14','#13C2C2', '#52C460', '#2F54EB', '#722ED1', '#00b38a', '#2878FF']"
+    :preset-colors="['#1890FF', '#F5222D', '#FA541C','#FAAD14','#13C2C2', '#52C460', '#2F54EB', '#722ED1', '#00b38a', '#2878FF']"
     class="theme-picker"
-    popper-class="theme-picker-dropdown"
+    :disabled-alpha="true"
+    format="hex"
   />
 </template>
 
@@ -53,20 +54,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.theme-message,
-.theme-picker-dropdown {
-  z-index: 99999 !important;
-}
-
-.theme-picker .el-color-picker__trigger {
-  height: 26px !important;
-  width: 26px !important;
-  padding: 2px;
-}
-
-.theme-picker-dropdown .el-color-dropdown__link-btn {
-  display: none;
-}
-</style>

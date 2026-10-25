@@ -1,12 +1,11 @@
 <template>
   <PageContainer>
-    <el-row :gutter="16">
+    <a-row :gutter="16">
       <!-- Department tree: clicking a node filters the list -->
-      <el-col v-if="!narrow" :span="4" :xs="24" class="dept-pane">
+      <a-col v-if="!narrow" :span="4" class="dept-pane">
         <!--
-          On a phone this is not a sidebar. xs=24 gives it the full width, so it
-          becomes a block sitting on top of the list, and together with the
-          search form it pushed the first record off the first screen. Hidden
+          On a phone the department pane and the search form used to push
+          the first record off the first screen. Hidden
           there; the same filter is offered inside the search panel instead, so
           the phone has one place to filter from rather than two.
         -->
@@ -15,365 +14,364 @@
           the whole page; now that the list brings its own panels, a tree left
           bare would be the only thing on the page standing on the background.
         -->
-        <el-card shadow="never" class="dept-card">
-          <el-input
+        <a-card class="dept-card">
+          <a-input
             v-model="deptName"
             :placeholder="$t('admin.sysUser.deptNamePlaceholder')"
-            clearable
+            allow-clear
             class="dept-filter"
           />
-          <el-tree
-            ref="treeRef"
+          <a-tree
+
             class="dept-tree"
             :data="deptOptions"
-            :props="{ label: 'label', children: 'children' }"
-            :filter-node-method="filterDept"
-            node-key="id"
-            highlight-current
+            :field-names="{ key: 'id', title: 'label', children: 'children' }"
+            :search-value="deptName"
+            :filter-tree-node="filterDept"
+            :selected-keys="deptFilter === undefined ? [] : [deptFilter]"
+            :selectable="true"
             default-expand-all
-            :expand-on-click-node="false"
-            @node-click="handleDeptClick"
-          />
-        </el-card>
-      </el-col>
 
-      <el-col :span="20" :xs="24">
+            @select="handleDeptClick"
+          />
+        </a-card>
+      </a-col>
+
+      <a-col :span="narrow ? 24 : 20">
         <ProTable :table="table" selection row-key="userId" :actions-width="140">
           <template #search>
-            <el-form-item v-if="narrow" :label="$t('admin.sysUser.dept')">
-              <el-tree-select
+            <a-form-item v-if="narrow" :label="$t('admin.sysUser.dept')">
+              <a-tree-select
                 :model-value="deptFilter"
                 :data="deptOptions"
-                :props="{ label: 'label', children: 'children' }"
-                node-key="id"
-                check-strictly
-                clearable
+                :field-names="{ key: 'id', title: 'label', children: 'children' }"
+
+                allow-clear
                 :placeholder="$t('admin.sysUser.deptPlaceholder')"
-                @update:model-value="handleDeptFilter"
+                @update:model-value="value => handleDeptFilter(typeof value === 'number' ? value : undefined)"
               />
-            </el-form-item>
-            <el-form-item :label="$t('admin.sysUser.username')">
-              <el-input
+            </a-form-item>
+            <a-form-item :label="$t('admin.sysUser.username')">
+              <a-input
                 v-model="table.query.username"
                 :placeholder="$t('admin.sysUser.usernamePlaceholder')"
-                clearable
+                allow-clear
               />
-            </el-form-item>
-            <el-form-item :label="$t('admin.sysUser.phone')">
-              <el-input
+            </a-form-item>
+            <a-form-item :label="$t('admin.sysUser.phone')">
+              <a-input
                 v-model="table.query.phone"
                 :placeholder="$t('admin.sysUser.phonePlaceholder')"
-                clearable
+                allow-clear
               />
-            </el-form-item>
-            <el-form-item :label="$t('admin.sysUser.status')">
-              <el-select
+            </a-form-item>
+            <a-form-item :label="$t('admin.sysUser.status')">
+              <a-select
                 v-model="table.query.status"
                 :placeholder="$t('admin.sysUser.statusPlaceholder')"
-                clearable
+                allow-clear
               >
-                <el-option
+                <a-option
                   v-for="item in sys_normal_disable"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
                 />
-              </el-select>
-            </el-form-item>
+              </a-select>
+            </a-form-item>
           </template>
 
           <template #toolbar>
-            <el-button
+            <a-button
               v-permisaction="['admin:sysUser:add']"
               type="primary"
               @click="handleAdd"
-            >{{ $t('common.add') }}</el-button>
+            >{{ $t('common.add') }}</a-button>
             <!-- Plain, not filled: these act on a selection and are usually
                  disabled, and a disabled filled button reads as broken rather
                  than as "pick a row first". See AGENTS.md. -->
-            <el-button
+            <a-button
               v-permisaction="['admin:sysUser:edit']"
               :disabled="table.single"
               @click="handleEditSelected"
-            >{{ $t('common.edit') }}</el-button>
-            <el-button
+            >{{ $t('common.edit') }}</a-button>
+            <a-button
               v-permisaction="['admin:sysUser:remove']"
-              type="danger"
-              plain
+              status="danger"
               :disabled="table.multiple"
               @click="remove(table.selectedIds)"
-            >{{ $t('common.delete') }}</el-button>
+            >{{ $t('common.delete') }}</a-button>
           </template>
 
           <!-- min-width, not width: width is rigid and overflows the container,
                min-width lets el-table fit and redistribute. See AGENTS.md. -->
-          <el-table-column :label="$t('admin.sysUser.userId')" prop="userId" min-width="70" sortable="custom" />
-          <el-table-column
-            :label="$t('admin.sysUser.loginName')"
-            prop="username"
-            min-width="100"
-            sortable="custom"
-            show-overflow-tooltip
+          <a-table-column :title="$t('admin.sysUser.userId')" data-index="userId" :width="70" :sortable="{ sortDirections: ['ascend', 'descend'] }" />
+          <a-table-column
+            :title="$t('admin.sysUser.loginName')"
+            data-index="username"
+            :width="100"
+            :sortable="{ sortDirections: ['ascend', 'descend'] }"
+            ellipsis
+            tooltip
           />
-          <el-table-column
-            :label="$t('admin.sysUser.nickNameColumn')"
-            prop="nickName"
-            min-width="85"
-            show-overflow-tooltip
+          <a-table-column
+            :title="$t('admin.sysUser.nickNameColumn')"
+            data-index="nickName"
+            :width="85"
+            ellipsis
+            tooltip
           />
-          <el-table-column
-            :label="$t('admin.sysUser.dept')"
-            prop="dept.deptName"
-            min-width="85"
-            show-overflow-tooltip
+          <a-table-column
+            :title="$t('admin.sysUser.dept')"
+            data-index="dept.deptName"
+            :width="85"
+            ellipsis
+            tooltip
           />
-          <el-table-column :label="$t('admin.sysUser.phoneColumn')" prop="phone" min-width="110" />
-          <el-table-column :label="$t('admin.sysUser.status')" prop="status" width="96" sortable="custom">
-            <template #default="{ row }">
-              <el-switch
+          <a-table-column :title="$t('admin.sysUser.phoneColumn')" data-index="phone" :width="110" />
+          <a-table-column :title="$t('admin.sysUser.status')" data-index="status" :width="96" :sortable="{ sortDirections: ['ascend', 'descend'] }">
+            <template #cell="{ record: row }">
+              <a-switch
                 v-model="row.status"
-                active-value="2"
-                inactive-value="1"
+                checked-value="2"
+                unchecked-value="1"
                 @change="handleStatusChange(row)"
               />
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110" sortable="custom">
-            <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
-          </el-table-column>
+          </a-table-column>
+          <a-table-column :title="$t('common.createdAt')" data-index="createdAt" :width="110" :sortable="{ sortDirections: ['ascend', 'descend'] }">
+            <template #cell="{ record: row }"><DateCell :value="row.createdAt" /></template>
+          </a-table-column>
           <template #actions="{ row }">
-            <el-button
+            <a-button
               v-permisaction="['admin:sysUser:edit']"
-              link
-              type="primary"
+
+              type="text"
               @click="userForm.openEdit(row)"
-            >{{ $t('common.edit') }}</el-button>
-            <el-button
+            >{{ $t('common.edit') }}</a-button>
+            <a-button
               v-if="row.userId !== 1"
               v-permisaction="['admin:sysUser:remove']"
-              link
-              type="danger"
+              status="danger"
+              type="text"
               @click="remove(row.userId)"
-            >{{ $t('common.delete') }}</el-button>
+            >{{ $t('common.delete') }}</a-button>
             <!-- Icon rather than the words: this column is pinned, so its width
                  comes out of the columns that scroll past it. -->
-            <el-button
+            <a-button
               v-permisaction="['admin:sysUser:resetPassword']"
-              link
-              type="primary"
+
               class="row-icon-action"
               :title="$t('admin.sysUser.resetPasswordFor', { name: row.username })"
+              type="text"
               @click="handleResetPwd(row)"
             >
-              <el-icon><Key /></el-icon>
-            </el-button>
+              <icon-lock />
+            </a-button>
           </template>
         </ProTable>
-      </el-col>
-    </el-row>
+      </a-col>
+    </a-row>
 
     <!-- Create / edit -->
-    <el-dialog
-      v-model="userForm.visible"
+    <AppModal
+      v-model:visible="userForm.visible"
       :title="userForm.title"
       width="640px"
-      :close-on-click-modal="false"
-      @closed="userForm.reset"
+      :mask-closable="false"
+      @close="userForm.reset"
     >
-      <el-form
+      <a-form
         :ref="userForm.bindFormRef"
-        v-loading="userForm.loading"
+        :disabled="userForm.loading"
         :model="userForm.model"
         :rules="userForm.rules"
-        label-width="auto"
+        layout="vertical"
       >
-        <el-row :gutter="16">
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysUser.nickName')" prop="nickName">
-              <el-input
+        <a-row :gutter="16">
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysUser.nickName')" field="nickName">
+              <a-input
                 v-model="userForm.model.nickName"
                 :placeholder="$t('admin.sysUser.nickNamePlaceholder')"
               />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysUser.deptId')" prop="deptId">
-              <el-tree-select
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysUser.deptId')" field="deptId">
+              <a-tree-select
                 v-model="userForm.model.deptId"
                 :data="deptOptions"
-                :props="{ label: 'label', children: 'children' }"
-                node-key="id"
+                :field-names="{ key: 'id', title: 'label', children: 'children' }"
                 :placeholder="$t('admin.sysUser.deptIdPlaceholder')"
-                check-strictly
-                :render-after-expand="false"
+
                 style="width: 100%"
               />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysUser.phone')" prop="phone">
-              <el-input
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysUser.phone')" field="phone">
+              <a-input
                 v-model="userForm.model.phone"
                 :placeholder="$t('admin.sysUser.phonePlaceholder')"
                 maxlength="11"
               />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysUser.email')" prop="email">
-              <el-input
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysUser.email')" field="email">
+              <a-input
                 v-model="userForm.model.email"
                 :placeholder="$t('admin.sysUser.emailPlaceholder')"
                 maxlength="50"
               />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysUser.username')" prop="username">
-              <el-input
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysUser.username')" field="username">
+              <a-input
                 v-model="userForm.model.username"
                 :placeholder="$t('admin.sysUser.usernamePlaceholder')"
               />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
             <!-- Only on create: the edit endpoint does not take a password, and
-                 el-form skips rules for items that are not rendered -->
-            <el-form-item v-if="!userForm.isEdit" :label="$t('admin.sysUser.password')" prop="password">
-              <el-input
+                 a-form skips rules for items that are not rendered -->
+            <a-form-item v-if="!userForm.isEdit" :label="$t('admin.sysUser.password')" field="password">
+              <a-input-password
                 v-model="userForm.model.password"
                 :placeholder="$t('admin.sysUser.passwordPlaceholder')"
-                type="password"
-                show-password
               />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysUser.sex')" prop="sex">
-              <el-select
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysUser.sex')" field="sex">
+              <a-select
                 v-model="userForm.model.sex"
                 :placeholder="$t('common.selectPlaceholder')"
                 style="width: 100%"
               >
-                <el-option
+                <a-option
                   v-for="item in sys_user_sex"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
                 />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysUser.status')" prop="status">
-              <el-radio-group v-model="userForm.model.status">
-                <el-radio
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysUser.status')" field="status">
+              <a-radio-group v-model="userForm.model.status">
+                <a-radio
                   v-for="item in sys_normal_disable"
                   :key="item.value"
                   :value="item.value"
-                >{{ item.label }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysUser.post')" prop="postId">
-              <el-select
+                >{{ item.label }}</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysUser.post')" field="postId">
+              <a-select
                 v-model="userForm.model.postId"
                 :placeholder="$t('common.selectPlaceholder')"
                 style="width: 100%"
               >
-                <el-option
+                <a-option
                   v-for="item in postOptions"
                   :key="item.postId"
                   :label="item.postName"
                   :value="item.postId"
                   :disabled="item.status === '1'"
                 />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysUser.role')" prop="roleId">
-              <el-select
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysUser.role')" field="roleId">
+              <a-select
                 v-model="userForm.model.roleId"
                 :placeholder="$t('common.selectPlaceholder')"
                 style="width: 100%"
               >
-                <el-option
+                <a-option
                   v-for="item in roleOptions"
                   :key="item.roleId"
                   :label="item.roleName"
                   :value="item.roleId"
                   :disabled="item.status === '1'"
                 />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item :label="$t('admin.sysUser.remark')" prop="remark">
-              <el-input
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="$t('admin.sysUser.remark')" field="remark">
+              <a-textarea
                 v-model="userForm.model.remark"
-                type="textarea"
+
                 :placeholder="$t('admin.sysUser.remarkPlaceholder')"
               />
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
       <template #footer>
-        <el-button @click="userForm.close">{{ $t('common.dialogCancel') }}</el-button>
-        <el-button type="primary" :loading="userForm.submitting" @click="userForm.submit">
+        <a-button @click="userForm.close">{{ $t('common.dialogCancel') }}</a-button>
+        <a-button type="primary" :loading="userForm.submitting" @click="userForm.submit">
           {{ $t('common.dialogConfirm') }}
-        </el-button>
+        </a-button>
       </template>
-    </el-dialog>
+    </AppModal>
 
     <!-- Password reset: a second form on the same page, with its own model,
          its own validation and its own in-flight state -->
-    <el-dialog
-      v-model="passwordForm.visible"
+    <AppModal
+      v-model:visible="passwordForm.visible"
       :title="$t('admin.sysUser.resetPassword')"
       width="420px"
-      :close-on-click-modal="false"
-      @closed="passwordForm.reset"
+      :mask-closable="false"
+      @close="passwordForm.reset"
     >
-      <el-form
+      <a-form
         :ref="passwordForm.bindFormRef"
         :model="passwordForm.model"
         :rules="passwordForm.rules"
-        label-width="auto"
+        layout="vertical"
       >
-        <el-form-item :label="$t('admin.sysUser.user')">
+        <a-form-item :label="$t('admin.sysUser.user')">
           <span>{{ passwordForm.model.username }}</span>
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysUser.newPassword')" prop="password">
-          <el-input
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysUser.newPassword')" field="password">
+          <a-input-password
             v-model="passwordForm.model.password"
-            type="password"
             :placeholder="$t('admin.sysUser.newPasswordPlaceholder')"
-            show-password
+
             @keyup.enter="passwordForm.submit"
           />
-        </el-form-item>
-      </el-form>
+        </a-form-item>
+      </a-form>
       <template #footer>
-        <el-button @click="passwordForm.close">{{ $t('common.dialogCancel') }}</el-button>
-        <el-button type="primary" :loading="passwordForm.submitting" @click="passwordForm.submit">
-          {{ $t('common.dialogConfirm') }}
-        </el-button>
+        <a-button @click="passwordForm.close">{{ $t('common.dialogCancel') }}</a-button>
+        <a-button type="primary" :loading="passwordForm.submitting" @click="passwordForm.submit">
+          {{ $t('admin.sysUser.resetPassword') }}
+        </a-button>
       </template>
-    </el-dialog>
+    </AppModal>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useNarrowScreen } from '@/composables/useNarrowScreen'
-import { ElMessageBox } from 'element-plus'
-import { Key } from '@element-plus/icons-vue'
-import type { FormRules } from 'element-plus'
+import { confirmAction } from '@/utils/modal'
 
+import type { FormRules } from '@/types/ui'
+import type { TreeNodeData } from '@arco-design/web-vue'
+
+import AppModal from '@/components/AppModal/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
@@ -416,7 +414,7 @@ const deptName = ref('')
  * Exactly one department control is mounted at a time.
  *
  * v-if rather than a media query: CSS would leave both components alive, and
- * el-tree-select teleports its dropdown to the body regardless of whether the
+ * a-tree-select teleports its dropdown to the body regardless of whether the
  * field is visible -- so the page would carry two identical option lists and
  * "the 测试部 option" would match both.
  */
@@ -442,22 +440,11 @@ const handleDeptFilter = (id?: number) => {
   void table.search()
 }
 const deptOptions = ref<DeptTreeNode[]>([])
-const treeRef = ref()
+const filterDept = (node: TreeNodeData & { label?: string }) =>
+  !deptName.value || String(node.label ?? '').includes(deptName.value)
 
-const filterDept = (value: string, node: DeptTreeNode) =>
-  !value || node.label.includes(value)
-
-watch(deptName, value => treeRef.value?.filter(value))
-
-// Keeps the highlighted node honest: the filter can also be cleared by the
-// reset button, which knows nothing about the tree.
-watch(() => table.query.deptId, value => {
-  if (!value) treeRef.value?.setCurrentKey(null)
-})
-
-const handleDeptClick = (node: DeptTreeNode) => {
-  table.query.deptId = `/${node.id}/`
-  void table.search()
+const handleDeptClick = (keys: (string | number)[]) => {
+  handleDeptFilter(keys.length ? Number(keys[0]) : undefined)
 }
 
 // ── Options for the form ──────────────────────────────────────────
@@ -493,17 +480,17 @@ onMounted(async() => {
  * so :rules="userForm.rules" is unchanged.
  */
 const userRules = computed<FormRules>(() => ({
-  username: [{ required: true, message: t('admin.sysUser.rules.username'), trigger: 'blur' }],
-  nickName: [{ required: true, message: t('admin.sysUser.rules.nickName'), trigger: 'blur' }],
-  deptId: [{ required: true, message: t('admin.sysUser.rules.deptId'), trigger: 'change' }],
-  password: [{ required: true, message: t('admin.sysUser.rules.password'), trigger: 'blur' }],
+  username: [{ required: true, message: t('admin.sysUser.rules.username') }],
+  nickName: [{ required: true, message: t('admin.sysUser.rules.nickName') }],
+  deptId: [{ required: true, message: t('admin.sysUser.rules.deptId') }],
+  password: [{ required: true, message: t('admin.sysUser.rules.password') }],
   email: [
-    { required: true, message: t('admin.sysUser.rules.email'), trigger: 'blur' },
-    { type: 'email', message: t('admin.sysUser.rules.emailFormat'), trigger: ['blur', 'change'] }
+    { required: true, message: t('admin.sysUser.rules.email') },
+    { type: 'email', message: t('admin.sysUser.rules.emailFormat') }
   ],
   phone: [
-    { required: true, message: t('admin.sysUser.rules.phone'), trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: t('admin.sysUser.rules.phoneFormat'), trigger: 'blur' }
+    { required: true, message: t('admin.sysUser.rules.phone') },
+    { match: /^1[3-9]\d{9}$/, message: t('admin.sysUser.rules.phoneFormat') }
   ]
 }))
 
@@ -551,8 +538,8 @@ interface PasswordModel {
 /** Computed for the same reason userRules is. */
 const passwordRules = computed<FormRules>(() => ({
   password: [
-    { required: true, message: t('admin.sysUser.rules.newPassword'), trigger: 'blur' },
-    { min: 6, max: 20, message: t('admin.sysUser.rules.passwordLength'), trigger: 'blur' }
+    { required: true, message: t('admin.sysUser.rules.newPassword') },
+    { minLength: 6, maxLength: 20, message: t('admin.sysUser.rules.passwordLength') }
   ]
 }))
 
@@ -591,11 +578,7 @@ const handleStatusChange = async(row: SysUser) => {
     : t('admin.sysUser.disableConfirm', { name: row.username })
 
   try {
-    await ElMessageBox.confirm(question, t('common.notice'), {
-      type: 'warning',
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel')
-    })
+    await confirmAction({ content: question, okText: enabling ? t('common.enable') : t('common.disable') })
   } catch {
     revert()
     return

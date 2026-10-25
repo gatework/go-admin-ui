@@ -2,66 +2,67 @@
   <PageContainer>
     <ProTable :table="table" selection row-key="jobId" :actions-width="150">
       <template #search>
-        <el-form-item :label="$t('schedule.name')">
-          <el-input
+        <a-form-item :label="$t('schedule.name')">
+          <a-input
             v-model="table.query.jobName"
             :placeholder="$t('schedule.namePlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('schedule.jobGroup')">
-          <el-select
+        </a-form-item>
+        <a-form-item :label="$t('schedule.jobGroup')">
+          <a-select
             v-model="table.query.jobGroup"
             :placeholder="$t('schedule.jobGroup')"
-            clearable
+            allow-clear
           >
-            <el-option v-for="item in sys_job_group" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('schedule.status')">
-          <el-select
+            <a-option v-for="item in sys_job_group" :key="item.value" :label="item.label" :value="item.value" />
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="$t('schedule.status')">
+          <a-select
             v-model="table.query.status"
             :placeholder="$t('schedule.statusPlaceholder')"
-            clearable
+            allow-clear
           >
-            <el-option v-for="item in sys_job_status" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
+            <a-option v-for="item in sys_job_status" :key="item.value" :label="item.label" :value="item.value" />
+          </a-select>
+        </a-form-item>
       </template>
 
       <template #toolbar>
-        <el-button v-permisaction="['job:sysJob:add']" type="primary" @click="form.openCreate()">
+        <a-button v-permisaction="['job:sysJob:add']" type="primary" @click="form.openCreate()">
           {{ $t('common.add') }}
-        </el-button>
-        <el-button
+        </a-button>
+        <a-button
           v-permisaction="['job:sysJob:remove']"
-          type="danger"
-          plain
+          status="danger"
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >{{ $t('common.delete') }}</el-button>
-        <el-button v-permisaction="['job:sysJob:log']" @click="openLog">{{ $t('schedule.log') }}</el-button>
+        >{{ $t('common.delete') }}</a-button>
+        <a-button v-permisaction="['job:sysJob:log']" @click="openLog">{{ $t('schedule.log') }}</a-button>
       </template>
 
-      <el-table-column :label="$t('schedule.jobId')" prop="jobId" width="80" />
-      <el-table-column :label="$t('schedule.name')" prop="jobName" min-width="140" show-overflow-tooltip />
-      <el-table-column :label="$t('schedule.group')" prop="jobGroup" width="90">
-        <template #default="{ row }">{{ dictLabel(sys_job_group, row.jobGroup) }}</template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('schedule.cronExpression')"
-        prop="cronExpression"
-        min-width="140"
-        show-overflow-tooltip
+      <a-table-column :title="$t('schedule.jobId')" data-index="jobId" :width="80" />
+      <a-table-column :title="$t('schedule.name')" data-index="jobName" :width="140" ellipsis tooltip />
+      <a-table-column :title="$t('schedule.group')" data-index="jobGroup" :width="90">
+        <template #cell="{ record: row }">{{ dictLabel(sys_job_group, row.jobGroup) }}</template>
+      </a-table-column>
+      <a-table-column
+        :title="$t('schedule.cronExpression')"
+        data-index="cronExpression"
+        :width="140"
+        ellipsis
+        tooltip
       />
-      <el-table-column
-        :label="$t('schedule.invokeTarget')"
-        prop="invokeTarget"
-        min-width="180"
-        show-overflow-tooltip
+      <a-table-column
+        :title="$t('schedule.invokeTarget')"
+        data-index="invokeTarget"
+        :width="180"
+        ellipsis
+        tooltip
       >
-        <template #default="{ row }">
-          <el-popover trigger="hover" placement="top" :width="320">
+        <template #cell="{ record: row }">
+          <a-popover trigger="hover" position="top" :content-style="{ maxWidth: '320px' }"><template #content>
             <p class="peek-line">{{ $t('schedule.peekArgs', { value: row.args || $t('schedule.none') }) }}</p>
             <p class="peek-line">
               {{ $t('schedule.peekJobType', {
@@ -76,146 +77,146 @@
                 value: Number(row.concurrent) === 0 ? $t('schedule.allow') : $t('schedule.forbid')
               }) }}
             </p>
-            <template #reference><span>{{ row.invokeTarget }}</span></template>
-          </el-popover>
+          </template><template #default><span>{{ row.invokeTarget }}</span></template>
+          </a-popover>
         </template>
-      </el-table-column>
-      <el-table-column :label="$t('schedule.status')" prop="status" width="90">
-        <template #default="{ row }">
-          <el-tag :type="Number(row.status) === 2 ? 'success' : 'danger'" disable-transitions>
+      </a-table-column>
+      <a-table-column :title="$t('schedule.status')" data-index="status" :width="90">
+        <template #cell="{ record: row }">
+          <a-tag :color="Number(row.status) === 2 ? 'green' : 'red'">
             {{ dictLabel(sys_job_status, String(row.status)) }}
-          </el-tag>
+          </a-tag>
         </template>
-      </el-table-column>
+      </a-table-column>
 
       <template #actions="{ row }">
-        <el-button v-permisaction="['job:sysJob:edit']" link type="primary" @click="form.openEdit(row)">
+        <a-button v-permisaction="['job:sysJob:edit']" type="text" @click="form.openEdit(row)">
           {{ $t('common.edit') }}
-        </el-button>
+        </a-button>
         <!--
           entry_id is the handle cron gives a scheduled job, so zero means it is
           not running. A disabled job (status 1) can be neither started nor
           stopped, which is why both buttons check it.
         -->
-        <el-button
+        <a-button
           v-if="Number(row.entry_id) !== 0 && Number(row.status) !== 1"
           v-permisaction="['job:sysJob:remove']"
-          link
-          type="primary"
+
+          type="text"
           @click="toggle(row, 'stop')"
-        >{{ $t('schedule.stop') }}</el-button>
-        <el-button
+        >{{ $t('schedule.stop') }}</a-button>
+        <a-button
           v-else-if="Number(row.entry_id) === 0 && Number(row.status) !== 1"
           v-permisaction="['job:sysJob:start']"
-          link
-          type="primary"
+
+          type="text"
           @click="toggle(row, 'start')"
-        >{{ $t('schedule.start') }}</el-button>
+        >{{ $t('schedule.start') }}</a-button>
         <!-- Icon rather than the words, per the two-button rule -->
-        <el-button
+        <a-button
           v-permisaction="['job:sysJob:remove']"
-          link
-          type="danger"
+          status="danger"
           class="row-icon-action"
           :title="$t('schedule.deleteTitle', { name: row.jobName })"
+          type="text"
           @click="remove(row.jobId)"
         >
-          <el-icon><Delete /></el-icon>
-        </el-button>
+          <icon-delete />
+        </a-button>
       </template>
     </ProTable>
 
-    <el-dialog v-model="form.visible" :title="form.title" width="700px" :close-on-click-modal="false">
-      <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="auto">
-        <el-row :gutter="16">
-          <el-col :span="12">
-            <el-form-item :label="$t('schedule.name')" prop="jobName">
-              <el-input v-model="form.model.jobName" :placeholder="$t('schedule.name')" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('schedule.jobGroup')" prop="jobGroup">
-              <el-select
+    <AppModal v-model:visible="form.visible" :title="form.title" width="700px" :mask-closable="false">
+      <a-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" layout="vertical">
+        <a-row :gutter="16">
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('schedule.name')" field="jobName">
+              <a-input v-model="form.model.jobName" :placeholder="$t('schedule.name')" />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('schedule.jobGroup')" field="jobGroup">
+              <a-select
                 v-model="form.model.jobGroup"
                 :placeholder="$t('common.selectPlaceholder')"
                 style="width: 100%"
               >
-                <el-option v-for="item in sys_job_group" :key="item.value" :label="item.label" :value="item.value" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item prop="invokeTarget">
+                <a-option v-for="item in sys_job_group" :key="item.value" :label="item.label" :value="item.value" />
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item field="invokeTarget">
               <template #label>
                 <FieldLabel
                   :label="$t('schedule.invokeTarget')"
                   :tip="$t('schedule.invokeTargetTip')"
                 />
               </template>
-              <el-input v-model="form.model.invokeTarget" :placeholder="$t('schedule.invokeTarget')" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item prop="args">
+              <a-input v-model="form.model.invokeTarget" :placeholder="$t('schedule.invokeTarget')" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item field="args">
               <template #label>
                 <FieldLabel
                   :label="$t('schedule.args')"
                   :tip="$t('schedule.argsTip')"
                 />
               </template>
-              <el-input v-model="form.model.args" :placeholder="$t('schedule.args')" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('schedule.cronExpression')" prop="cronExpression">
-              <el-input v-model="form.model.cronExpression" :placeholder="$t('schedule.cronExpression')" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('schedule.concurrent')" prop="concurrent">
-              <el-radio-group v-model="form.model.concurrent">
-                <el-radio-button :value="0">{{ $t('schedule.allow') }}</el-radio-button>
-                <el-radio-button :value="1">{{ $t('schedule.forbid') }}</el-radio-button>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('schedule.jobType')" prop="jobType">
-              <el-radio-group v-model="form.model.jobType">
-                <el-radio-button :value="1">{{ $t('schedule.jobTypeApi') }}</el-radio-button>
-                <el-radio-button :value="2">{{ $t('schedule.jobTypeFunc') }}</el-radio-button>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('schedule.status')" prop="status">
-              <el-select
+              <a-input v-model="form.model.args" :placeholder="$t('schedule.args')" />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('schedule.cronExpression')" field="cronExpression">
+              <a-input v-model="form.model.cronExpression" :placeholder="$t('schedule.cronExpression')" />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('schedule.concurrent')" field="concurrent">
+              <a-radio-group v-model="form.model.concurrent" type="button">
+                <a-radio :value="0">{{ $t('schedule.allow') }}</a-radio>
+                <a-radio :value="1">{{ $t('schedule.forbid') }}</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('schedule.jobType')" field="jobType">
+              <a-radio-group v-model="form.model.jobType" type="button">
+                <a-radio :value="1">{{ $t('schedule.jobTypeApi') }}</a-radio>
+                <a-radio :value="2">{{ $t('schedule.jobTypeFunc') }}</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('schedule.status')" field="status">
+              <a-select
                 v-model="form.model.status"
                 :placeholder="$t('common.selectPlaceholder')"
                 style="width: 100%"
               >
-                <el-option v-for="item in sys_job_status" :key="item.value" :label="item.label" :value="item.value" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item :label="$t('schedule.misfirePolicy')" prop="misfirePolicy">
-              <el-radio-group v-model="form.model.misfirePolicy">
-                <el-radio-button v-for="(label, value) in MISFIRE" :key="value" :value="Number(value)">
+                <a-option v-for="item in sys_job_status" :key="item.value" :label="item.label" :value="item.value" />
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="$t('schedule.misfirePolicy')" field="misfirePolicy">
+              <a-radio-group v-model="form.model.misfirePolicy" type="button">
+                <a-radio v-for="(label, value) in MISFIRE" :key="value" :value="Number(value)">
                   {{ label }}
-                </el-radio-button>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
+                </a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
       <template #footer>
-        <el-button @click="form.close()">{{ $t('common.dialogCancel') }}</el-button>
-        <el-button type="primary" :loading="form.submitting" @click="form.submit()">
+        <a-button @click="form.close()">{{ $t('common.dialogCancel') }}</a-button>
+        <a-button type="primary" :loading="form.submitting" @click="form.submit()">
           {{ $t('common.dialogConfirm') }}
-        </el-button>
+        </a-button>
       </template>
-    </el-dialog>
+    </AppModal>
   </PageContainer>
 </template>
 
@@ -223,10 +224,11 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { ElMessageBox } from 'element-plus'
-import { Delete } from '@element-plus/icons-vue'
-import type { FormRules } from 'element-plus'
+import { confirmAction } from '@/utils/modal'
 
+import type { FormRules } from '@/types/ui'
+
+import AppModal from '@/components/AppModal/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import FieldLabel from '@/components/FieldLabel/index.vue'
@@ -274,10 +276,10 @@ const table = useTable<SysJob, SysJobQuery>({
  * the ref, so :rules="form.rules" is unchanged.
  */
 const rules = computed<FormRules>(() => ({
-  jobName: [{ required: true, message: t('schedule.rules.jobName'), trigger: 'blur' }],
-  jobGroup: [{ required: true, message: t('schedule.rules.jobGroup'), trigger: 'change' }],
-  invokeTarget: [{ required: true, message: t('schedule.rules.invokeTarget'), trigger: 'blur' }],
-  cronExpression: [{ required: true, message: t('schedule.rules.cronExpression'), trigger: 'blur' }]
+  jobName: [{ required: true, message: t('schedule.rules.jobName') }],
+  jobGroup: [{ required: true, message: t('schedule.rules.jobGroup') }],
+  invokeTarget: [{ required: true, message: t('schedule.rules.invokeTarget') }],
+  cronExpression: [{ required: true, message: t('schedule.rules.cronExpression') }]
 }))
 
 const form = useForm<SysJob, number>({
@@ -334,11 +336,7 @@ const toggle = async(row: SysJob, action: 'start' | 'stop') => {
     ? t('schedule.startConfirm', { name: row.jobName })
     : t('schedule.stopConfirm', { name: row.jobName })
   try {
-    await ElMessageBox.confirm(question, t('common.notice'), {
-      type: 'warning',
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel')
-    })
+    await confirmAction({ content: question, okText: action === 'start' ? t('schedule.start') : t('schedule.stop') })
   } catch {
     pending = false
     return

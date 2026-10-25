@@ -13,7 +13,7 @@ import { debounce } from '@/utils'
  * It replaces a window-resize + sidebar-transitionend pair inherited from
  * vue-element-admin, which covered the two cases someone thought of and missed
  * the one that actually shipped broken: a chart mounted inside an inactive
- * el-tab-pane. echarts measures the container at init, an inactive pane
+ * a-tab-pane. echarts measures the container at init, an inactive pane
  * measures zero, and echarts falls back to its default 100px width -- so the
  * chart stayed 100px after the user switched to that tab, beside an identical
  * 570px chart in the pane that happened to be open.

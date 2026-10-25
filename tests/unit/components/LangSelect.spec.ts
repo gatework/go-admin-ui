@@ -18,9 +18,8 @@ import LangSelect from '@/components/LangSelect/index.vue'
 const stubs = {
   // Named so the assertion reads as "the dropdown", rather than depending on
   // how test-utils spells an automatic stub.
-  'el-dropdown': { template: '<div class="dropdown"><slot /><slot name="dropdown" /></div>' },
-  'el-dropdown-menu': { template: '<div><slot /></div>' },
-  'el-dropdown-item': { template: '<div class="entry"><slot /></div>' }
+  AppDropdown: { template: '<div class="dropdown"><slot /><slot name="content" /></div>' },
+  'a-doption': { template: '<div class="entry"><slot /></div>' }
 }
 
 const render = (pinned: string) => {

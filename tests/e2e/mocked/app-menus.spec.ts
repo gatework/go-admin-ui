@@ -93,11 +93,11 @@ test('a menu pointing at an app that is not installed says so instead of blankin
 
   await page.goto('/#/probe/ghost')
 
-  await expect(page.getByText('该功能所属的应用未安装')).toBeVisible()
+  await expect(page.getByText('此功能暂不可用，请联系管理员检查应用安装和菜单配置。')).toBeVisible()
 
   // The layout is still there. A blank page would satisfy "no error" too, so
   // the sidebar is what separates a degraded panel from a dead application.
-  await expect(page.locator('.el-menu').first()).toBeVisible()
+  await expect(page.locator('.arco-menu').first()).toBeVisible()
 
   expect(errors, `an exception escaped: ${errors[0] ?? ''}`).toEqual([])
   expect(warnings.join('\n')).toContain('src/apps/ghost/x/index.vue')

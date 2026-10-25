@@ -6,7 +6,7 @@ import type { AppInfo } from '@/stores/system'
 
 /** Captcha image, as a data URI, plus the id to send back with it. */
 export function getCodeImg() {
-  return request<ApiResponse<{ id: string, data: string }>>({
+  return request<{ id: string, data: string, code: number }>({
     url: '/api/v1/captcha',
     method: 'get'
   })

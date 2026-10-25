@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" :title="t('devTools.importTable.title')" width="820px" top="5vh" :close-on-click-modal="false">
+  <AppModal v-model:visible="visible" :title="t('devTools.importTable.title')" width="820px" :mask-closable="false">
     <ProTable
       ref="proTable"
       :table="table"
@@ -7,58 +7,61 @@
       selection
       row-key="tableName"
       :actions-width="0"
-      max-height="320"
-      @row-click="toggleRow"
+      :scroll="{ y: 320 }"
+      @row-click="(row: DBTables) => toggleRow(row)"
     >
       <template #search>
-        <el-form-item :label="t('devTools.importTable.tableName')">
-          <el-input
+        <a-form-item :label="t('devTools.importTable.tableName')">
+          <a-input
             v-model="table.query.tableName"
             :placeholder="t('devTools.importTable.tableNamePlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="t('devTools.importTable.tableComment')">
-          <el-input
+        </a-form-item>
+        <a-form-item :label="t('devTools.importTable.tableComment')">
+          <a-input
             v-model="table.query.tableComment"
             :placeholder="t('devTools.importTable.tableCommentPlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
+        </a-form-item>
       </template>
 
-      <el-table-column
-        prop="tableName"
-        :label="t('devTools.importTable.tableName')"
-        min-width="180"
-        show-overflow-tooltip
+      <a-table-column
+        data-index="tableName"
+        :title="t('devTools.importTable.tableName')"
+        :width="180"
+        ellipsis
+        tooltip
       />
-      <el-table-column
-        prop="tableComment"
-        :label="t('devTools.importTable.tableComment')"
-        min-width="180"
-        show-overflow-tooltip
+      <a-table-column
+        data-index="tableComment"
+        :title="t('devTools.importTable.tableComment')"
+        :width="180"
+        ellipsis
+        tooltip
       />
       <!-- DBTables comes out of INFORMATION_SCHEMA, which names these
            createTime and updateTime rather than createdAt/updatedAt -->
-      <el-table-column prop="createTime" :label="t('common.createdAt')" min-width="150" />
-      <el-table-column prop="updateTime" :label="t('devTools.importTable.updatedAt')" min-width="150" />
+      <a-table-column data-index="createTime" :title="t('common.createdAt')" :width="150" />
+      <a-table-column data-index="updateTime" :title="t('devTools.importTable.updatedAt')" :width="150" />
     </ProTable>
 
     <template #footer>
       <span class="import-table__count">{{ selectedLabel }}</span>
-      <el-button @click="visible = false">{{ t('common.dialogCancel') }}</el-button>
-      <el-button
+      <a-button @click="visible = false">{{ t('common.dialogCancel') }}</a-button>
+      <a-button
         type="primary"
         :loading="importing"
         :disabled="!table.selection.length"
         @click="submit"
-      >{{ t('common.dialogConfirm') }}</el-button>
+      >{{ t('devTools.importTable.submit') }}</a-button>
     </template>
-  </el-dialog>
+  </AppModal>
 </template>
 
 <script setup lang="ts">
+import AppModal from '@/components/AppModal/index.vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ProTable from '@/components/ProTable/index.vue'

@@ -20,9 +20,9 @@ test.describe('sys-post', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-post')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
     await expect(page.getByRole('cell', { name: '董事长' })).toBeVisible()
 
     const sent = calls.post.listQueries.at(-1) ?? ''
@@ -34,7 +34,7 @@ test.describe('sys-post', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-post')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // status 2 is 正常, status 1 is 停用 -- the dictionary keys on strings while
     // the list sends numbers, so this also covers the loose comparison
@@ -46,13 +46,13 @@ test.describe('sys-post', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-post')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     const toolbar = page.locator('.pro-table__toolbar')
     await expect(toolbar.getByRole('button', { name: '修改' })).toBeDisabled()
     await expect(toolbar.getByRole('button', { name: '删除' })).toBeDisabled()
 
-    await page.locator('.el-table__row .el-checkbox').first().click()
+    await page.locator('.arco-table tbody tr .arco-checkbox').first().click()
 
     await expect(toolbar.getByRole('button', { name: '修改' })).toBeEnabled()
     await expect(toolbar.getByRole('button', { name: '删除' })).toBeEnabled()
@@ -62,7 +62,7 @@ test.describe('sys-post', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-post')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /开发工程师/ }).getByRole('button', { name: '修改' }).click()
 
@@ -78,12 +78,12 @@ test.describe('sys-post', () => {
     const bodies = await captureBodies(page, '**/api/v1/post/*', 'PUT')
 
     await page.goto('/#/admin/sys-post')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /开发工程师/ }).getByRole('button', { name: '修改' }).click()
     const dialog = page.getByRole('dialog').filter({ hasText: '修改岗位' })
     await dialog.getByPlaceholder('请输入岗位名称').fill('高级开发工程师')
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
 
     await expect.poll(() => calls.post.update).toBeGreaterThan(0)
     const sent = JSON.parse(bodies.at(-1) || '{}')
@@ -94,13 +94,13 @@ test.describe('sys-post', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-post')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.locator('.pro-table__toolbar').getByRole('button', { name: '新增' }).click()
     const dialog = page.getByRole('dialog').filter({ hasText: '添加岗位' })
     await dialog.getByPlaceholder('请输入岗位名称').fill('产品经理')
     await dialog.getByPlaceholder('请输入编码名称').fill('pm')
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
 
     await expect.poll(() => calls.post.create).toBe(1)
     await expect(dialog).toBeHidden()
@@ -110,11 +110,11 @@ test.describe('sys-post', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-post')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     const before = calls.post.list
 
     await page.getByRole('row', { name: /开发工程师/ }).getByRole('button', { name: '删除' }).click()
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '删除' }).click()
 
     await expect.poll(() => calls.post.remove).toBe(1)
     await expect.poll(() => calls.post.list).toBeGreaterThan(before)
@@ -124,14 +124,14 @@ test.describe('sys-post', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-post')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.locator('.pro-table__toolbar').getByRole('button', { name: '导出' }).click()
 
-    const confirm = page.locator('.el-message-box')
+    const confirm = page.locator('.arco-modal-simple')
     await expect(confirm).toBeVisible()
     // Says what it does: the rows on screen, not the whole collection
-    await expect(confirm).toContainText('当前列表')
+    await expect(confirm).toContainText('当前页数据')
     await confirm.getByRole('button', { name: '取消' }).click()
     await expect(confirm).toBeHidden()
   })
@@ -149,11 +149,11 @@ test.describe('sys-post', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-post')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.locator('.pro-table__toolbar').getByRole('button', { name: '导出' }).click()
     const downloaded = page.waitForEvent('download')
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '导出' }).click()
 
     const download = await downloaded
     expect(download.suggestedFilename()).toBe('岗位管理.xlsx')

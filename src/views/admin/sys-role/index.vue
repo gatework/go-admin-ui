@@ -2,159 +2,162 @@
   <PageContainer>
     <ProTable :table="table" selection row-key="roleId" :actions-width="180">
       <template #search>
-        <el-form-item :label="$t('admin.sysRole.roleName')">
-          <el-input
+        <a-form-item :label="$t('admin.sysRole.roleName')">
+          <a-input
             v-model="table.query.roleName"
             :placeholder="$t('admin.sysRole.roleNamePlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysRole.roleKey')">
-          <el-input
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysRole.roleKey')">
+          <a-input
             v-model="table.query.roleKey"
             :placeholder="$t('admin.sysRole.roleKeyPlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysRole.status')">
-          <el-select
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysRole.status')">
+          <a-select
             v-model="table.query.status"
             :placeholder="$t('admin.sysRole.statusPlaceholder')"
-            clearable
+            allow-clear
           >
-            <el-option
+            <a-option
               v-for="item in sys_normal_disable"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
-        </el-form-item>
+          </a-select>
+        </a-form-item>
       </template>
 
       <template #toolbar>
-        <el-button v-permisaction="['admin:sysRole:add']" type="primary" @click="handleAdd">{{ $t('common.add') }}</el-button>
-        <el-button
+        <a-button v-permisaction="['admin:sysRole:add']" type="primary" @click="handleAdd">{{ $t('common.add') }}</a-button>
+        <a-button
           v-permisaction="['admin:sysRole:edit']"
           :disabled="table.single"
           @click="handleEdit(table.selection[0])"
-        >{{ $t('common.edit') }}</el-button>
-        <el-button
+        >{{ $t('common.edit') }}</a-button>
+        <a-button
           v-permisaction="['admin:sysRole:remove']"
-          type="danger"
-          plain
+          status="danger"
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >{{ $t('common.delete') }}</el-button>
-        <el-button :loading="exporting" @click="handleExport">{{ $t('common.export') }}</el-button>
+        >{{ $t('common.delete') }}</a-button>
+        <a-button :loading="exporting" @click="handleExport">{{ $t('common.export') }}</a-button>
       </template>
 
-      <el-table-column :label="$t('admin.sysRole.roleId')" prop="roleId" min-width="80" sortable="custom" />
-      <el-table-column
-        :label="$t('admin.sysRole.name')"
-        prop="roleName"
-        min-width="120"
-        sortable="custom"
-        show-overflow-tooltip
+      <a-table-column :title="$t('admin.sysRole.roleId')" data-index="roleId" :width="80" :sortable="{ sortDirections: ['ascend', 'descend'] }" />
+      <a-table-column
+        :title="$t('admin.sysRole.name')"
+        data-index="roleName"
+        :width="120"
+        :sortable="{ sortDirections: ['ascend', 'descend'] }"
+        ellipsis
+        tooltip
       />
-      <el-table-column
-        :label="$t('admin.sysRole.roleKey')"
-        prop="roleKey"
-        min-width="120"
-        show-overflow-tooltip
+      <a-table-column
+        :title="$t('admin.sysRole.roleKey')"
+        data-index="roleKey"
+        :width="120"
+        ellipsis
+        tooltip
       />
-      <el-table-column :label="$t('admin.sysRole.sort')" prop="roleSort" min-width="80" sortable="custom" />
-      <el-table-column :label="$t('admin.sysRole.status')" prop="status" width="96" sortable="custom">
-        <template #default="{ row }">
-          <el-switch
+      <a-table-column :title="$t('admin.sysRole.sort')" data-index="roleSort" :width="80" :sortable="{ sortDirections: ['ascend', 'descend'] }" />
+      <a-table-column :title="$t('admin.sysRole.status')" data-index="status" :width="96" :sortable="{ sortDirections: ['ascend', 'descend'] }">
+        <template #cell="{ record: row }">
+          <a-switch
             v-model="row.status"
-            active-value="2"
-            inactive-value="1"
+            checked-value="2"
+            unchecked-value="1"
             @change="handleStatusChange(row)"
           />
         </template>
-      </el-table-column>
-      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110" sortable="custom">
-        <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
-      </el-table-column>
+      </a-table-column>
+      <a-table-column :title="$t('common.createdAt')" data-index="createdAt" :width="110" :sortable="{ sortDirections: ['ascend', 'descend'] }">
+        <template #cell="{ record: row }"><DateCell :value="row.createdAt" /></template>
+      </a-table-column>
 
       <template #actions="{ row }">
-        <el-button v-permisaction="['admin:sysRole:edit']" link type="primary" @click="handleEdit(row)">
+        <a-button v-permisaction="['admin:sysRole:edit']" type="text" @click="handleEdit(row)">
           {{ $t('common.edit') }}
-        </el-button>
-        <el-button v-permisaction="['admin:sysRole:update']" link type="primary" @click="handleDataScope(row)">
+        </a-button>
+        <a-button v-permisaction="['admin:sysRole:update']" type="text" @click="handleDataScope(row)">
           {{ $t('admin.sysRole.dataScope') }}
-        </el-button>
-        <el-button v-permisaction="['admin:sysRole:remove']" link type="danger" @click="remove(row.roleId)">
+        </a-button>
+        <a-button v-permisaction="['admin:sysRole:remove']" status="danger" type="text" @click="remove(row.roleId)">
           {{ $t('common.delete') }}
-        </el-button>
+        </a-button>
       </template>
     </ProTable>
 
     <!-- Create / edit, with the menu tree -->
-    <el-dialog
-      v-model="roleForm.visible"
+    <AppModal
+      v-model:visible="roleForm.visible"
       :title="roleForm.title"
       width="560px"
-      :close-on-click-modal="false"
-      @closed="roleForm.reset"
+      :mask-closable="false"
+      @close="roleForm.reset"
     >
-      <el-form
+      <a-form
         :ref="roleForm.bindFormRef"
-        v-loading="roleForm.loading"
+        :disabled="roleForm.loading"
         :model="roleForm.model"
         :rules="roleForm.rules"
-        label-width="auto"
+        layout="vertical"
       >
-        <el-form-item :label="$t('admin.sysRole.roleName')" prop="roleName">
-          <el-input
+        <a-form-item :label="$t('admin.sysRole.roleName')" field="roleName">
+          <a-input
             v-model="roleForm.model.roleName"
             :placeholder="$t('admin.sysRole.roleNamePlaceholder')"
             :disabled="roleForm.isEdit"
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysRole.roleKey')" prop="roleKey">
-          <el-input
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysRole.roleKey')" field="roleKey">
+          <a-input
             v-model="roleForm.model.roleKey"
             :placeholder="$t('admin.sysRole.roleKeyPlaceholder')"
             :disabled="roleForm.isEdit"
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysRole.roleSort')" prop="roleSort">
-          <el-input-number v-model="roleForm.model.roleSort" controls-position="right" :min="0" />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysRole.status')" prop="status">
-          <el-radio-group v-model="roleForm.model.status">
-            <el-radio
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysRole.roleSort')" field="roleSort">
+          <a-input-number v-model="roleForm.model.roleSort" :min="0" />
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysRole.status')" field="status">
+          <a-radio-group v-model="roleForm.model.status">
+            <a-radio
               v-for="item in sys_normal_disable"
               :key="item.value"
               :value="item.value"
-            >{{ item.label }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysRole.menuPermission')">
-          <el-tree
-            ref="menuTreeRef"
-            :data="menuOptions"
-            show-checkbox
-            node-key="id"
-            :empty-text="menuEmptyText"
+            >{{ item.label }}</a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysRole.menuPermission')">
+          <a-empty v-if="superAdminOnly || !menuOptions.length" :description="menuEmptyText" />
+          <a-tree
+            v-else
+            v-model:checked-keys="menuChecked"
+            :data="superAdminOnly ? [] : menuOptions"
+            checkable
+            checked-strategy="all"
+            :field-names="{ key: 'id', title: 'label', children: 'children' }"
             class="permission-tree"
-          />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysRole.remark')" prop="remark">
-          <el-input
+          ><template #empty>{{ menuEmptyText }}</template></a-tree>
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysRole.remark')" field="remark">
+          <a-textarea
             v-model="roleForm.model.remark"
-            type="textarea"
+
             :placeholder="$t('admin.sysRole.remarkPlaceholder')"
           />
-        </el-form-item>
-      </el-form>
+        </a-form-item>
+      </a-form>
       <template #footer>
-        <el-button @click="roleForm.close">{{ $t('common.dialogCancel') }}</el-button>
-        <el-button type="primary" :loading="roleForm.submitting" @click="roleForm.submit">{{ $t('common.dialogConfirm') }}</el-button>
+        <a-button @click="roleForm.close">{{ $t('common.dialogCancel') }}</a-button>
+        <a-button type="primary" :loading="roleForm.submitting" @click="roleForm.submit">{{ $t('common.dialogConfirm') }}</a-button>
       </template>
-    </el-dialog>
+    </AppModal>
 
     <!--
       Data scope, with the department tree. Its own useForm, so it has its own
@@ -162,61 +165,62 @@
       dialog on one flag while binding its visibility to the other form's, so it
       never appeared at all.
     -->
-    <el-dialog
-      v-model="scopeForm.visible"
+    <AppModal
+      v-model:visible="scopeForm.visible"
       :title="$t('admin.sysRole.dataScopeTitle')"
       width="560px"
-      :close-on-click-modal="false"
-      @closed="scopeForm.reset"
+      :mask-closable="false"
+      @close="scopeForm.reset"
     >
-      <el-form
+      <a-form
         :ref="scopeForm.bindFormRef"
-        v-loading="scopeForm.loading"
+        :disabled="scopeForm.loading"
         :model="scopeForm.model"
-        label-width="auto"
+        layout="vertical"
       >
-        <el-form-item :label="$t('admin.sysRole.roleName')">
-          <el-input :model-value="scopeForm.model.roleName" disabled />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysRole.roleKey')">
-          <el-input :model-value="scopeForm.model.roleKey" disabled />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysRole.scope')">
-          <el-select v-model="scopeForm.model.dataScope" style="width: 100%">
-            <el-option
+        <a-form-item :label="$t('admin.sysRole.roleName')">
+          <a-input :model-value="scopeForm.model.roleName" disabled />
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysRole.roleKey')">
+          <a-input :model-value="scopeForm.model.roleKey" disabled />
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysRole.scope')">
+          <a-select v-model="scopeForm.model.dataScope" style="width: 100%">
+            <a-option
               v-for="item in dataScopes"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
-        </el-form-item>
-        <el-form-item v-show="scopeForm.model.dataScope === CUSTOM_SCOPE" :label="$t('admin.sysRole.dataScope')">
-          <el-tree
-            ref="deptTreeRef"
+          </a-select>
+        </a-form-item>
+        <a-form-item v-show="scopeForm.model.dataScope === CUSTOM_SCOPE" :label="$t('admin.sysRole.dataScope')">
+          <a-tree
+            v-model:checked-keys="deptChecked"
             :data="deptOptions"
-            show-checkbox
+            checkable
+            checked-strategy="all"
             default-expand-all
-            node-key="id"
-            :empty-text="$t('admin.sysRole.treeLoading')"
+            :field-names="{ key: 'id', title: 'label', children: 'children' }"
             class="permission-tree"
-          />
-        </el-form-item>
-      </el-form>
+          ><template #empty>{{ $t('admin.sysRole.treeLoading') }}</template></a-tree>
+        </a-form-item>
+      </a-form>
       <template #footer>
-        <el-button @click="scopeForm.close">{{ $t('common.dialogCancel') }}</el-button>
-        <el-button type="primary" :loading="scopeForm.submitting" @click="scopeForm.submit">{{ $t('common.dialogConfirm') }}</el-button>
+        <a-button @click="scopeForm.close">{{ $t('common.dialogCancel') }}</a-button>
+        <a-button type="primary" :loading="scopeForm.submitting" @click="scopeForm.submit">{{ $t('common.dialogConfirm') }}</a-button>
       </template>
-    </el-dialog>
+    </AppModal>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElMessageBox } from 'element-plus'
-import type { FormRules } from 'element-plus'
+import { confirmAction } from '@/utils/modal'
+import type { FormRules } from '@/types/ui'
 
+import AppModal from '@/components/AppModal/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
@@ -259,7 +263,7 @@ const table = useTable<SysRole, SysRoleQuery>({
 })
 
 // ── Menu tree, shared by create and edit ──────────────────────────
-const menuTreeRef = ref()
+const menuChecked = ref<(string | number)[]>([])
 const menuOptions = ref<Array<Record<string, unknown>>>([])
 /**
  * Whether the role being edited is the super admin, which holds everything
@@ -290,9 +294,9 @@ void loadMenuTree()
  * is unchanged.
  */
 const rules = computed<FormRules>(() => ({
-  roleName: [{ required: true, message: t('admin.sysRole.rules.roleName'), trigger: 'blur' }],
-  roleKey: [{ required: true, message: t('admin.sysRole.rules.roleKey'), trigger: 'blur' }],
-  roleSort: [{ required: true, message: t('admin.sysRole.rules.roleSort'), trigger: 'blur' }]
+  roleName: [{ required: true, message: t('admin.sysRole.rules.roleName') }],
+  roleKey: [{ required: true, message: t('admin.sysRole.rules.roleKey') }],
+  roleSort: [{ required: true, message: t('admin.sysRole.rules.roleSort') }]
 }))
 
 const roleForm = useForm<SysRole, number>({
@@ -329,34 +333,29 @@ const roleForm = useForm<SysRole, number>({
  * read the half-checked set as well but then returned the checked one, so the
  * behaviour is preserved rather than quietly changed here.
  */
-const checkedMenuIds = (): number[] => menuTreeRef.value?.getCheckedKeys() ?? []
+const checkedMenuIds = (): number[] => menuChecked.value.map(Number)
 
 const handleAdd = () => {
   roleForm.openCreate()
-  void nextTick(() => menuTreeRef.value?.setCheckedKeys([]))
+  menuChecked.value = []
+  superAdminOnly.value = false
 }
 
 const handleEdit = async(row: SysRole) => {
   await roleForm.openEdit(row)
-  // The super admin holds everything implicitly, so there is nothing to tick
-  if (roleForm.model.roleKey === 'admin') {
-    superAdminOnly.value = true
-    menuOptions.value = []
-    return
-  }
-  await nextTick()
-  menuTreeRef.value?.setCheckedKeys(roleForm.model.menuIds ?? [])
+  superAdminOnly.value = roleForm.model.roleKey === 'admin'
+  menuChecked.value = roleForm.model.menuIds ?? []
 }
 
 // ── Data scope ────────────────────────────────────────────────────
-const deptTreeRef = ref()
+const deptChecked = ref<(string | number)[]>([])
 const deptOptions = ref<DeptTreeNode[]>([])
 
 const scopeForm = useForm<SysRole, number>({
   defaultModel: () => ({ roleId: undefined, roleName: undefined, roleKey: undefined, dataScope: '1' }),
   idKey: 'roleId',
   api: { get: getRole },
-  submit: model => dataScope({ ...model, deptIds: deptTreeRef.value?.getCheckedKeys() ?? [] }),
+  submit: model => dataScope({ ...model, deptIds: deptChecked.value.map(Number) }),
   // A function rather than a string: useForm keeps whatever it is given, and a
   // string would be resolved once, at setup.
   successMessage: () => t('admin.sysRole.dataScopeSaved'),
@@ -367,8 +366,7 @@ const handleDataScope = async(row: SysRole) => {
   await scopeForm.openEdit(row)
   const response = await roleDeptTreeselect(row.roleId as number)
   deptOptions.value = response.data?.depts ?? []
-  await nextTick()
-  deptTreeRef.value?.setCheckedKeys(response.data?.checkedKeys ?? [])
+  deptChecked.value = response.data?.checkedKeys ?? []
 }
 
 // ── Row actions ───────────────────────────────────────────────────
@@ -388,11 +386,7 @@ const handleStatusChange = async(row: SysRole) => {
     : t('admin.sysRole.disableConfirm', { name: row.roleName })
 
   try {
-    await ElMessageBox.confirm(question, t('common.notice'), {
-      type: 'warning',
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel')
-    })
+    await confirmAction({ content: question, okText: enabling ? t('common.enable') : t('common.disable') })
   } catch {
     revert()
     return

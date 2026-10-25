@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { setLocale, STORAGE_KEY } from '@/lang'
+import { setLocale, STORAGE_KEY, arcoLocale } from '@/lang'
 
 /**
  * What switching writes down, and what a pinned build must not.
@@ -12,6 +12,12 @@ import { setLocale, STORAGE_KEY } from '@/lang'
  * looking like it had been ignored.
  */
 describe('setLocale', () => {
+  it('switches Arco built-in messages with application messages', async() => {
+    await setLocale('en-US')
+    expect(arcoLocale.value.locale).toBe('en-US')
+    await setLocale('zh-CN')
+    expect(arcoLocale.value.locale).toBe('zh-CN')
+  })
   beforeEach(() => localStorage.clear())
   afterEach(() => vi.unstubAllEnvs())
 

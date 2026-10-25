@@ -16,9 +16,9 @@ test.describe('sys-login-log', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-login-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
     await expect(page.getByRole('row', { name: /admin/ }).getByText('正常')).toBeVisible()
     await expect(page.getByRole('row', { name: /tester/ }).getByText('关闭')).toBeVisible()
   })
@@ -29,7 +29,7 @@ test.describe('sys-login-log', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-login-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     const sent = calls.loginLog.listQueries.at(-1) ?? ''
     expect(sent).toContain('createdAtOrder=desc')
@@ -41,11 +41,11 @@ test.describe('sys-login-log', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-login-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByText('192.168.1.10').hover()
 
-    const popover = page.locator('.el-popover:visible')
+    const popover = page.locator('.arco-popover-popup-content:visible')
     await expect(popover).toContainText('Chrome')
     await expect(popover).toContainText('macOS')
   })
@@ -55,11 +55,11 @@ test.describe('sys-login-log', () => {
     const bodies = await captureBodies(page, '**/api/v1/sys-login-log', 'DELETE')
 
     await page.goto('/#/admin/sys-login-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     const before = calls.loginLog.list
 
     await page.getByRole('row', { name: /tester/ }).getByRole('button', { name: '删除' }).click()
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '删除' }).click()
 
     await expect.poll(() => calls.loginLog.remove).toBe(1)
     await expect.poll(() => calls.loginLog.list).toBeGreaterThan(before)
@@ -74,13 +74,13 @@ test.describe('sys-login-log', () => {
     const bodies = await captureBodies(page, '**/api/v1/sys-login-log', 'DELETE')
 
     await page.goto('/#/admin/sys-login-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await page.locator('.el-table__row').first().locator('.el-checkbox').click()
+    await page.locator('.arco-table tbody tr').first().locator('.arco-checkbox').click()
     const bulk = page.locator('.pro-table__toolbar').getByRole('button', { name: '删除' })
     await expect(bulk).toBeEnabled()
     await bulk.click()
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '删除' }).click()
 
     await expect.poll(() => calls.loginLog.remove).toBe(1)
     expect(JSON.parse(bodies.at(-1) || '{}').ids).toEqual([1])
@@ -96,7 +96,7 @@ test.describe('sys-oper-log', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-oper-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // Behind the toggle at this width: the time range leads and takes two of
     // the three columns, so the collapsed row holds it and the buttons and
@@ -115,7 +115,7 @@ test.describe('sys-oper-log', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-oper-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // The list starts descending, and el-table cycles ascending → descending → none
     expect(calls.operLog.listQueries.at(-1) ?? '').toContain('createdAtOrder=desc')
@@ -135,9 +135,9 @@ test.describe('sys-oper-log', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-oper-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
     await expect(page.getByRole('row', { name: /sys-user/ }).getByText('POST')).toBeVisible()
   })
 
@@ -148,7 +148,7 @@ test.describe('sys-oper-log', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-oper-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // Declared first and two columns wide, so a collapsed panel keeps it: on an
     // audit log the time range is what people come to filter by, and it used to
@@ -158,10 +158,11 @@ test.describe('sys-oper-log', () => {
     const sent = calls.operLog.listQueries.at(-1) ?? ''
     expect(sent).not.toContain('beginTime=2026')
 
+    await page.locator('.pro-table__search input[placeholder="开始日期"]').click()
     await page.locator('.pro-table__search input[placeholder="开始日期"]').fill('2026-08-01 00:00:00')
-    await page.keyboard.press('Enter')
+    await page.locator('.pro-table__search input[placeholder="结束日期"]').click()
     await page.locator('.pro-table__search input[placeholder="结束日期"]').fill('2026-08-31 23:59:59')
-    await page.keyboard.press('Enter')
+    await page.locator('.arco-picker-footer').getByRole('button', { name: '确定' }).click()
 
     await expect.poll(() => calls.operLog.listQueries.at(-1)).toContain('beginTime=2026-08-01')
     expect(calls.operLog.listQueries.at(-1) ?? '').toContain('endTime=2026-08-31')
@@ -174,13 +175,14 @@ test.describe('sys-oper-log', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-oper-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // A daterange only commits once both ends are filled
+    await page.locator('.pro-table__search input[placeholder="开始日期"]').click()
     await page.locator('.pro-table__search input[placeholder="开始日期"]').fill('2026-08-01 00:00:00')
-    await page.keyboard.press('Enter')
+    await page.locator('.pro-table__search input[placeholder="结束日期"]').click()
     await page.locator('.pro-table__search input[placeholder="结束日期"]').fill('2026-08-31 23:59:59')
-    await page.keyboard.press('Enter')
+    await page.locator('.arco-picker-footer').getByRole('button', { name: '确定' }).click()
     await expect.poll(() => calls.operLog.listQueries.at(-1)).toContain('beginTime=2026-08-01')
 
     const before = calls.operLog.list
@@ -196,7 +198,7 @@ test.describe('sys-oper-log', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-oper-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /sys-user/ }).getByRole('button', { name: '详细' }).click()
 
@@ -214,7 +216,7 @@ test.describe('sys-oper-log', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-oper-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // Both clicks in one tick: the guard is set synchronously before the first
     // await, so the second call returns immediately. Clicking twice through the
@@ -226,11 +228,11 @@ test.describe('sys-oper-log', () => {
       button.click()
     })
 
-    await expect(page.locator('.el-message-box')).toHaveCount(1)
+    await expect(page.locator('.arco-modal-simple')).toHaveCount(1)
 
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '清空' }).click()
     await expect.poll(() => calls.extra.operLogClean).toBe(1)
-    await expect(page.locator('.el-message-box')).toHaveCount(0)
+    await expect(page.locator('.arco-modal-simple')).toHaveCount(0)
   })
 
   // Emptying the whole log asks separately from deleting a row
@@ -238,17 +240,17 @@ test.describe('sys-oper-log', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-oper-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.locator('.pro-table__toolbar').getByRole('button', { name: '清空' }).click()
 
-    const confirm = page.locator('.el-message-box')
+    const confirm = page.locator('.arco-modal-simple')
     await expect(confirm).toContainText('不可撤销')
     await confirm.getByRole('button', { name: '取消' }).click()
     expect(calls.extra.operLogClean).toBe(0)
 
     await page.locator('.pro-table__toolbar').getByRole('button', { name: '清空' }).click()
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '清空' }).click()
     await expect.poll(() => calls.extra.operLogClean).toBe(1)
   })
 })

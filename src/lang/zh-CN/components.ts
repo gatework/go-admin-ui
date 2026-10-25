@@ -19,11 +19,9 @@ export default {
     collapse: '收起'
   },
   cards: {
+    selectRow: '选择 {name}',
     collapse: '收起',
     more: '其余 {count} 项',
-    // The arrow is part of the hint: it points at the gesture, so it travels
-    // with the sentence rather than sitting in the template.
-    swipeHint: '← 左滑操作',
     loadMore: '加载更多',
     noMore: '没有更多了'
   },

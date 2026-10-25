@@ -17,10 +17,10 @@ test.describe('dict', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/dict')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
-    await expect(page.getByRole('row', { name: /系统状态/ }).locator('.el-tag')).toHaveText('正常')
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
+    await expect(page.getByRole('row', { name: /系统状态/ }).locator('.arco-tag')).toHaveText('正常')
   })
 
   // The type is a link into its own entries, carrying the record's id
@@ -28,12 +28,12 @@ test.describe('dict', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/dict')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('link', { name: 'sys_common_status' }).click()
 
     await expect(page).toHaveURL(/#\/admin\/dict\/data\/1$/)
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await expect(page.getByRole('cell', { name: '关闭状态' })).toBeVisible()
   })
 
@@ -43,12 +43,12 @@ test.describe('dict', () => {
     const bodies = await captureBodies(page, /\/api\/v1\/dict\/type\/\d+/, 'PUT')
 
     await page.goto('/#/admin/dict')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /系统状态/ }).getByRole('button', { name: '修改' }).click()
     const dialog = page.getByRole('dialog').filter({ hasText: '修改字典类型' })
     await dialog.getByPlaceholder('请输入内容').fill('改过的备注')
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
 
     await expect.poll(() => calls.dictType.update).toBe(1)
     expect(typeof JSON.parse(bodies.at(-1) || '{}').status).toBe('number')
@@ -59,10 +59,10 @@ test.describe('dict', () => {
     const bodies = await captureBodies(page, /\/api\/v1\/dict\/type(\?|$)/, 'DELETE')
 
     await page.goto('/#/admin/dict')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /用户性别/ }).getByRole('button', { name: '删除' }).click()
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '删除' }).click()
 
     await expect.poll(() => calls.dictType.remove).toBe(1)
     expect(JSON.parse(bodies.at(-1) || '{}').ids).toEqual([2])
@@ -80,7 +80,7 @@ test.describe('dict data', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/dict/data/1')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     expect(calls.dictData.list).toBe(1)
     expect(calls.dictData.listQueries.at(-1) ?? '').toContain('dictType=sys_common_status')
@@ -90,9 +90,9 @@ test.describe('dict data', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/dict/data/1')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
     await expect(page.getByRole('cell', { name: '正常状态' })).toBeVisible()
   })
 
@@ -101,7 +101,7 @@ test.describe('dict data', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/dict/data/1')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByPlaceholder('请输入字典标签').fill('正常')
     await page.getByPlaceholder('请输入字典标签').press('Enter')
@@ -118,12 +118,12 @@ test.describe('dict data', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/dict/data/1')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.locator('.pro-table__toolbar').getByRole('button', { name: '新增' }).click()
 
     const dialog = page.getByRole('dialog').filter({ hasText: '添加字典数据' })
-    const type = dialog.locator('.el-form-item').filter({ hasText: '字典类型' }).locator('input')
+    const type = dialog.locator('.arco-form-item').filter({ hasText: '字典类型' }).locator('input')
     await expect(type).toHaveValue('sys_common_status')
     await expect(type).toBeDisabled()
   })

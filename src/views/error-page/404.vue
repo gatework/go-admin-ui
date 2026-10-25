@@ -8,13 +8,12 @@
         <img class="pic-404__child right" src="@/assets/404_images/404_cloud.png" alt="404">
       </div>
       <div class="bullshit">
-        <div class="bullshit__oops">OOPS!</div>
+        <div class="bullshit__oops">{{ $t('errorPage.title') }}</div>
         <div class="bullshit__info">All rights reserved
-          <a style="color:var(--ga-brand)" href="https://wallstreetcn.com" target="_blank">wallstreetcn</a>
+          <a style="color:var(--ga-text-link)" href="https://wallstreetcn.com" target="_blank">wallstreetcn</a>
         </div>
-        <div class="bullshit__headline">{{ message }}</div>
-        <div class="bullshit__info">Please check that the URL you entered is correct, or click the button below to return to the homepage.</div>
-        <a href="" class="bullshit__return-home">Back to home</a>
+        <div class="bullshit__info">{{ $t('errorPage.recovery') }}</div>
+        <RouterLink to="/" class="bullshit__return-home">{{ $t('errorPage.home') }}</RouterLink>
       </div>
     </div>
   </div>
@@ -23,12 +22,7 @@
 <script>
 
 export default {
-  name: 'Page404',
-  computed: {
-    message() {
-      return 'The webmaster said that you can not enter this page...'
-    }
-  }
+  name: 'Page404'
 }
 </script>
 
@@ -172,22 +166,10 @@ export default {
       animation-duration: 0.5s;
       animation-fill-mode: forwards;
     }
-    &__headline {
-      font-size: 20px;
-      line-height: 24px;
-      color: var(--ga-text-1);
-      font-weight: bold;
-      opacity: 0;
-      margin-bottom: 10px;
-      animation-name: slideUp;
-      animation-duration: 0.5s;
-      animation-delay: 0.1s;
-      animation-fill-mode: forwards;
-    }
     &__info {
       font-size: 13px;
       line-height: 21px;
-      color: grey;
+      color: var(--ga-text-2);
       opacity: 0;
       margin-bottom: 30px;
       animation-name: slideUp;
@@ -200,7 +182,7 @@ export default {
       float: left;
       width: 110px;
       height: 36px;
-      background: #1482f0;
+      background: #1267c7;
       border-radius: 100px;
       text-align: center;
       color: #ffffff;
@@ -224,5 +206,12 @@ export default {
       }
     }
   }
+}
+@media (max-width: 767px) {
+  .wscn-http404-container { position: static; transform: none; padding: 24px 16px; }
+  .wscn-http404 { width: 100%; padding: 0; }
+  .wscn-http404 .pic-404 { float: none; width: 100%; max-width: 400px; margin: 0 auto; }
+  .wscn-http404 .bullshit { float: none; width: 100%; padding: 16px 0; }
+  .wscn-http404 .bullshit__oops { font-size: 24px; }
 }
 </style>

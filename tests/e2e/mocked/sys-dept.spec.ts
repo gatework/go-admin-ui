@@ -20,7 +20,7 @@ test.describe('sys-dept', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-dept')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // Two roots plus one child, expanded by default
     await expect(page.getByRole('cell', { name: '研发部' })).toBeVisible()
@@ -32,7 +32,7 @@ test.describe('sys-dept', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-dept')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await expect(page.locator('.pagination-container')).toHaveCount(0)
 
@@ -45,7 +45,7 @@ test.describe('sys-dept', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-dept')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     const before = calls.dept.list
 
     await page.getByPlaceholder('请输入部门名称').fill('研发')
@@ -61,7 +61,7 @@ test.describe('sys-dept', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-dept')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // parentId === 0 marks a root: it has no parent to fall back to. The page
     // used to test `p_id`, a field no Go struct declares -- so the check read
@@ -97,7 +97,7 @@ test.describe('sys-dept', () => {
     })
 
     await page.goto('/#/admin/sys-dept')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByPlaceholder('请输入部门名称').fill('前端')
     await page.getByPlaceholder('请输入部门名称').press('Enter')
@@ -107,15 +107,15 @@ test.describe('sys-dept', () => {
 
     // Its parent was filtered out of the list, but the picker still resolves it
     const dialog = page.getByRole('dialog').filter({ hasText: '修改部门' })
-    await expect(dialog.locator('.el-form-item').filter({ hasText: '上级部门' })
-      .locator('.el-select__wrapper')).toHaveText('研发部')
+    await expect(dialog.locator('.arco-form-item').filter({ hasText: '上级部门' })
+      .locator('.arco-select-view')).toHaveText('研发部')
   })
 
   test('editing loads the record and locks the parent', async({ page }) => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-dept')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /前端组/ }).getByRole('button', { name: '修改' }).click()
 
@@ -123,24 +123,24 @@ test.describe('sys-dept', () => {
     await expect(dialog).toBeVisible()
     await expect(dialog.getByPlaceholder('请输入部门名称')).toHaveValue('前端组')
     // Moving a department between parents is not something the endpoint supports
-    await expect(dialog.locator('.el-form-item').filter({ hasText: '上级部门' })
-      .locator('.el-select__wrapper')).toHaveClass(/is-disabled/)
+    await expect(dialog.locator('.arco-form-item').filter({ hasText: '上级部门' })
+      .locator('.arco-select-view')).toHaveClass(/arco-select-view-disabled/)
   })
 
   test('adding under a row preselects that row as the parent', async({ page }) => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-dept')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /研发部/ }).getByRole('button', { name: '新增' }).click()
 
     const dialog = page.getByRole('dialog').filter({ hasText: '添加部门' })
     await expect(dialog).toBeVisible()
-    // The selected label lives in .el-select__wrapper, not in the input: the
+    // The selected label lives in .arco-select-view, not in the input: the
     // input el-select renders is a readonly combobox with an empty value.
-    await expect(dialog.locator('.el-form-item').filter({ hasText: '上级部门' })
-      .locator('.el-select__wrapper')).toHaveText('研发部')
+    await expect(dialog.locator('.arco-form-item').filter({ hasText: '上级部门' })
+      .locator('.arco-select-view')).toHaveText('研发部')
   })
 
   /**
@@ -168,7 +168,7 @@ test.describe('sys-dept', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-dept')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // The picker is only mounted once a dialog opens
     await page.getByRole('row', { name: /研发部/ }).getByRole('button', { name: '新增' }).click()
@@ -176,8 +176,8 @@ test.describe('sys-dept', () => {
     await expect(dialog).toBeVisible()
     // Waited for rather than assumed: the warning is logged while the picker
     // renders, so the assertion below has to run after it has.
-    await expect(dialog.locator('.el-form-item').filter({ hasText: '上级部门' })
-      .locator('.el-select__wrapper')).toHaveText('研发部')
+    await expect(dialog.locator('.arco-form-item').filter({ hasText: '上级部门' })
+      .locator('.arco-select-view')).toHaveText('研发部')
 
     const aboutData = warnings.filter(text => text.includes('prop "data"'))
     expect(aboutData, aboutData[0] ?? '').toHaveLength(0)
@@ -190,12 +190,12 @@ test.describe('sys-dept', () => {
     const bodies = await captureBodies(page, '**/api/v1/dept/*', 'PUT')
 
     await page.goto('/#/admin/sys-dept')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /前端组/ }).getByRole('button', { name: '修改' }).click()
     const dialog = page.getByRole('dialog').filter({ hasText: '修改部门' })
     await dialog.getByPlaceholder('请输入部门名称').fill('前端小组')
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
 
     await expect.poll(() => calls.dept.update).toBe(1)
     const sent = JSON.parse(bodies.at(-1) || '{}')

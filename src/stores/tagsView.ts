@@ -34,7 +34,9 @@ type ViewLike = VisitedView | RouteLocationNormalized
  */
 export const useTagsViewStore = defineStore('tagsView', {
   state: () => ({
+    restored: false,
     visitedViews: [] as VisitedView[],
+    recentVisits: [] as VisitedView[],
     cachedViews: [] as string[]
   }),
 

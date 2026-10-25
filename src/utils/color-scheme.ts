@@ -46,7 +46,10 @@ export const resolvesDark = (scheme: ColorScheme): boolean =>
   scheme === 'dark' || (scheme === 'system' && prefersDark())
 
 const paint = (scheme: ColorScheme): void => {
-  document.documentElement.classList.toggle(DARK_CLASS, resolvesDark(scheme))
+  const dark = resolvesDark(scheme)
+  document.documentElement.classList.toggle(DARK_CLASS, dark)
+  if (dark) document.body.setAttribute('arco-theme', 'dark')
+  else document.body.removeAttribute('arco-theme')
 }
 
 /**

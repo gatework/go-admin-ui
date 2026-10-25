@@ -1,9 +1,16 @@
 export default {
+  expandNavigation: 'Expand navigation',
+  collapseNavigation: 'Collapse navigation',
+  enterFullscreen: 'Enter fullscreen',
+  exitFullscreen: 'Exit fullscreen',
+  accountMenu: 'Account menu',
   language: 'Language',
   languageFailed: 'Could not switch language. Check your connection and try again.',
   logout: 'Log out',
   logoutConfirm: 'Are you sure you want to log out?',
   settings: {
+    lightSidebar: 'Light sidebar',
+    darkSidebar: 'Dark sidebar',
     title: 'Page Settings',
     theme: 'Theme',
     themeColor: 'Theme Color',

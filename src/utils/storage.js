@@ -1,22 +1,18 @@
 const storage = {
   set(key, value) {
-    if (typeof value === 'object') {
-      value = JSON.stringify(value)
-    }
-    localStorage.setItem(key, value)
+    try { localStorage.setItem(key, typeof value === 'object' ? JSON.stringify(value) : value) } catch { /* Keep in-memory state usable. */ }
   },
   get(key) {
-    let value = localStorage.getItem(key)
-    if (value && value.indexOf('{') !== -1) {
-      value = JSON.parse(value)
-    }
-    return value
+    try {
+      const value = localStorage.getItem(key)
+      return value && value.indexOf('{') !== -1 ? JSON.parse(value) : value
+    } catch { return null }
   },
   remove(key) {
-    localStorage.removeItem(key)
+    try { localStorage.removeItem(key) } catch { /* Storage may be blocked. */ }
   },
   clear() {
-    localStorage.clear()
+    try { localStorage.clear() } catch { /* Storage may be blocked. */ }
   }
 }
 

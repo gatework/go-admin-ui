@@ -5,79 +5,79 @@
       selection
       row-key="id"
       :actions-width="90"
-      :default-sort="{ prop: 'createdAt', order: 'descending' }"
     >
       <template #search>
-        <el-form-item :label="$t('admin.sysLoginLog.username')">
-          <el-input
+        <a-form-item :label="$t('admin.sysLoginLog.username')">
+          <a-input
             v-model="table.query.username"
             :placeholder="$t('admin.sysLoginLog.usernamePlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysLoginLog.status')">
-          <el-select
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysLoginLog.status')">
+          <a-select
             v-model="table.query.status"
             :placeholder="$t('admin.sysLoginLog.statusPlaceholder')"
-            clearable
+            allow-clear
           >
-            <el-option
+            <a-option
               v-for="item in sys_common_status"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysLoginLog.ipaddr')">
-          <el-input
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysLoginLog.ipaddr')">
+          <a-input
             v-model="table.query.ipaddr"
             :placeholder="$t('admin.sysLoginLog.ipaddrPlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
+        </a-form-item>
       </template>
 
       <template #toolbar>
-        <el-button
+        <a-button
           v-permisaction="['admin:sysLoginLog:remove']"
-          type="danger"
-          plain
+          status="danger"
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >{{ $t('common.delete') }}</el-button>
+        >{{ $t('common.delete') }}</a-button>
       </template>
 
-      <el-table-column
-        :label="$t('admin.sysLoginLog.username')"
-        prop="username"
-        min-width="110"
-        show-overflow-tooltip
+      <a-table-column
+        :title="$t('admin.sysLoginLog.username')"
+        data-index="username"
+        :width="110"
+        ellipsis
+        tooltip
       />
-      <el-table-column
-        :label="$t('admin.sysLoginLog.msg')"
-        prop="msg"
-        min-width="120"
-        show-overflow-tooltip
+      <a-table-column
+        :title="$t('admin.sysLoginLog.msg')"
+        data-index="msg"
+        :width="120"
+        ellipsis
+        tooltip
       />
-      <el-table-column :label="$t('admin.sysLoginLog.status')" prop="status" width="90">
-        <template #default="{ row }">
-          <el-tag :type="Number(row.status) === 2 ? 'success' : 'danger'" disable-transitions>
+      <a-table-column :title="$t('admin.sysLoginLog.status')" data-index="status" :width="90">
+        <template #cell="{ record: row }">
+          <a-tag :color="Number(row.status) === 2 ? 'green' : 'red'">
             {{ dictLabel(sys_common_status, row.status) }}
-          </el-tag>
+          </a-tag>
         </template>
-      </el-table-column>
-      <el-table-column :label="$t('admin.sysLoginLog.ipaddr')" prop="ipaddr" min-width="130">
-        <template #default="{ row }">
-          <el-popover trigger="hover" placement="top" :width="300">
+      </a-table-column>
+      <a-table-column :title="$t('admin.sysLoginLog.ipaddr')" data-index="ipaddr" :width="130">
+        <template #cell="{ record: row }">
+          <a-popover trigger="hover" position="top"><span>{{ row.ipaddr }}</span><template #content>
             <p class="peek-line">{{ $t('admin.sysLoginLog.peekLocation', { value: row.loginLocation || '-' }) }}</p>
             <p class="peek-line">{{ $t('admin.sysLoginLog.peekBrowser', { value: row.browser || '-' }) }}</p>
             <p class="peek-line">{{ $t('admin.sysLoginLog.peekOs', { value: row.os || '-' }) }}</p>
             <p class="peek-line">{{ $t('admin.sysLoginLog.peekPlatform', { value: row.platform || '-' }) }}</p>
-            <template #reference><span>{{ row.ipaddr }}</span></template>
-          </el-popover>
+
+          </template></a-popover>
         </template>
-      </el-table-column>
+      </a-table-column>
       <!--
         prop is createdAt, not loginTime: createdAtOrder is the only order key
         SysLoginLogOrder binds, and useTable derives the key from the prop the
@@ -87,19 +87,19 @@
         measurement in CLAUDE.md: a sortable header plus `2026-08-01 14:00` needs
         about 141px, or the cells wrap.
       -->
-      <el-table-column
-        :label="$t('admin.sysLoginLog.loginTime')"
-        prop="createdAt"
-        min-width="150"
-        sortable="custom"
+      <a-table-column
+        :title="$t('admin.sysLoginLog.loginTime')"
+        data-index="createdAt"
+        :width="150"
+        :sortable="{ sortDirections: ['ascend', 'descend'], defaultSortOrder: 'descend' }"
       >
-        <template #default="{ row }"><DateCell :value="row.loginTime" pattern="{y}-{m}-{d} {h}:{i}" /></template>
-      </el-table-column>
+        <template #cell="{ record: row }"><DateCell :value="row.loginTime" pattern="{y}-{m}-{d} {h}:{i}" /></template>
+      </a-table-column>
 
       <template #actions="{ row }">
-        <el-button v-permisaction="['admin:sysLoginLog:remove']" link type="danger" @click="remove(row.id)">
+        <a-button v-permisaction="['admin:sysLoginLog:remove']" status="danger" type="text" @click="remove(row.id)">
           {{ $t('common.delete') }}
-        </el-button>
+        </a-button>
       </template>
     </ProTable>
   </PageContainer>

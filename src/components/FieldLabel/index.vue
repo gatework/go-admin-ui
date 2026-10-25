@@ -1,9 +1,9 @@
 <template>
   <span class="field-label">
     {{ label }}
-    <el-tooltip v-if="tip" :content="tip" placement="top">
+    <a-tooltip v-if="tip" :content="tip" position="top">
       <i class="ri-question-line field-label__hint" />
-    </el-tooltip>
+    </a-tooltip>
   </span>
 </template>
 

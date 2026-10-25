@@ -41,10 +41,10 @@ interface RailColours {
 
 const railColours = (page: Page): Promise<RailColours> => page.evaluate(() => {
   const at = (selector: string) => document.querySelector(selector) as HTMLElement
-  const row = at('.el-menu-item:not(.is-active)')
+  const row = at('.arco-menu-item:not(.arco-menu-selected)')
   return {
     rowText: getComputedStyle(row).color,
-    rowBg: getComputedStyle(row).backgroundColor,
+    rowBg: getComputedStyle(row).backgroundColor === 'rgba(0, 0, 0, 0)' ? getComputedStyle(at('.arco-menu')).backgroundColor : getComputedStyle(row).backgroundColor,
     railBg: getComputedStyle(at('.sidebar-container')).backgroundColor,
     titleText: getComputedStyle(at('.sidebar-title')).color,
     headerBg: getComputedStyle(at('.sidebar-logo-container')).backgroundColor
@@ -78,16 +78,17 @@ const open = async(page: Page) => {
     localStorage.setItem('app_info', JSON.stringify({ sys_app_name: 'go-admin管理系统' }))
   })
   await page.goto('/#/demo/product')
-  await page.waitForSelector('.el-menu')
+  await page.waitForSelector('.arco-menu')
   await settled(page)
 }
 
 /** Flips the rail through the settings drawer, the way a user would. */
 const switchRail = async(page: Page, to: 'light' | 'dark') => {
   await page.locator('#layout-settings').click()
-  await expect(page.locator('.rightPanel-container')).toHaveClass(/show/)
-  await page.locator(`.setting-drawer-block-checbox-item:has(img[alt="${to}"])`).click()
-  await page.locator('.rightPanel-close').click()
+  await expect(page.getByRole('dialog', { name: '偏好设置' })).toBeVisible()
+  const toggle = page.getByRole('switch', { name: '深色侧边栏', exact: true })
+  if ((await toggle.getAttribute('aria-checked')) !== String(to === 'dark')) await toggle.click()
+  await page.getByRole('button', { name: '关闭偏好设置' }).click()
   await settled(page)
 }
 

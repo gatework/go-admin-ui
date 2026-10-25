@@ -2,133 +2,135 @@
   <PageContainer>
     <ProTable :table="table" selection row-key="dictCode" :actions-width="120">
       <template #search>
-        <el-form-item :label="$t('admin.dict.data.dictName')">
-          <el-select v-model="table.query.dictType">
-            <el-option
+        <a-form-item :label="$t('admin.dict.data.dictName')">
+          <a-select v-model="table.query.dictType">
+            <a-option
               v-for="item in typeOptions"
               :key="item.id"
               :label="item.dictName"
               :value="item.dictType as string"
             />
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('admin.dict.data.dictLabel')">
-          <el-input
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="$t('admin.dict.data.dictLabel')">
+          <a-input
             v-model="table.query.dictLabel"
             :placeholder="$t('admin.dict.data.dictLabelPlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.dict.data.status')">
-          <el-select
+        </a-form-item>
+        <a-form-item :label="$t('admin.dict.data.status')">
+          <a-select
             v-model="table.query.status"
             :placeholder="$t('admin.dict.data.statusPlaceholder')"
-            clearable
+            allow-clear
           >
-            <el-option
+            <a-option
               v-for="item in sys_normal_disable"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
-        </el-form-item>
+          </a-select>
+        </a-form-item>
       </template>
 
       <template #toolbar>
-        <el-button v-permisaction="['admin:sysDictData:add']" type="primary" @click="handleAdd">
+        <a-button v-permisaction="['admin:sysDictData:add']" type="primary" @click="handleAdd">
           {{ $t('common.add') }}
-        </el-button>
-        <el-button
+        </a-button>
+        <a-button
           v-permisaction="['admin:sysDictData:remove']"
-          type="danger"
-          plain
+          status="danger"
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >{{ $t('common.delete') }}</el-button>
+        >{{ $t('common.delete') }}</a-button>
       </template>
 
-      <el-table-column :label="$t('admin.dict.data.dictCode')" prop="dictCode" width="80" />
-      <el-table-column
-        :label="$t('admin.dict.data.dictLabel')"
-        prop="dictLabel"
-        min-width="140"
-        show-overflow-tooltip
+      <a-table-column :title="$t('admin.dict.data.dictCode')" data-index="dictCode" :width="80" />
+      <a-table-column
+        :title="$t('admin.dict.data.dictLabel')"
+        data-index="dictLabel"
+        :width="140"
+        ellipsis
+        tooltip
       />
-      <el-table-column
-        :label="$t('admin.dict.data.dictValue')"
-        prop="dictValue"
-        min-width="140"
-        show-overflow-tooltip
+      <a-table-column
+        :title="$t('admin.dict.data.dictValue')"
+        data-index="dictValue"
+        :width="140"
+        ellipsis
+        tooltip
       />
-      <el-table-column :label="$t('admin.dict.data.dictSort')" prop="dictSort" width="80" />
-      <el-table-column :label="$t('admin.dict.data.status')" prop="status" width="90">
-        <template #default="{ row }">
-          <el-tag :type="Number(row.status) === 2 ? 'success' : 'danger'" disable-transitions>
+      <a-table-column :title="$t('admin.dict.data.dictSort')" data-index="dictSort" :width="80" />
+      <a-table-column :title="$t('admin.dict.data.status')" data-index="status" :width="90">
+        <template #cell="{ record: row }">
+          <a-tag :color="Number(row.status) === 2 ? 'green' : 'red'">
             {{ dictLabel(sys_normal_disable, row.status) }}
-          </el-tag>
+          </a-tag>
         </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('admin.dict.data.remark')"
-        prop="remark"
-        min-width="160"
-        show-overflow-tooltip
+      </a-table-column>
+      <a-table-column
+        :title="$t('admin.dict.data.remark')"
+        data-index="remark"
+        :width="160"
+        ellipsis
+        tooltip
       />
-      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110">
-        <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
-      </el-table-column>
+      <a-table-column :title="$t('common.createdAt')" data-index="createdAt" :width="110">
+        <template #cell="{ record: row }"><DateCell :value="row.createdAt" /></template>
+      </a-table-column>
 
       <template #actions="{ row }">
-        <el-button v-permisaction="['admin:sysDictData:edit']" link type="primary" @click="form.openEdit(row)">
+        <a-button v-permisaction="['admin:sysDictData:edit']" type="text" @click="form.openEdit(row)">
           {{ $t('common.edit') }}
-        </el-button>
-        <el-button v-permisaction="['admin:sysDictData:remove']" link type="danger" @click="remove(row.dictCode)">
+        </a-button>
+        <a-button v-permisaction="['admin:sysDictData:remove']" status="danger" type="text" @click="remove(row.dictCode)">
           {{ $t('common.delete') }}
-        </el-button>
+        </a-button>
       </template>
     </ProTable>
 
-    <el-dialog v-model="form.visible" :title="form.title" width="500px" :close-on-click-modal="false">
-      <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="auto">
-        <el-form-item :label="$t('admin.dict.data.dictType')">
-          <el-input v-model="form.model.dictType" disabled />
-        </el-form-item>
-        <el-form-item :label="$t('admin.dict.data.label')" prop="dictLabel">
-          <el-input v-model="form.model.dictLabel" :placeholder="$t('admin.dict.data.labelPlaceholder')" />
-        </el-form-item>
-        <el-form-item :label="$t('admin.dict.data.value')" prop="dictValue">
-          <el-input
+    <AppModal v-model:visible="form.visible" :title="form.title" width="500px" :mask-closable="false">
+      <a-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" layout="vertical">
+        <a-form-item :label="$t('admin.dict.data.dictType')">
+          <a-input v-model="form.model.dictType" disabled />
+        </a-form-item>
+        <a-form-item :label="$t('admin.dict.data.label')" field="dictLabel">
+          <a-input v-model="form.model.dictLabel" :placeholder="$t('admin.dict.data.labelPlaceholder')" />
+        </a-form-item>
+        <a-form-item :label="$t('admin.dict.data.value')" field="dictValue">
+          <a-input
             v-model="form.model.dictValue"
             :placeholder="$t('admin.dict.data.valuePlaceholder')"
             :disabled="form.isEdit"
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.dict.data.displaySort')" prop="dictSort">
-          <el-input-number v-model="form.model.dictSort" controls-position="right" :min="0" />
-        </el-form-item>
-        <el-form-item :label="$t('admin.dict.data.status')" prop="status">
-          <el-radio-group v-model="form.model.status">
-            <el-radio v-for="item in sys_normal_disable" :key="item.value" :value="item.value">
+        </a-form-item>
+        <a-form-item :label="$t('admin.dict.data.displaySort')" field="dictSort">
+          <a-input-number v-model="form.model.dictSort" :min="0" />
+        </a-form-item>
+        <a-form-item :label="$t('admin.dict.data.status')" field="status">
+          <a-radio-group v-model="form.model.status">
+            <a-radio v-for="item in sys_normal_disable" :key="item.value" :value="item.value">
               {{ item.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item :label="$t('admin.dict.data.remark')" prop="remark">
-          <el-input
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item :label="$t('admin.dict.data.remark')" field="remark">
+          <a-textarea
             v-model="form.model.remark"
-            type="textarea"
+
             :placeholder="$t('admin.dict.data.remarkPlaceholder')"
           />
-        </el-form-item>
-      </el-form>
+        </a-form-item>
+      </a-form>
       <template #footer>
-        <el-button @click="form.close()">{{ $t('common.dialogCancel') }}</el-button>
-        <el-button type="primary" :loading="form.submitting" @click="form.submit()">
+        <a-button @click="form.close()">{{ $t('common.dialogCancel') }}</a-button>
+        <a-button type="primary" :loading="form.submitting" @click="form.submit()">
           {{ $t('common.dialogConfirm') }}
-        </el-button>
+        </a-button>
       </template>
-    </el-dialog>
+    </AppModal>
   </PageContainer>
 </template>
 
@@ -136,8 +138,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import type { FormRules } from 'element-plus'
+import type { FormRules } from '@/types/ui'
 
+import AppModal from '@/components/AppModal/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
@@ -207,9 +210,9 @@ onMounted(async() => {
  * unchanged.
  */
 const rules = computed<FormRules>(() => ({
-  dictLabel: [{ required: true, message: t('admin.dict.data.rules.dictLabel'), trigger: 'blur' }],
-  dictValue: [{ required: true, message: t('admin.dict.data.rules.dictValue'), trigger: 'blur' }],
-  dictSort: [{ required: true, message: t('admin.dict.data.rules.dictSort'), trigger: 'blur' }]
+  dictLabel: [{ required: true, message: t('admin.dict.data.rules.dictLabel') }],
+  dictValue: [{ required: true, message: t('admin.dict.data.rules.dictValue') }],
+  dictSort: [{ required: true, message: t('admin.dict.data.rules.dictSort') }]
 }))
 
 const form = useForm<SysDictData, number>({

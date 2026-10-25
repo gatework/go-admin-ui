@@ -2,6 +2,7 @@
  * See the zh-CN file for why this dialog does not share gen.ts's keys.
  */
 export default {
+  submit: 'Import selected tables',
   title: 'Import Tables',
 
   tableName: 'Table Name',

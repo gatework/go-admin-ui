@@ -128,7 +128,7 @@ test.describe('the phone layout', () => {
     await expect(page.locator('.pro-table__search')).toHaveCount(0)
 
     await page.locator('.pro-table__filter-bar button').click()
-    const sheet = page.locator('.el-drawer.pro-table__sheet')
+    const sheet = page.locator('.pro-table__sheet')
     await expect(sheet).toBeVisible()
     await expect(sheet.getByRole('button', { name: '查看结果' })).toBeVisible()
 
@@ -148,7 +148,7 @@ test.describe('the phone layout', () => {
     await expect(bar).toHaveText(/筛选$/)
 
     await bar.click()
-    const sheet = page.locator('.el-drawer.pro-table__sheet')
+    const sheet = page.locator('.pro-table__sheet')
     await sheet.locator('input[placeholder="请输入用户名称"]').fill('admin')
     await sheet.getByRole('button', { name: '查看结果' }).click()
     await expect(sheet).toBeHidden()
@@ -245,7 +245,7 @@ test.describe('loading more by scrolling', () => {
 
     const beforeSearch = calls.pages.length
     await page.locator('.pro-table__filter-bar button').click()
-    const sheet = page.locator('.el-drawer.pro-table__sheet')
+    const sheet = page.locator('.pro-table__sheet')
     await sheet.locator('input[placeholder="请输入用户名称"]').fill('user')
     await sheet.getByRole('button', { name: '查看结果' }).click()
 
@@ -274,7 +274,7 @@ test.describe('the desktop layout is untouched', () => {
 
   test('keeps its table, toolbar, inline filters and pager', async({ page }) => {
     await page.goto('/#/admin/sys-user')
-    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
 
     await expect(page.locator('.pro-table__search')).toBeVisible()
     await expect(page.locator('.pro-table__toolbar')).toBeVisible()

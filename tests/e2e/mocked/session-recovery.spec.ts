@@ -83,6 +83,6 @@ test.describe('a failing session lookup', () => {
     // through to a page with no permissions loaded, so the reset clears both.
     // Read through the DOM: the sidebar is built from the roles, so an empty one
     // is the observable form of "no profile left over".
-    expect(await page.locator('.el-menu-item').count(), 'no menu built from stale roles').toBe(0)
+    expect(await page.locator('.arco-menu-item').count(), 'no menu built from stale roles').toBe(0)
   })
 })

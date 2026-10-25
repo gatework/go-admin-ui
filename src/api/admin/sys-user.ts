@@ -87,7 +87,7 @@ export function updateUserPwd(oldPassword: string, newPassword: string) {
 
 /** Avatar upload. Must be FormData -- see the note in utils/request.js. */
 export function uploadAvatar(data: FormData) {
-  return request<ApiResponse<{ imgUrl?: string }>>({
+  return request<ApiResponse<string>>({
     url: '/api/v1/user/avatar',
     method: 'post',
     data
@@ -95,7 +95,7 @@ export function uploadAvatar(data: FormData) {
 }
 
 export function getUserProfile() {
-  return request<ApiResponse<SysUser>>({
+  return request<ApiResponse<{ user: SysUser, roles?: { roleId: number, roleName: string }[] }>>({
     url: '/api/v1/user/profile',
     method: 'get'
   })

@@ -1,18 +1,17 @@
-/**
- * The shell: navbar, sidebar, tab strip and the settings drawer.
- *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD
- * R5) -- including 'Header 固定' and '侧边栏Logo', which mix scripts and are
- * copied as-is rather than tidied. Fixing the wording is a separate change with
- * its own commit; doing it here would make the e2e assertions that guard this
- * migration fail for the wrong reason.
- */
+/** Navigation, appearance controls and page tabs. */
 export default {
+  expandNavigation: '展开导航',
+  collapseNavigation: '收起导航',
+  enterFullscreen: '进入全屏',
+  exitFullscreen: '退出全屏',
+  accountMenu: '账户菜单',
   language: '语言',
   languageFailed: '语言切换失败，请检查网络后重试',
   logout: '退出登录',
-  logoutConfirm: '确定注销并退出系统吗？',
+  logoutConfirm: '确认退出登录？',
   settings: {
+    lightSidebar: '浅色侧栏',
+    darkSidebar: '深色侧栏',
     title: '页面设置',
     theme: '主题设置',
     themeColor: '主题颜色',
@@ -21,10 +20,10 @@ export default {
     light: '浅色',
     dark: '深色',
     layout: '布局设置',
-    topNav: '开启 TopNav',
-    tagsView: '开启任务栏',
-    fixedHeader: 'Header 固定',
-    sidebarLogo: '侧边栏Logo'
+    topNav: '顶部导航',
+    tagsView: '多页签导航',
+    fixedHeader: '固定顶栏',
+    sidebarLogo: '侧栏标志'
   },
   tagsView: {
     refresh: '刷新当前标签页',

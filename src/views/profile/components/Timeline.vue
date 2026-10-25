@@ -1,13 +1,13 @@
 <template>
   <div class="block">
-    <el-timeline>
-      <el-timeline-item v-for="(item,index) of timeline" :key="index" :timestamp="item.timestamp" placement="top">
-        <el-card>
+    <a-timeline>
+      <a-timeline-item v-for="(item,index) of timeline" :key="index" :label="item.timestamp" position="top">
+        <a-card>
           <h4>{{ item.title }}</h4>
           <p>{{ item.content }}</p>
-        </el-card>
-      </el-timeline-item>
-    </el-timeline>
+        </a-card>
+      </a-timeline-item>
+    </a-timeline>
   </div>
 </template>
 

@@ -32,6 +32,8 @@
    * loader has always used, so the two finally agree.
    */
   --ga-brand: #1677ff;
+  /* Text actions need more contrast than a filled control's seed colour. */
+  --ga-text-link: color-mix(in srgb, var(--ga-brand), #000 20%);
 
   /* Direction tints are mixed toward. Flipped under .dark so the single set of
    * derivation rules below works for both themes. */
@@ -52,7 +54,7 @@
    * so they would "read as chosen"; next to a blue accent that tint is what
    * made the greys look faintly green instead.
    */
-  --ga-bg-body:      #f5f5f5;  /* colorBgLayout */
+  --ga-bg-body:      #f2f3f5;  /* colorBgLayout */
   --ga-bg-container: #ffffff;  /* colorBgContainer */
   --ga-bg-elevated:  #ffffff;  /* colorBgElevated */
   --ga-bg-subtle:    #fafafa;  /* table headers, striped rows */
@@ -60,7 +62,7 @@
 
   --ga-text-1:        rgba(0, 0, 0, 0.88);
   --ga-text-2:        rgba(0, 0, 0, 0.65);
-  --ga-text-3:        rgba(0, 0, 0, 0.45);
+  --ga-text-3:        rgba(0, 0, 0, 0.6);
   --ga-text-disabled: rgba(0, 0, 0, 0.25);
   --ga-text-inverse:  #ffffff;
 
@@ -117,6 +119,7 @@
   /* antd 6's darkAlgorithm output: the same hues, pulled down so they do not
    * glare on a black ground. */
   --ga-brand: #1668dc;
+  --ga-text-link: color-mix(in srgb, var(--ga-brand), #fff 35%);
   --ga-mix-toward: #000000;
 
   --ga-success: #49aa19;
@@ -132,7 +135,7 @@
   /* antd's colorBgLayout is #000000 here. The ladder above needs room *below*
    * the page for the rail, and pure black leaves none, so this stops one step
    * short. The only value on this list that is deliberately not antd's. */
-  --ga-bg-body:      #0a0a0a;
+  --ga-bg-body:      #17171a;
   --ga-bg-container: #141414;  /* colorBgContainer */
   --ga-bg-elevated:  #1f1f1f;  /* colorBgElevated */
   /* Lighter than the container here, darker than it in light mode: both mean
@@ -143,7 +146,7 @@
 
   --ga-text-1:        rgba(255, 255, 255, 0.85);
   --ga-text-2:        rgba(255, 255, 255, 0.65);
-  --ga-text-3:        rgba(255, 255, 255, 0.45);
+  --ga-text-3:        rgba(255, 255, 255, 0.6);
   --ga-text-disabled: rgba(255, 255, 255, 0.25);
   --ga-text-inverse:  #0a0a0a;
 
@@ -208,102 +211,4 @@
   /* A hairline does the separating; a drop shadow under a white rail on a
    * near-white page is a smudge, not an edge. */
   --rail-shadow:      none;
-}
-
-/*
- * ── Element Plus bridge ────────────────────────────────────────────
- *
- * Element Plus is themed entirely through CSS variables, so pointing its
- * variables at the tokens above replaces what used to be 105 `!important`
- * overrides of its internal class names.
- *
- * The tint scale mirrors Element Plus's own generation rules (mix the base
- * colour with the background at 30/50/70/80/90%), which is why both themes can
- * share one set of rules: --ga-mix-toward supplies the right direction.
- *
- * The selector is `:root, :root.dark` rather than plain `:root` on purpose:
- * element-plus/theme-chalk/dark/css-vars.css scopes its overrides to `html.dark`
- * (specificity 0,1,1), which would outrank a bare `:root` (0,1,0). `:root.dark`
- * scores 0,2,0 and wins, so the tokens stay authoritative in both themes.
- */
-:root,
-:root.dark {
-  --el-color-primary:         var(--ga-brand);
-  --el-color-primary-light-3: color-mix(in oklab, var(--ga-brand), var(--ga-mix-toward) 30%);
-  --el-color-primary-light-5: color-mix(in oklab, var(--ga-brand), var(--ga-mix-toward) 50%);
-  --el-color-primary-light-7: color-mix(in oklab, var(--ga-brand), var(--ga-mix-toward) 70%);
-  --el-color-primary-light-8: color-mix(in oklab, var(--ga-brand), var(--ga-mix-toward) 80%);
-  --el-color-primary-light-9: color-mix(in oklab, var(--ga-brand), var(--ga-mix-toward) 90%);
-  --el-color-primary-dark-2:  color-mix(in oklab, var(--ga-brand), #000 20%);
-
-  --el-color-success:         var(--ga-success);
-  --el-color-success-light-3: color-mix(in oklab, var(--ga-success), var(--ga-mix-toward) 30%);
-  --el-color-success-light-5: color-mix(in oklab, var(--ga-success), var(--ga-mix-toward) 50%);
-  --el-color-success-light-7: color-mix(in oklab, var(--ga-success), var(--ga-mix-toward) 70%);
-  --el-color-success-light-8: color-mix(in oklab, var(--ga-success), var(--ga-mix-toward) 80%);
-  --el-color-success-light-9: color-mix(in oklab, var(--ga-success), var(--ga-mix-toward) 90%);
-  --el-color-success-dark-2:  color-mix(in oklab, var(--ga-success), #000 20%);
-
-  --el-color-warning:         var(--ga-warning);
-  --el-color-warning-light-3: color-mix(in oklab, var(--ga-warning), var(--ga-mix-toward) 30%);
-  --el-color-warning-light-5: color-mix(in oklab, var(--ga-warning), var(--ga-mix-toward) 50%);
-  --el-color-warning-light-7: color-mix(in oklab, var(--ga-warning), var(--ga-mix-toward) 70%);
-  --el-color-warning-light-8: color-mix(in oklab, var(--ga-warning), var(--ga-mix-toward) 80%);
-  --el-color-warning-light-9: color-mix(in oklab, var(--ga-warning), var(--ga-mix-toward) 90%);
-  --el-color-warning-dark-2:  color-mix(in oklab, var(--ga-warning), #000 20%);
-
-  --el-color-danger:          var(--ga-danger);
-  --el-color-danger-light-3:  color-mix(in oklab, var(--ga-danger), var(--ga-mix-toward) 30%);
-  --el-color-danger-light-5:  color-mix(in oklab, var(--ga-danger), var(--ga-mix-toward) 50%);
-  --el-color-danger-light-7:  color-mix(in oklab, var(--ga-danger), var(--ga-mix-toward) 70%);
-  --el-color-danger-light-8:  color-mix(in oklab, var(--ga-danger), var(--ga-mix-toward) 80%);
-  --el-color-danger-light-9:  color-mix(in oklab, var(--ga-danger), var(--ga-mix-toward) 90%);
-  --el-color-danger-dark-2:   color-mix(in oklab, var(--ga-danger), #000 20%);
-
-  --el-color-error:           var(--ga-danger);
-  --el-color-error-light-3:   var(--el-color-danger-light-3);
-  --el-color-error-light-5:   var(--el-color-danger-light-5);
-  --el-color-error-light-7:   var(--el-color-danger-light-7);
-  --el-color-error-light-8:   var(--el-color-danger-light-8);
-  --el-color-error-light-9:   var(--el-color-danger-light-9);
-
-  --el-color-info:            var(--ga-info);
-  --el-color-info-light-3:    color-mix(in oklab, var(--ga-info), var(--ga-mix-toward) 30%);
-  --el-color-info-light-5:    color-mix(in oklab, var(--ga-info), var(--ga-mix-toward) 50%);
-  --el-color-info-light-7:    color-mix(in oklab, var(--ga-info), var(--ga-mix-toward) 70%);
-  --el-color-info-light-8:    color-mix(in oklab, var(--ga-info), var(--ga-mix-toward) 80%);
-  --el-color-info-light-9:    color-mix(in oklab, var(--ga-info), var(--ga-mix-toward) 90%);
-  --el-color-info-dark-2:     color-mix(in oklab, var(--ga-info), #000 20%);
-
-  /* Surfaces */
-  --el-bg-color:              var(--ga-bg-container);
-  --el-bg-color-page:         var(--ga-bg-body);
-  --el-bg-color-overlay:      var(--ga-bg-elevated);
-  --el-fill-color:            var(--ga-bg-subtle);
-  --el-fill-color-light:      var(--ga-bg-subtle);
-  --el-fill-color-lighter:    var(--ga-bg-subtle);
-  --el-fill-color-blank:      var(--ga-bg-container);
-
-  /* Text */
-  --el-text-color-primary:     var(--ga-text-1);
-  --el-text-color-regular:     var(--ga-text-2);
-  --el-text-color-secondary:   var(--ga-text-3);
-  --el-text-color-placeholder: var(--ga-text-3);
-  --el-text-color-disabled:    var(--ga-text-disabled);
-
-  /* Borders */
-  --el-border-color:         var(--ga-border);
-  --el-border-color-light:   var(--ga-border-light);
-  --el-border-color-lighter: var(--ga-border-light);
-  --el-border-color-extra-light: var(--ga-border-light);
-
-  /* Shape */
-  --el-border-radius-base:  var(--ga-radius);
-  --el-border-radius-small: var(--ga-radius-sm);
-
-  /* Elevation */
-  --el-box-shadow:       var(--ga-shadow);
-  --el-box-shadow-light: var(--ga-shadow-sm);
-  --el-box-shadow-lighter: var(--ga-shadow-sm);
-  --el-box-shadow-dark:  var(--ga-shadow-lg);
 }

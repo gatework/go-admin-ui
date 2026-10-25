@@ -1,30 +1,11 @@
 <template>
   <div :class="{'has-logo':showLogo}">
     <logo v-if="showLogo" :collapse="isCollapse" />
-    <el-scrollbar wrap-class="scrollbar-wrapper">
-      <!-- No background-color or text-color props: Element Plus turns those
-           into inline styles that the stylesheet then has to out-!important,
-           which is how the light rail came to render white text on white.
-           Colours come from the --rail-* variables instead, resolved by the
-           rail class the layout puts on the container. -->
-      <el-menu
-        :default-active="activeMenu"
-        :collapse="isCollapse"
-        :active-text-color="theme"
-        :unique-opened="true"
-        :collapse-transition="true"
-        :router="true"
-        mode="vertical"
-      >
-        <sidebar-item
-          v-for="(route) in sidebarRouters"
-          :key="route.path"
-          :item="route"
-          :base-path="route.path"
-        />
-
-      </el-menu>
-    </el-scrollbar>
+    <div class="sidebar-scroll">
+      <a-menu :selected-keys="[activeMenu]" :collapsed="isCollapse" :collapsed-width="54" :theme="themeStyle" accordion auto-open-selected>
+        <sidebar-item v-for="route in sidebarRouters" :key="route.path" :item="route" :base-path="route.path" />
+      </a-menu>
+    </div>
   </div>
 </template>
 

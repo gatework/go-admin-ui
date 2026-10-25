@@ -1,18 +1,18 @@
 export default {
-  subtitle: 'Log in to the console with an administrator account',
+  subtitle: 'Sign in to motor with your username and password.',
   // The field is 账号 in Chinese but binds to `username`, and Username is what
   // a browser password manager expects to see next to it.
   username: 'Username',
   usernamePlaceholder: 'Enter username',
   password: 'Password',
   passwordPlaceholder: 'Enter password',
-  captcha: 'Captcha',
-  captchaPlaceholder: 'Enter captcha',
-  captchaRefresh: 'Click to refresh the captcha',
-  submit: 'Login',
-  submitting: 'Logging in',
+  captcha: 'Verification code',
+  captchaPlaceholder: 'Enter the code in the image',
+  captchaRefresh: 'Refresh verification code',
+  submit: 'Sign in',
+  submitting: 'Signing in',
   forgotPassword: 'Contact the system administrator to reset your password',
-  terminalAlt: 'go-admin startup sequence',
+  terminalAlt: 'motor startup sequence',
   rules: {
     username: 'Username is required',
     password: 'Password is required',

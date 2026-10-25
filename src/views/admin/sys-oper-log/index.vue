@@ -5,7 +5,6 @@
       selection
       row-key="id"
       :actions-width="90"
-      :default-sort="{ prop: 'createdAt', order: 'descending' }"
     >
       <template #search>
         <!--
@@ -14,156 +13,156 @@
           is collapsed, and on an audit log the time range is the filter people
           come here to use.
         -->
-        <el-form-item :label="$t('admin.sysOperLog.operTime')" class="is-wide">
-          <el-date-picker
+        <a-form-item :label="$t('admin.sysOperLog.operTime')" class="is-wide">
+          <a-range-picker
             v-model="operatedBetween"
-            type="datetimerange"
-            :range-separator="$t('admin.sysOperLog.rangeSeparator')"
-            :start-placeholder="$t('admin.sysOperLog.startDate')"
-            :end-placeholder="$t('admin.sysOperLog.endDate')"
+            show-time
+            :placeholder="[$t('admin.sysOperLog.startDate'), $t('admin.sysOperLog.endDate')]"
             value-format="YYYY-MM-DD HH:mm:ss"
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysOperLog.operUrl')">
-          <el-input
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysOperLog.operUrl')">
+          <a-input
             v-model="table.query.operUrl"
             :placeholder="$t('admin.sysOperLog.operUrlPlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysOperLog.status')">
-          <el-select
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysOperLog.status')">
+          <a-select
             v-model="table.query.status"
             :placeholder="$t('admin.sysOperLog.statusPlaceholder')"
-            clearable
+            allow-clear
           >
-            <el-option
+            <a-option
               v-for="item in sys_common_status"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
-        </el-form-item>
+          </a-select>
+        </a-form-item>
       </template>
 
       <template #toolbar>
-        <el-button
+        <a-button
           v-permisaction="['admin:sysOperLog:remove']"
-          type="danger"
-          plain
+          status="danger"
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >{{ $t('common.delete') }}</el-button>
-        <el-button v-permisaction="['admin:sysOperLog:remove']" type="danger" plain @click="handleClean">
+        >{{ $t('common.delete') }}</a-button>
+        <a-button v-permisaction="['admin:sysOperLog:remove']" status="danger" @click="handleClean">
           {{ $t('admin.sysOperLog.clean') }}
-        </el-button>
-        <el-button v-permisaction="['admin:sysOperLog:export']" :loading="exporting" @click="handleExport">
+        </a-button>
+        <a-button v-permisaction="['admin:sysOperLog:export']" :loading="exporting" @click="handleExport">
           {{ $t('common.export') }}
-        </el-button>
+        </a-button>
       </template>
 
-      <el-table-column :label="$t('admin.sysOperLog.operId')" prop="id" min-width="80" />
-      <el-table-column
-        :label="$t('admin.sysOperLog.request')"
-        prop="operUrl"
-        min-width="220"
-        show-overflow-tooltip
+      <a-table-column :title="$t('admin.sysOperLog.operId')" data-index="id" :width="80" />
+      <a-table-column
+        :title="$t('admin.sysOperLog.request')"
+        data-index="operUrl"
+        :width="220"
+        ellipsis
+        tooltip
       >
-        <template #default="{ row }">
-          <el-popover trigger="hover" placement="top" :width="360">
-            <p class="peek-line">{{ $t('admin.sysOperLog.peekHost', { value: row.operIp }) }}</p>
-            <p class="peek-line">{{ $t('admin.sysOperLog.peekLocation', { value: row.operLocation || '-' }) }}</p>
-            <p class="peek-line">{{ $t('admin.sysOperLog.peekLatency', { value: row.latencyTime || '-' }) }}</p>
-            <template #reference>
-              <span>
-                <MethodTag :method="row.requestMethod" />
-                {{ row.operUrl }}
-              </span>
-            </template>
-          </el-popover>
+        <template #cell="{ record: row }">
+          <a-popover trigger="hover" position="top">
+            <span>
+              <MethodTag :method="row.requestMethod" />
+              {{ row.operUrl }}
+            </span>
+            <template #content>
+              <p class="peek-line">{{ $t('admin.sysOperLog.peekHost', { value: row.operIp }) }}</p>
+              <p class="peek-line">{{ $t('admin.sysOperLog.peekLocation', { value: row.operLocation || '-' }) }}</p>
+              <p class="peek-line">{{ $t('admin.sysOperLog.peekLatency', { value: row.latencyTime || '-' }) }}</p>
+
+            </template></a-popover>
         </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('admin.sysOperLog.operName')"
-        prop="operName"
-        min-width="130"
-        show-overflow-tooltip
+      </a-table-column>
+      <a-table-column
+        :title="$t('admin.sysOperLog.operName')"
+        data-index="operName"
+        :width="130"
+        ellipsis
+        tooltip
       />
-      <el-table-column :label="$t('admin.sysOperLog.status')" prop="status" width="90">
-        <template #default="{ row }">
-          <el-tag :type="Number(row.status) === 2 ? 'success' : 'danger'" disable-transitions>
+      <a-table-column :title="$t('admin.sysOperLog.status')" data-index="status" :width="90">
+        <template #cell="{ record: row }">
+          <a-tag :color="Number(row.status) === 2 ? 'green' : 'red'">
             {{ dictLabel(sys_common_status, row.status) }}
-          </el-tag>
+          </a-tag>
         </template>
-      </el-table-column>
+      </a-table-column>
       <!-- prop is createdAt because createdAtOrder is the only order key
            SysOperaLogOrder binds; see the same column on the login log page -->
-      <el-table-column
-        :label="$t('admin.sysOperLog.operDate')"
-        prop="createdAt"
-        min-width="150"
-        sortable="custom"
+      <a-table-column
+        :title="$t('admin.sysOperLog.operDate')"
+        data-index="createdAt"
+        :width="150"
+        :sortable="{ sortDirections: ['ascend', 'descend'], defaultSortOrder: 'descend' }"
       >
-        <template #default="{ row }"><DateCell :value="row.operTime" pattern="{y}-{m}-{d} {h}:{i}" /></template>
-      </el-table-column>
+        <template #cell="{ record: row }"><DateCell :value="row.operTime" pattern="{y}-{m}-{d} {h}:{i}" /></template>
+      </a-table-column>
 
       <template #actions="{ row }">
-        <el-button v-permisaction="['admin:sysOperLog:query']" link type="primary" @click="openDetail(row)">
+        <a-button v-permisaction="['admin:sysOperLog:query']" type="text" @click="openDetail(row)">
           {{ $t('admin.sysOperLog.detail') }}
-        </el-button>
+        </a-button>
       </template>
     </ProTable>
 
-    <el-dialog
-      v-model="detailOpen"
+    <AppModal
+      v-model:visible="detailOpen"
       :title="$t('admin.sysOperLog.detailTitle')"
       width="720px"
-      :close-on-click-modal="false"
+      :mask-closable="false"
     >
-      <el-descriptions :column="2" border>
-        <el-descriptions-item :label="$t('admin.sysOperLog.detailUrl')" :span="2">
+      <a-descriptions :column="2" bordered>
+        <a-descriptions-item :label="$t('admin.sysOperLog.detailUrl')" :span="2">
           {{ detail.operUrl }}
-        </el-descriptions-item>
-        <el-descriptions-item :label="$t('admin.sysOperLog.loginInfo')">
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('admin.sysOperLog.loginInfo')">
           {{ detail.operName }} / {{ detail.operIp }} / {{ detail.operLocation || '-' }}
-        </el-descriptions-item>
-        <el-descriptions-item :label="$t('admin.sysOperLog.requestMethod')">
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('admin.sysOperLog.requestMethod')">
           {{ detail.requestMethod }}
-        </el-descriptions-item>
-        <el-descriptions-item :label="$t('admin.sysOperLog.latency')">
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('admin.sysOperLog.latency')">
           {{ detail.latencyTime || '-' }}
-        </el-descriptions-item>
-        <el-descriptions-item :label="$t('admin.sysOperLog.operTime')">
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('admin.sysOperLog.operTime')">
           {{ parseTime(detail.operTime) || '-' }}
-        </el-descriptions-item>
-        <el-descriptions-item :label="$t('admin.sysOperLog.module')">
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('admin.sysOperLog.module')">
           {{ detail.title || '-' }}
-        </el-descriptions-item>
-        <el-descriptions-item :label="$t('admin.sysOperLog.operStatus')">
-          <el-tag :type="Number(detail.status) === 2 ? 'success' : 'danger'" disable-transitions>
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('admin.sysOperLog.operStatus')">
+          <a-tag :color="Number(detail.status) === 2 ? 'green' : 'red'">
             {{ dictLabel(sys_common_status, detail.status) }}
-          </el-tag>
-        </el-descriptions-item>
-        <el-descriptions-item :label="$t('admin.sysOperLog.operParam')" :span="2">
+          </a-tag>
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('admin.sysOperLog.operParam')" :span="2">
           <pre class="log-payload">{{ detail.operParam || '-' }}</pre>
-        </el-descriptions-item>
-        <el-descriptions-item :label="$t('admin.sysOperLog.jsonResult')" :span="2">
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('admin.sysOperLog.jsonResult')" :span="2">
           <pre class="log-payload">{{ detail.jsonResult || '-' }}</pre>
-        </el-descriptions-item>
-      </el-descriptions>
+        </a-descriptions-item>
+      </a-descriptions>
       <template #footer>
-        <el-button @click="detailOpen = false">{{ $t('admin.sysOperLog.dialogClose') }}</el-button>
+        <a-button @click="detailOpen = false">{{ $t('admin.sysOperLog.dialogClose') }}</a-button>
       </template>
-    </el-dialog>
+    </AppModal>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElMessageBox } from 'element-plus'
+import { confirmAction } from '@/utils/modal'
 
+import AppModal from '@/components/AppModal/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
@@ -201,14 +200,15 @@ const table = useTable<SysOperaLog, SysOperaLogQuery>({
  * as a component method, and four of its five callers had no date picker at
  * all, so all it did there was attach two empty strings. It is gone now.
  */
-const operatedBetween = computed<[string, string] | null>({
+const operatedBetween = computed<[string, string] | undefined>({
   get: () => {
     const { beginTime, endTime } = table.query
     // The annotation is load-bearing: an array literal widens to string[],
     // which the picker's tuple-shaped model does not accept
-    return beginTime && endTime ? [beginTime, endTime] as [string, string] : null
+    return beginTime && endTime ? [beginTime, endTime] as [string, string] : undefined
   },
   set: range => {
+    if (table.query.beginTime === range?.[0] && table.query.endTime === range?.[1]) return
     table.query.beginTime = range?.[0]
     table.query.endTime = range?.[1]
     void table.search()
@@ -240,11 +240,7 @@ const handleClean = async() => {
     // Every string read here rather than once at setup, so the box follows the
     // language even after the page has been sitting open -- the same reason
     // useRemove resolves its own four inside the call.
-    await ElMessageBox.confirm(t('admin.sysOperLog.cleanConfirm'), t('common.notice'), {
-      type: 'warning',
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel')
-    })
+    await confirmAction({ content: t('admin.sysOperLog.cleanConfirm'), okText: t('admin.sysOperLog.clean') })
   } catch {
     cleaning = false
     return

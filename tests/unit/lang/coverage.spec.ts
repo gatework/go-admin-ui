@@ -34,13 +34,6 @@ const EXCLUDED = [/^src\/lang\//]
 const KNOWN: Record<string, number> = {
   // The form designer, which no batch has touched: the largest piece of
   // untranslated interface left, and what dev-tools/build renders.
-  'src/utils/generator/config.js': 40,
-  'src/utils/generator/html.js': 11,
-  'src/utils/generator/js.js': 4,
-  'src/utils/generator/drawingDefalut.js': 3,
-  'src/utils/generator/render.js': 1,
-  'src/components/FormGenParser/Parser.vue': 5,
-  'src/components/FormGenRender/slots/el-upload.js': 1,
 
   // Ships its own utils/language.js and was always meant to be configurable --
   // wiring that file to the language pack is the whole job.
@@ -52,9 +45,8 @@ const KNOWN: Record<string, number> = {
   'src/utils/index.js': 9,
   'src/utils/costum.js': 1,
 
-  // The application title, which ends up in the browser tab.
-  'src/settings.js': 1,
-  'src/utils/get-page-title.js': 1,
+  // Legacy application-name matching, not rendered interface copy.
+  'src/config/app-meta.ts': 1,
 
   // Fallback titles for the fixed routes. Both already carry a titleKey, so
   // these render only when the pack is missing the key.
@@ -63,7 +55,7 @@ const KNOWN: Record<string, number> = {
 
   // Not user-facing: a console banner, a developer-facing throw, and comments
   // the stripper below does not reach (see its note).
-  'src/main.js': 4,
+  'src/main.js': 1,
   'src/directive/permission/permisaction.js': 1,
   'src/directive/waves/waves.js': 3,
   'src/utils/request.ts': 2,
@@ -71,9 +63,6 @@ const KNOWN: Record<string, number> = {
   // Trailing `//` comments, mostly: SCSS design notes on the login page and
   // Chinese notes after code elsewhere. Overcounted rather than missed, which
   // is the safe direction for a ratchet.
-  'src/views/login/index.vue': 11,
-  'src/views/profile/userAvatar.vue': 5,
-  'src/layout/components/Settings/index.vue': 2,
   'src/components/Share/DropdownMenu.vue': 1
 }
 

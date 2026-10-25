@@ -1,0 +1,138 @@
+:root {
+  --motor-theme-primary: #1677ff;
+  --motor-primary: var(--motor-theme-primary);
+  --motor-primary-soft: rgb(var(--primary-1));
+  --motor-app-bg: #f2f3f5;
+  --motor-surface: #fff;
+  --motor-surface-soft: #f7f8fa;
+  --motor-surface-hover: #f2f3f5;
+  --motor-sidebar-bg: #fff;
+  --motor-text-1: #1f2329;
+  --motor-text-2: #4b5563;
+  --motor-text-3: #667085;
+  --motor-border: #e4e7ec;
+  --motor-border-strong: #cbd1d8;
+  --motor-overlay-bg: #fff;
+  --motor-overlay-text: #1f2329;
+  --motor-overlay-border: #e4e7ec;
+  --motor-tooltip-bg: #fff;
+  --motor-tooltip-text: #1f2329;
+  --motor-tooltip-border: #e4e7ec;
+  --motor-chrome-surface: #191c20;
+  --motor-chrome-surface-soft: #1f2227;
+  --motor-chrome-surface-hover: #292d33;
+  --motor-chrome-text-1: #f1f3f5;
+  --motor-chrome-text-2: #c9cdd4;
+  --motor-chrome-text-3: #8d949e;
+  --motor-chrome-border: #30343a;
+  --motor-chrome-primary-soft: color-mix(
+    in srgb,
+    var(--motor-primary) 18%,
+    transparent
+  );
+  --motor-shadow-sm:
+    0 1px 2px rgb(16 24 40 / 3%), 0 4px 12px rgb(16 24 40 / 4%);
+  --motor-shadow-md: 0 8px 24px rgb(16 24 40 / 10%);
+  --motor-radius-sm: 8px;
+  --motor-radius-md: 12px;
+  --motor-radius-lg: 16px;
+  --motor-radius-xs: 4px;
+  --motor-radius-xl: 20px;
+  --border-radius-small: var(--motor-radius-xs);
+  --border-radius-medium: var(--motor-radius-sm);
+  --border-radius-large: var(--motor-radius-md);
+  --motor-header-height: 54px;
+  --motor-tabs-height: 38px;
+  --motor-sidebar-width: 232px;
+  --motor-sidebar-collapsed-width: 64px;
+  --motor-space-1: 4px;
+  --motor-space-2: 8px;
+  --motor-space-3: 12px;
+  --motor-space-4: 16px;
+  --motor-space-5: 24px;
+  --motor-space-6: 32px;
+  --motor-base-font-size: 14px;
+  --motor-font-size-9: calc(var(--motor-base-font-size) - 5px);
+  --motor-font-size-10: calc(var(--motor-base-font-size) - 4px);
+  --motor-font-size-11: calc(var(--motor-base-font-size) - 3px);
+  --motor-font-size-12: calc(var(--motor-base-font-size) - 2px);
+  --motor-font-size-13: calc(var(--motor-base-font-size) - 1px);
+  --motor-font-size-14: var(--motor-base-font-size);
+  --motor-font-size-15: calc(var(--motor-base-font-size) + 1px);
+  --motor-font-size-16: calc(var(--motor-base-font-size) + 2px);
+  --motor-font-size-17: calc(var(--motor-base-font-size) + 3px);
+  --motor-font-size-18: calc(var(--motor-base-font-size) + 4px);
+  --motor-font-size-20: calc(var(--motor-base-font-size) + 6px);
+  --motor-font-size-21: calc(var(--motor-base-font-size) + 7px);
+  --motor-font-size-22: calc(var(--motor-base-font-size) + 8px);
+  --motor-font-size-23: calc(var(--motor-base-font-size) + 9px);
+  --motor-font-size-24: calc(var(--motor-base-font-size) + 10px);
+  --motor-font-size-25: calc(var(--motor-base-font-size) + 11px);
+  --motor-font-size-26: calc(var(--motor-base-font-size) + 12px);
+  --motor-font-size-28: calc(var(--motor-base-font-size) + 14px);
+  --motor-font-size-29: calc(var(--motor-base-font-size) + 15px);
+  --motor-font-size-34: calc(var(--motor-base-font-size) + 20px);
+  --motor-font-size-36: calc(var(--motor-base-font-size) + 22px);
+  --motor-font-size-42: calc(var(--motor-base-font-size) + 28px);
+  --motor-font-size-58: calc(var(--motor-base-font-size) + 44px);
+  --motor-font-size-64: calc(var(--motor-base-font-size) + 50px);
+  --motor-font-size-70: calc(var(--motor-base-font-size) + 56px);
+  color-scheme: light;
+}
+
+body[arco-theme='dark'] {
+  --motor-primary-soft: color-mix(
+    in srgb,
+    var(--motor-primary) 12%,
+    transparent
+  );
+  --motor-app-bg: #111316;
+  --motor-surface: #191c20;
+  --motor-surface-soft: #1f2227;
+  --motor-surface-hover: #292d33;
+  --motor-sidebar-bg: #191c20;
+  --motor-text-1: #f1f3f5;
+  --motor-text-2: #c9cdd4;
+  --motor-text-3: #8d949e;
+  --motor-border: #30343a;
+  --motor-border-strong: #454a52;
+  --motor-overlay-bg: #1f2227;
+  --motor-overlay-text: #f1f3f5;
+  --motor-overlay-border: #3a3f46;
+  --motor-tooltip-bg: #292d33;
+  --motor-tooltip-text: #f8fafc;
+  --motor-tooltip-border: #454a52;
+  --motor-shadow-sm: 0 1px 2px rgb(0 0 0 / 16%), 0 10px 28px rgb(0 0 0 / 12%);
+  --motor-shadow-md: 0 18px 48px rgb(0 0 0 / 28%);
+  color-scheme: dark;
+}
+
+:root[data-density='compact'] {
+  --motor-space-4: 12px;
+  --motor-space-5: 18px;
+  --motor-space-6: 24px;
+  --motor-header-height: 52px;
+  --motor-tabs-height: 36px;
+}
+
+/* Arco defines its colour ramps on body. Resolve dependent tokens here so
+   they inherit the current theme instead of resolving to an empty root value. */
+body {
+  --motor-primary: rgb(var(--primary-6));
+  --motor-primary-soft: rgb(var(--primary-1));
+  --motor-primary-gradient: linear-gradient(
+    145deg,
+    rgb(var(--primary-5)),
+    rgb(var(--primary-6)) 58%,
+    rgb(var(--primary-7))
+  );
+  --motor-primary-shadow: rgba(var(--primary-6), 0.24);
+  --motor-avatar-background: var(--motor-primary-gradient);
+  --motor-avatar-shadow: 0 5px 14px var(--motor-primary-shadow);
+}
+
+@media (prefers-reduced-motion: reduce) { .header-action *, .user-identity *, .login-page *, .preferences-drawer * { animation: none !important; transition: none !important; } }
+body { color: var(--motor-text-1); font-size: var(--motor-base-font-size); }
+.arco-btn, .arco-input-wrapper, .arco-select-view, .arco-card { border-radius: var(--motor-radius-sm); }
+.arco-btn, .arco-input, .arco-select-view { font-size: var(--motor-base-font-size); }
+:root { --motor-font-size-32: calc(var(--motor-base-font-size) + 18px); }

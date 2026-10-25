@@ -17,7 +17,7 @@ test.describe('the tab strip', () => {
     await installApiMocks(page)
     await page.setViewportSize({ width: 1280, height: 720 })
     await page.goto('/#/admin/sys-menu')
-    await page.waitForSelector('.el-tabs__item')
+    await page.waitForSelector('.arco-tabs-tab')
     // Element Plus positions the strip after a tick; measuring before it
     // settles reads the pre-layout numbers.
     await page.waitForTimeout(800)
@@ -26,11 +26,11 @@ test.describe('the tab strip', () => {
   test('a tab keeps its top edge inside the row that clips it', async({ page }) => {
     // Measured against the row the tabs are laid out in, not the strip's border
     // box. The strip is 40px tall and clips overflow, but the tabs sit in
-    // .el-tabs__header inside it -- so a tab can be within the strip's outer
+    // .arco-tabs-nav inside it -- so a tab can be within the strip's outer
     // bounds and still have its top cut off. Comparing against the strip is
     // what let this pass while the border was missing on screen.
-    const row = await page.locator('.el-tabs__header').boundingBox()
-    const tab = await page.locator('.el-tabs__item').first().boundingBox()
+    const row = await page.locator('.arco-tabs-nav').boundingBox()
+    const tab = await page.locator('.arco-tabs-tab').first().boundingBox()
     expect(row && tab).toBeTruthy()
 
     // Shipped as tab top 57 against a row starting at 58: one pixel out, which
@@ -40,7 +40,7 @@ test.describe('the tab strip', () => {
 
   test('the tab and the bar below it stay apart', async({ page }) => {
     const navbar = await page.locator('.navbar').boundingBox()
-    const tab = await page.locator('.el-tabs__item').first().boundingBox()
+    const tab = await page.locator('.arco-tabs-tab').first().boundingBox()
 
     // The other half of the same squeeze: a tab tall enough to clear the strip
     // would instead climb into the navbar's bottom border and draw a line
@@ -54,12 +54,12 @@ test.describe('the tab strip', () => {
    *
    * The rule was applied, getComputedStyle reported `1px solid #d9d9d9` on all
    * four sides, and the top edge was still not on screen: Element Plus lifts a
-   * card tab a pixel so that neighbours share an edge, .el-tabs__nav-wrap is a
+   * card tab a pixel so that neighbours share an edge, .arco-tabs-nav-wrap is a
    * pixel shorter than the tab and clips, and the pixel it cut was that border.
    * Reading the style could never have caught it -- the style was correct.
    *
    * Walking every clipping ancestor rather than naming nav-wrap: the previous
-   * version compared the tab against .el-tabs__header, which does not clip, so
+   * version compared the tab against .arco-tabs-nav, which does not clip, so
    * it passed for the whole time the border was missing.
    *
    * Vertical only, and deliberately. The strip is a fixed 40px, so a tab cut
@@ -69,7 +69,7 @@ test.describe('the tab strip', () => {
    * would fail on any window narrow enough to need it.
    */
   test('a tab keeps its top and bottom borders on screen, not just declared', async({ page }) => {
-    const problems = await page.locator('.el-tabs__item').evaluateAll(nodes => {
+    const problems = await page.locator('.arco-tabs-tab').evaluateAll(nodes => {
       const clipped: string[] = []
 
       for (const node of nodes as HTMLElement[]) {

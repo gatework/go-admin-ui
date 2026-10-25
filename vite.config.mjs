@@ -172,7 +172,7 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 2000,
       rollupOptions: {
         output: {
-          // 对应 Vue CLI 的 splitChunks：element-plus 与其余三方库分开打包
+          // 对应 Vue CLI 的 splitChunks：@arco-design/web-vue 与其余三方库分开打包
           /**
            * Only the two groups the entry genuinely needs are named here.
            * Everything else is left to the bundler, which puts a module
@@ -182,7 +182,7 @@ export default defineConfig(({ mode }) => {
            * assigned *every* dependency to a chunk the entry loads -- so a
            * library used by one lazy page was still downloaded by every
            * visitor before the login form appeared. echarts alone is 370 kB
-           * gzipped, larger than Element Plus, and it is only ever drawn on
+           * gzipped, larger than Arco Design Vue, and it is only ever drawn on
            * the dashboard. codemirror only exists on the generator page,
            * vue-cropper only on the avatar dialog.
            *
@@ -193,14 +193,14 @@ export default defineConfig(({ mode }) => {
            */
           manualChunks(id) {
             if (!id.includes('node_modules')) return
-            if (/[\\/]element-plus[\\/]/.test(id)) {
+            if (/[\\/]@arco-design[\\/]web-vue[\\/]/.test(id)) {
               // Except its locale packs. Naming a module here assigns it to a
-              // chunk the entry loads, so every language Element Plus ships
+              // chunk the entry loads, so every language Arco Design Vue ships
               // would be downloaded by every visitor -- exactly the bug this
               // manualChunks was rewritten to fix, one level down. src/lang
               // imports them dynamically and needs them to stay split.
               if (/[\\/]locale[\\/]lang[\\/]/.test(id)) return
-              return 'chunk-elementPlus'
+              return 'chunk-arco'
             }
             if (/[\\/](vue|vue-router|vue-demi|pinia|@vue)[\\/]/.test(id)) return 'chunk-vue'
             return

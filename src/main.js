@@ -1,21 +1,15 @@
 import { createApp } from 'vue'
 
-import Cookies from 'js-cookie'
-
 import 'normalize.css/normalize.css' // a modern alternative to CSS resets
 
-import ElementPlus from 'element-plus'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import 'element-plus/dist/index.css'
-// Element Plus keys dark mode off a `dark` class on <html>; this file supplies
-// the variable overrides. src/styles/tokens.css then points those variables at
-// the design tokens, so both themes resolve from one source.
-import 'element-plus/theme-chalk/dark/css-vars.css'
-
+import ArcoVue from '@arco-design/web-vue'
+import ArcoIcons from '@arco-design/web-vue/es/icon'
+import '@arco-design/web-vue/dist/arco.css'
 // Loaded before the project's own styles so both can build on the tokens
 import '@/styles/tokens.css'
 import '@/styles/index.scss' // global css
 import '@/styles/admin.scss'
+import '@/styles/arco.css'
 // Loaded last so utility classes sit after the project's own styles.
 // See the file header for why preflight is excluded.
 import '@/styles/tailwind.css'
@@ -47,10 +41,7 @@ import BasicLayout from '@/layout/BasicLayout'
 
 import 'remixicon/fonts/remixicon.css'
 
-console.info(`欢迎使用go-admin，谢谢您对我们的支持，在使用过程中如果有什么问题，
-请访问https://github.com/go-admin-team/go-admin 或者
- https://github.com/go-admin-team/go-admin-ui 向我们反馈，
- 谢谢！`)
+console.info('欢迎使用 motor')
 
 // 创建 Vue 应用实例
 const app = createApp(App)
@@ -78,23 +69,13 @@ app.component('Pagination', Pagination)
 app.component('BasicLayout', BasicLayout)
 app.component('SvgIcon', SvgIcon)
 
-// 全局注册 Element Plus 图标：模板中的 <el-icon><Xxx /></el-icon> 需要
-// 图标组件可被解析，否则会被当作未知 HTML 标签而不渲染任何内容
-for (const [name, comp] of Object.entries(ElementPlusIconsVue)) {
-  app.component(name, comp)
-}
-
 // 注册插件
 app.use(pinia)
 app.use(router)
 app.use(permission)
 app.use(i18n)
-// No `locale` here on purpose -- the plugin would read it once and never
-// again. App.vue's <el-config-provider> supplies it reactively instead.
-app.use(ElementPlus, {
-  size: Cookies.get('size') || 'default'
-})
-
+app.use(ArcoVue)
+app.use(ArcoIcons)
 // 设置错误处理器
 setupErrorHandler(app)
 

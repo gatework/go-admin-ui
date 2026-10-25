@@ -1,16 +1,16 @@
 <template>
   <BasicLayout>
     <template #wrapper>
-      <el-card class="box-card">
-        <div v-loading="loading" :style="'height:' + height">
+      <a-card class="box-card">
+        <a-spin :loading="loading" style="width: 100%"><div :style="'height:' + height">
           <iframe
             :src="src"
             frameborder="no"
             style="width: 100%; height: 100%"
             scrolling="auto"
           />
-        </div>
-      </el-card>
+        </div></a-spin>
+      </a-card>
     </template>
   </BasicLayout>
 </template>

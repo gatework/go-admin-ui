@@ -7,9 +7,9 @@ export default {
     collapse: 'Collapse'
   },
   cards: {
+    selectRow: 'Select {name}',
     collapse: 'Collapse',
     more: '{count} more',
-    swipeHint: '← Swipe for actions',
     loadMore: 'Load more',
     noMore: 'No more items'
   },

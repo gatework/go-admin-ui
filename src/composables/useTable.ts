@@ -114,9 +114,9 @@ export interface UseTableReturn<TRow, TQuery extends object> {
   search: () => Promise<void>
   /** Restore the default query and fetch from page 1. */
   resetQuery: () => Promise<void>
-  /** Bind to el-table's `selection-change`. */
+  /** Receives selected business records from ProTable. */
   handleSelectionChange: (rows: TRow[]) => void
-  /** Bind to el-table's `sort-change` on columns marked `sortable="custom"`. */
+  /** Receives the normalized property/order from ProTable. */
   handleSortChange: (arg: { prop: string | null, order: string | null }) => Promise<void>
   /** Bind to AppPagination's `pagination`. */
   handlePagination: (payload: { page: number, limit: number }) => Promise<void>
@@ -219,6 +219,7 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
   }
 
   const search = () => {
+    selection.value = []
     // Guarded: writing the key back would put it on a query that deliberately
     // does not carry it.
     if (paginated) query.pageIndex = 1
@@ -226,7 +227,7 @@ export function useTable<TRow extends object, TQuery extends object = Record<str
   }
 
   const resetQuery = () => {
-    // Rebuilt from the factory rather than by calling el-form's resetFields():
+    // Rebuilt from the factory rather than by calling a-form's resetFields():
     // that only restores fields carrying a matching `prop`, so any filter set
     // from outside the search form -- a tree click, a chart drill-down --
     // survived the reset and silently kept filtering the list.

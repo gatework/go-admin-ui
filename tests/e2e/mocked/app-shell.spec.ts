@@ -33,7 +33,7 @@ test.describe('app shell', () => {
     await installApiMocks(page)
 
     await page.goto('/#/demo/product')
-    await page.waitForSelector('.el-menu')
+    await page.waitForSelector('.arco-menu')
 
     const sprite = page.locator('body > svg[id*="svg"], body > div[id*="svg"] svg').first()
     await expect(sprite).toBeAttached()
@@ -68,7 +68,7 @@ test.describe('app shell', () => {
     }, ['go-admin管理系统', logo])
 
     await page.goto('/#/demo/product')
-    await page.waitForSelector('.el-menu')
+    await page.waitForSelector('.arco-menu')
 
     const header = await page.locator('.sidebar-logo-container').boundingBox()
     const image = await page.locator('.sidebar-logo').boundingBox()
@@ -92,14 +92,14 @@ test.describe('app shell', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/demo/product')
-    await page.waitForSelector('.el-menu')
+    await page.waitForSelector('.arco-menu')
 
     // Guard order: getInfo first, then the menu that depends on its roles
     expect(calls.extra.getinfo).toBe(1)
     expect(calls.extra.menurole).toBe(1)
 
-    await expect(page.locator('.el-sub-menu__title', { hasText: 'Demo' })).toBeVisible()
-    await expect(page.locator('.el-menu-item', { hasText: 'Product' })).toBeVisible()
+    await expect(page.locator('.arco-menu-inline-header', { hasText: 'Demo' })).toBeVisible()
+    await expect(page.locator('.arco-menu-item', { hasText: 'Product' })).toBeVisible()
   })
 
   test('renders the page behind a dynamically generated route', async({ page, context }) => {
@@ -107,10 +107,10 @@ test.describe('app shell', () => {
     await installApiMocks(page)
 
     await page.goto('/#/demo/product')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
-    await expect(page.locator('.el-table').getByText('Alpha')).toBeVisible()
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
+    await expect(page.locator('.arco-table').getByText('Alpha')).toBeVisible()
   })
 
   /**
@@ -123,7 +123,7 @@ test.describe('app shell', () => {
     await installApiMocks(page)
 
     await page.goto('/#/demo/product')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await expect(page.getByRole('button', { name: '新增' })).toBeVisible()
     await expect(page.getByRole('button', { name: '删除' })).toHaveCount(0)
@@ -144,13 +144,13 @@ test.describe('app shell', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/demo/product')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     expect(calls.product.list).toBe(1)
 
     // Navigate away to a sibling page
-    await page.locator('.el-menu-item', { hasText: 'Second' }).click()
+    await page.locator('.arco-menu-item', { hasText: 'Second' }).click()
     await page.waitForURL(/#\/demo\/second/)
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // Whatever the sibling page did on its own is irrelevant; what matters is
     // that returning to a cached page issues no further request.
@@ -158,7 +158,7 @@ test.describe('app shell', () => {
 
     await page.locator('.tags-view-item', { hasText: 'Product' }).click()
     await page.waitForURL(/#\/demo\/product/)
-    // The sibling page leaves its own .el-table in the DOM, so waiting on that
+    // The sibling page leaves its own .arco-table in the DOM, so waiting on that
     // selector would resolve before the returning page had a chance to re-fetch.
     // Give any request a window to appear instead.
     await page.waitForTimeout(600)
@@ -184,11 +184,11 @@ test.describe('app shell', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/demo/renamed')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await page.locator('.el-menu-item', { hasText: 'Second' }).click()
+    await page.locator('.arco-menu-item', { hasText: 'Second' }).click()
     await page.waitForURL(/#\/demo\/second/)
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     const beforeReturn = calls.product.list
 
@@ -207,19 +207,26 @@ test.describe('app shell', () => {
     await installApiMocks(page)
 
     await page.goto('/#/demo/product')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // Nothing floating over the content any more
     await expect(page.locator('.handle-button')).toHaveCount(0)
 
-    const drawer = page.locator('.rightPanel-container')
-    await expect(drawer).not.toHaveClass(/show/)
+    const drawer = page.getByRole('dialog', { name: '偏好设置' })
+    await expect(drawer).toBeHidden()
 
     await page.locator('#layout-settings').click()
-    await expect(drawer).toHaveClass(/show/)
+    await expect(drawer).toBeVisible()
 
-    await page.locator('.rightPanel-close').click()
-    await expect(drawer).not.toHaveClass(/show/)
+    await page.getByRole('button', { name: '关闭偏好设置' }).click()
+    await expect(drawer).toBeHidden()
+    await expect(page.locator('#layout-settings')).toBeFocused()
+
+    await page.keyboard.press('Enter')
+    await expect(drawer).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(drawer).toBeHidden()
+    await expect(page.locator('#layout-settings')).toBeFocused()
   })
 
   test('opens a tab per visited page', async({ page, context }) => {
@@ -227,8 +234,8 @@ test.describe('app shell', () => {
     await installApiMocks(page)
 
     await page.goto('/#/demo/product')
-    await page.waitForSelector('.el-table')
-    await page.locator('.el-menu-item', { hasText: 'Second' }).click()
+    await page.waitForSelector('.arco-table')
+    await page.locator('.arco-menu-item', { hasText: 'Second' }).click()
     await page.waitForURL(/#\/demo\/second/)
 
     await expect(page.locator('.tags-view-item', { hasText: 'Product' })).toBeVisible()

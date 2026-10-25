@@ -1,18 +1,23 @@
 <template>
-  <div>
-    <svg-icon :icon-class="isFullscreen?'exit-fullscreen':'fullscreen'" @click="click" />
-  </div>
+  <HeaderIconButton v-if="enabled" type="button" class="screenfull-button" :aria-label="$t(isFullscreen ? 'layout.exitFullscreen' : 'layout.enterFullscreen')" :aria-pressed="isFullscreen" @click="click">
+    <icon-fullscreen-exit v-if="isFullscreen" /><icon-fullscreen v-else />
+  </HeaderIconButton>
 </template>
 
 <script>
+import HeaderIconButton from '@/components/header-icon-button/index.vue'
 import screenfull from 'screenfull'
 
 export default {
   name: 'AppScreenfull',
+  components: { HeaderIconButton },
   data() {
     return {
       isFullscreen: false
     }
+  },
+  computed: {
+    enabled() { return screenfull.isEnabled }
   },
   mounted() {
     this.init()
@@ -22,39 +27,21 @@ export default {
   },
   methods: {
     click() {
-      // if (!screenfull.enabled) {
-      //   this.$message({
-      //     message: 'you browser can not work',
-      //     type: 'warning'
-      //   })
-      //   return false
-      // }
-      screenfull.toggle()
+      if (screenfull.isEnabled) screenfull.toggle().catch(() => { this.change() })
     },
     change() {
       this.isFullscreen = screenfull.isFullscreen
     },
     init() {
-      if (screenfull.enabled) {
+      if (screenfull.isEnabled) {
         screenfull.on('change', this.change)
       }
     },
     destroy() {
-      if (screenfull.enabled) {
+      if (screenfull.isEnabled) {
         screenfull.off('change', this.change)
       }
     }
   }
 }
 </script>
-
-<style scoped>
-.screenfull-svg {
-  display: inline-block;
-  cursor: pointer;
-  fill: #5a5e66;;
-  width: 20px;
-  height: 20px;
-  vertical-align: 10px;
-}
-</style>

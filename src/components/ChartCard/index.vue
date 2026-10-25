@@ -1,6 +1,6 @@
 <template>
   <div class="chart-card-wrap" :style="{ '--kpi-color': color }">
-    <el-card :loading="loading" :body-style="{ padding: '20px 24px 8px' }" :bordered="false">
+    <a-spin :loading="loading" style="width: 100%"><a-card :body-style="{ padding: '20px 24px 8px' }" :bordered="false">
       <div v-if="$slots.icon" class="kpi-icon-bg">
         <slot name="icon" />
       </div>
@@ -29,7 +29,7 @@
           <slot name="footer" />
         </div>
       </div>
-    </el-card>
+    </a-card></a-spin>
   </div>
 </template>
 
@@ -65,7 +65,7 @@ export default {
     border-radius: 4px 0 0 4px;
   }
 
-  :deep(.el-card) {
+  :deep(.arco-card) {
     border-left: none !important;
     border-radius: 0 8px 8px 0;
   }

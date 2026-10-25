@@ -49,10 +49,8 @@ vi.mock('@/utils/auth', () => ({ getToken: () => 'tok' }))
 
 const message = vi.hoisted(() => vi.fn())
 const confirm = vi.hoisted(() => vi.fn(() => Promise.resolve('confirm')))
-vi.mock('element-plus', () => ({
-  ElMessage: message,
-  ElMessageBox: { confirm }
-}))
+vi.mock('@arco-design/web-vue', () => ({ Message: { error: message }}))
+vi.mock('@/utils/modal', () => ({ confirmAction: confirm }))
 
 // Importing for the side effect of registering the interceptors
 import '@/utils/request'
@@ -95,14 +93,21 @@ describe('request response interceptor', () => {
 
       expect(error).toBeInstanceOf(Error)
       expect((error as Error).message).toBe(msg)
-      expect(message).toHaveBeenCalledWith(expect.objectContaining({ type: 'error', message: msg }))
+      expect(message).toHaveBeenCalledWith(expect.objectContaining({ content: msg }))
     })
 
     it('falls back to a message when the server sends none', async() => {
       const error = await Promise.resolve(captured.fulfilled!(envelope({ code: 500, msg: '' })))
         .catch((e: Error) => e)
-      expect((error as Error).message).toBe('error')
+      expect((error as Error).message).toBe('操作未完成，请重试；若仍失败，请联系管理员。')
+      expect(message).toHaveBeenCalledWith(expect.objectContaining({ content: (error as Error).message }))
     })
+  })
+
+  it('explains a timeout without exposing the Axios timeout string', async() => {
+    const error = { code: 'ECONNABORTED', message: 'timeout of 10000ms exceeded' } as AxiosError
+    await Promise.resolve(captured.rejected!(error)).catch(() => {})
+    expect(message).toHaveBeenCalledWith(expect.objectContaining({ content: '请求超时，请稍后重试。' }))
   })
 
   describe('session expiry', () => {
@@ -142,7 +147,7 @@ describe('request response interceptor', () => {
 
       expect((error as { reported?: boolean }).reported).toBe(true)
       expect(message).toHaveBeenCalledWith(
-        expect.objectContaining({ message: '服务器连接异常，请检查服务器！' })
+        expect.objectContaining({ content: '无法连接服务器，请检查网络后重试；若仍失败，请联系管理员。' })
       )
     })
   })

@@ -5,7 +5,7 @@
  * 字典标签 against 数据标签 -- and merging them would force one of the two
  * spellings onto the other page.
  *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD
+ * UI copy is maintained with the corresponding English pack.
  * R5). 新增 / 修改 / 删除 / 导出 / 创建时间 / 确 定 / 取 消 come from common.ts.
  */
 export default {
@@ -39,8 +39,8 @@ export default {
     },
 
     rules: {
-      dictName: '字典名称不能为空',
-      dictType: '字典类型不能为空'
+      dictName: '请填写字典名称',
+      dictType: '请填写字典类型'
     }
   },
 
@@ -74,9 +74,9 @@ export default {
     removeConfirm: '确认删除选中的 {count} 条字典数据？',
 
     rules: {
-      dictLabel: '数据标签不能为空',
-      dictValue: '数据键值不能为空',
-      dictSort: '显示排序不能为空'
+      dictLabel: '请填写数据标签',
+      dictValue: '请填写数据键值',
+      dictSort: '请填写显示排序'
     }
   }
 }

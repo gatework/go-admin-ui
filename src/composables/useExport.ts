@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import type { Ref } from 'vue'
-import { ElMessageBox } from 'element-plus'
+import { confirmAction } from '@/utils/modal'
 import { i18n } from '@/lang'
 import { buildSheet } from '@/utils/workbook'
 
@@ -66,11 +66,7 @@ export function useExport(): UseExportReturn {
     try {
       if (confirmText !== null) {
         try {
-          await ElMessageBox.confirm(confirmText, i18n.global.t('common.notice'), {
-            type: 'warning',
-            confirmButtonText: i18n.global.t('common.confirm'),
-            cancelButtonText: i18n.global.t('common.cancel')
-          })
+          await confirmAction({ content: confirmText, okText: i18n.global.t('common.export') })
         } catch {
           // Dismissing the confirm is a decision, not a failure
           return false

@@ -16,9 +16,9 @@ test.describe('sys-api', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-api')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await expect(page.locator('.el-table__row')).toHaveCount(3)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(3)
     await expect(page.getByRole('row', { name: /用户列表/ }).getByText('GET')).toBeVisible()
     await expect(page.getByRole('row', { name: /菜单删除/ }).getByText('DELETE')).toBeVisible()
   })
@@ -28,23 +28,23 @@ test.describe('sys-api', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-api')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     const title = (name: RegExp) =>
-      page.getByRole('row', { name }).locator('td').first().locator('.el-tag')
+      page.getByRole('row', { name }).locator('td').first().locator('.arco-tag')
 
-    await expect(title(/菜单删除/)).toHaveClass(/el-tag--success/)
-    await expect(title(/用户列表/)).toHaveClass(/el-tag--info/)
+    await expect(title(/菜单删除/)).toHaveClass(/arco-tag-green/)
+    await expect(title(/用户列表/)).toHaveClass(/arco-tag-gray/)
     // A route the backend registered without a title
     await expect(page.getByRole('row', { name: /unnamed/ }).locator('td').first()
-      .locator('.el-tag')).toHaveText('暂无')
+      .locator('.arco-tag')).toHaveText('暂无')
   })
 
   test('offers no create or delete', async({ page }) => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-api')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await expect(page.locator('.pro-table__toolbar')).toHaveCount(0)
     await expect(page.getByRole('row', { name: /用户列表/ }).getByRole('button', { name: '删除' }))
@@ -57,7 +57,7 @@ test.describe('sys-api', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-api')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('columnheader', { name: /标题/ }).click()
     await expect.poll(() => calls.sysApi.listQueries.at(-1)).toContain('titleOrder=asc')
@@ -72,7 +72,7 @@ test.describe('sys-api', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-api')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /用户列表/ }).getByRole('button', { name: '修改' }).click()
 
@@ -89,12 +89,12 @@ test.describe('sys-api', () => {
     const bodies = await captureBodies(page, /\/api\/v1\/sys-api\/\d+/, 'PUT')
 
     await page.goto('/#/admin/sys-api')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /用户列表/ }).getByRole('button', { name: '修改' }).click()
     const drawer = page.getByRole('dialog').filter({ hasText: '修改接口' })
     await drawer.getByPlaceholder('标题').fill('用户分页列表')
-    await drawer.getByRole('button', { name: '确 定' }).click()
+    await drawer.getByRole('button', { name: '保存' }).click()
 
     await expect.poll(() => calls.sysApi.update).toBe(1)
     expect(JSON.parse(bodies.at(-1) || '{}').title).toBe('用户分页列表')

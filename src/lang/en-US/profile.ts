@@ -1,4 +1,5 @@
 export default {
+  alignment: { 'description': 'Manage your profile, password and preferences on this browser.', 'localPreferences': 'Preferences are saved in this browser and can be reset at any time.', 'loadError': 'Could not load your profile. Please retry.', 'backendDifferences': 'Multi-factor authentication, API tokens, session management, notifications and email verification are currently unavailable.' },
   title: 'Profile',
   username: 'Username',
   phone: 'Phone Number',
@@ -17,6 +18,7 @@ export default {
   info: {
     nickName: 'Nickname',
     phone: 'Phone Number',
+    phoneHint: 'Enter an 11-digit mainland China mobile number.',
     email: 'Email',
     sex: 'Gender',
     male: 'Male',
@@ -35,7 +37,9 @@ export default {
     oldPlaceholder: 'Enter your current password',
     new: 'New Password',
     newPlaceholder: 'Enter new password',
-    confirm: 'Confirm Password',
+    hint: 'Use 6–20 characters for the new password.',
+    save: 'Change password',
+    confirm: 'Confirm New Password',
     confirmPlaceholder: 'Confirm new password',
     rules: {
       oldRequired: 'Current password is required',
@@ -47,13 +51,19 @@ export default {
   },
 
   avatar: {
-    hint: 'Click to upload an avatar',
-    upload: 'Upload',
-    submit: 'Submit',
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out',
+    rotateLeft: 'Rotate left',
+    rotateRight: 'Rotate right',
+    fileRule: 'Choose a JPG, PNG or WebP image up to 5 MB.',
+
+    hint: 'Change avatar',
+    upload: 'Choose image',
+    submit: 'Save avatar',
     dialogTitle: 'Change Avatar',
-    wrongType: 'Unsupported file type. Please upload an image, such as JPG or PNG.'
+    wrongType: 'Choose a JPG, PNG or WebP image.'
   },
 
-  save: 'Save',
+  save: 'Save profile',
   close: 'Close'
 }

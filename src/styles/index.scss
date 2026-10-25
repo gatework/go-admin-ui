@@ -1,7 +1,7 @@
+@use './motor.scss';
 @use './variables.scss' as *;
 @use './mixin.scss' as *;
 @use './transition.scss' as *;
-@use './element-plus.scss' as *;
 @use './sidebar.scss' as *;
 
 body {
@@ -39,11 +39,6 @@ html {
   padding: 4px 0;
 }
 
-a:focus,
-a:active {
-  outline: none;
-}
-
 a,
 a:focus,
 a:hover {
@@ -52,8 +47,9 @@ a:hover {
   text-decoration: none;
 }
 
-div:focus {
-  outline: none;
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--ga-brand);
+  outline-offset: -2px;
 }
 
 .fr {
@@ -114,7 +110,7 @@ div:focus {
   cursor: pointer;
 
   &:hover {
-    color: var(--el-color-primary-light-3);
+    color: rgb(var(--primary-5));
   }
 }
 
@@ -127,6 +123,6 @@ div:focus {
   z-index: 1000 !important;
 }
 
-.el-card + .el-card {
+.arco-card + .arco-card {
   margin-top: 12px;
 }

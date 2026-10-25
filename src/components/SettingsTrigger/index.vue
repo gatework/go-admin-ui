@@ -1,6 +1,6 @@
 <template>
-  <button type="button" class="settings-trigger" :title="title || $t('components.rightPanel.title')" @click="$emit('click')">
-    <i class="ri-settings-3-line" />
+  <button type="button" class="settings-trigger" :title="title || $t('components.rightPanel.title')" :aria-label="title || $t('components.rightPanel.title')" aria-haspopup="dialog" @click="$emit('click')">
+    <i class="ri-settings-3-line" aria-hidden="true" />
   </button>
 </template>
 
@@ -13,9 +13,7 @@
  *
  * A real <button> rather than a div with role="button": that gives keyboard
  * activation on both Enter and Space for free, where the div form needs an
- * explicit tabindex plus a keyup handler duplicating the click one -- and only
- * ever handles Enter. The sibling icons in that row are still divs; this is the
- * shape they should take when they are migrated.
+ * explicit tabindex plus a keyup handler duplicating the click one.
  */
 export default {
   name: 'AppSettingsTrigger',

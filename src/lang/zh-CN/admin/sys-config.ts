@@ -1,7 +1,7 @@
 /**
  * The parameter page.
  *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD
+ * UI copy is maintained with the corresponding English pack.
  * R5). The search labels are deliberately shorter than the form's -- 名称 and
  * 键名 against 参数名称 and 参数键名 -- because the search bar is one row wide;
  * both spellings are kept.
@@ -50,10 +50,10 @@ export default {
   },
 
   rules: {
-    configName: '参数名称不能为空',
-    configKey: '参数键名不能为空',
-    configValue: '参数键值不能为空',
-    isFrontend: '是否前台显示不能为空'
+    configName: '请填写参数名称',
+    configKey: '请填写参数键名',
+    configValue: '请填写参数键值',
+    isFrontend: '请选择是否前台显示'
   },
 
   /**

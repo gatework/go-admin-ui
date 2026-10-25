@@ -1,6 +1,6 @@
 export default {
   export: {
-    confirm: 'Export the current page of the list?'
+    confirm: 'Export data from the current page? Data on other pages will not be included.'
   },
 
   remove: {

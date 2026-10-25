@@ -1,5 +1,5 @@
 export default {
-  title: 'go-admin后台管理系统',
+  title: 'motor',
 
   /**
    * @type {boolean} true | false
@@ -9,7 +9,6 @@ export default {
 
   /**
    * 是否显示顶部导航
-   * 注：Element Plus 2.14.0 水平 el-menu 有 calcSliceIndex/childNodes bug，暂关闭
    */
   topNav: false,
 

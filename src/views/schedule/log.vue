@@ -9,12 +9,12 @@
           {{ $t('schedule.jobLog.lines', { count: lines.length }, lines.length) }}
         </span>
         <div class="job-log__actions">
-          <el-button :disabled="!lines.length" @click="lines = []">
+          <a-button :disabled="!lines.length" @click="lines = []">
             {{ $t('schedule.jobLog.clear') }}
-          </el-button>
-          <el-button v-if="state === 'closed'" type="primary" @click="connect">
+          </a-button>
+          <a-button v-if="state === 'closed'" type="primary" @click="connect">
             {{ $t('schedule.jobLog.reconnect') }}
-          </el-button>
+          </a-button>
         </div>
       </div>
 

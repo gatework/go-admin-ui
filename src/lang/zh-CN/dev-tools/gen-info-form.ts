@@ -31,7 +31,7 @@ export default {
     packageName: '请输入应用名',
     packageNamePattern: '只允许小写字母，例如 system',
     moduleName: '请输入接口路径',
-    moduleNamePattern: '只允许小写字母，例如 sys-demo',
+    moduleNamePattern: '仅支持小写字母和连字符，且需以字母结尾，例如 sys-demo',
     businessName: '请输入生成业务名',
     businessNamePattern: '字母开头，只允许 a-z 与 A-Z',
     functionName: '请输入生成功能名'

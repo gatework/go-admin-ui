@@ -26,7 +26,7 @@ const tookTheSlot = (page: import('@playwright/test').Page) =>
  * reports a height that never changes again.
  */
 const frameHeight = async(page: import('@playwright/test').Page) => {
-  const box = await page.locator('.box-card div[style*="height"]:visible').first().boundingBox()
+  const box = await page.locator('.box-card div[style*="height"]:visible, .form-builder-frame:visible').first().boundingBox()
   return box?.height ?? 0
 }
 
@@ -72,7 +72,7 @@ test.describe('the iframe pages', () => {
     await expect(page.locator('iframe').first()).toBeVisible({ timeout: 15000 })
 
     await page.goto('/#/admin/sys-user')
-    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
 
     // Resizing after leaving must not reach a component that is gone.
     const errors: string[] = []

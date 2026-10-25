@@ -89,7 +89,7 @@ export const menuTree = {
       visible: '0',
       menuName: 'DemoRoot',
       title: 'Demo',
-      icon: 'star',
+      icon: 'experiment',
       noCache: false,
       children: [
         {
@@ -99,7 +99,7 @@ export const menuTree = {
           // Must match the component name for keep-alive to cache the page
           menuName: 'DemoProduct',
           title: 'Product',
-          icon: 'star',
+          icon: 'archive',
           noCache: false,
           children: null
         },
@@ -136,7 +136,7 @@ export const menuTree = {
       visible: '0',
       menuName: 'Tools',
       title: 'Tools',
-      icon: 'star',
+      icon: 'code-square',
       noCache: false,
       children: [
         {
@@ -148,7 +148,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'Swagger',
           title: 'Swagger',
-          icon: 'star',
+          icon: 'code-block',
           noCache: false,
           children: null
         },
@@ -158,7 +158,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'Build',
           title: 'Build',
-          icon: 'star',
+          icon: 'interaction',
           noCache: false,
           children: null
         },
@@ -168,7 +168,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'Gen',
           title: 'Gen',
-          icon: 'star',
+          icon: 'code',
           noCache: false,
           children: null
         },
@@ -178,7 +178,7 @@ export const menuTree = {
           visible: '1',
           menuName: 'EditTable',
           title: 'EditTable',
-          icon: 'star',
+          icon: 'edit',
           noCache: false,
           children: null
         }
@@ -190,7 +190,7 @@ export const menuTree = {
       visible: '0',
       menuName: 'Schedule',
       title: 'Schedule',
-      icon: 'star',
+      icon: 'calendar-clock',
       noCache: false,
       children: [
         {
@@ -199,7 +199,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'ScheduleManage',
           title: 'Jobs',
-          icon: 'star',
+          icon: 'schedule',
           noCache: false,
           children: null
         },
@@ -211,7 +211,7 @@ export const menuTree = {
           visible: '1',
           menuName: 'JobLog',
           title: 'JobLog',
-          icon: 'star',
+          icon: 'file',
           noCache: false,
           children: null
         }
@@ -223,7 +223,7 @@ export const menuTree = {
       visible: '0',
       menuName: 'AdminRoot',
       title: 'Admin',
-      icon: 'star',
+      icon: 'settings',
       noCache: false,
       children: [
         {
@@ -232,7 +232,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'SysUserManage',
           title: 'User',
-          icon: 'star',
+          icon: 'user',
           noCache: false,
           children: null
         },
@@ -242,7 +242,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'SysDeptManage',
           title: 'Dept',
-          icon: 'star',
+          icon: 'branch',
           noCache: false,
           children: null
         },
@@ -252,7 +252,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'SysPostManage',
           title: 'Post',
-          icon: 'star',
+          icon: 'idcard',
           noCache: false,
           children: null
         },
@@ -262,7 +262,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'SysRoleManage',
           title: 'Role',
-          icon: 'star',
+          icon: 'safe',
           noCache: false,
           children: null
         },
@@ -272,7 +272,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'SysConfigManage',
           title: 'Config',
-          icon: 'star',
+          icon: 'storage',
           noCache: false,
           children: null
         },
@@ -282,7 +282,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'SysMenuManage',
           title: 'Menu',
-          icon: 'star',
+          icon: 'menu',
           noCache: false,
           children: null
         },
@@ -292,7 +292,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'SysConfigSet',
           title: 'ConfigSet',
-          icon: 'star',
+          icon: 'settings',
           noCache: false,
           children: null
         },
@@ -302,7 +302,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'SysApiManage',
           title: 'Api',
-          icon: 'star',
+          icon: 'link',
           noCache: false,
           children: null
         },
@@ -312,7 +312,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'Dict',
           title: 'Dict',
-          icon: 'star',
+          icon: 'book',
           noCache: false,
           children: null
         },
@@ -322,7 +322,7 @@ export const menuTree = {
           visible: '1',
           menuName: 'SysDictDataManage',
           title: 'DictData',
-          icon: 'star',
+          icon: 'unordered-list',
           noCache: false,
           children: null
         },
@@ -332,7 +332,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'SysLoginLogManage',
           title: 'LoginLog',
-          icon: 'star',
+          icon: 'history',
           noCache: false,
           children: null
         },
@@ -342,7 +342,7 @@ export const menuTree = {
           visible: '0',
           menuName: 'OperLog',
           title: 'OperLog',
-          icon: 'star',
+          icon: 'file',
           noCache: false,
           children: null
         }

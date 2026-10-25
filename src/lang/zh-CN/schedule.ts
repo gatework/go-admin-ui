@@ -5,7 +5,7 @@
  * strings and exists only as the destination of this one's 日志 button. It sits
  * under `jobLog` so the toolbar button can keep the plain `log` key.
  *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD
+ * UI copy is maintained with the corresponding English pack.
  * R5). Two starts and two stops rather than one string with a {verb}: the page
  * built its confirmation as `确认${verb}任务「${name}」？`, which reads as one
  * sentence in Chinese and as a broken one in any language that does not put the
@@ -70,10 +70,10 @@ export default {
   stopSuccess: '停止成功',
 
   rules: {
-    jobName: '名称不能为空',
-    jobGroup: '任务分组不能为空',
-    invokeTarget: '调用目标不能为空',
-    cronExpression: 'cron 表达式不能为空'
+    jobName: '请填写名称',
+    jobGroup: '请选择任务分组',
+    invokeTarget: '请填写调用目标',
+    cronExpression: '请填写 Cron 表达式'
   },
 
   // ── The live log page ───────────────────────────────────────────

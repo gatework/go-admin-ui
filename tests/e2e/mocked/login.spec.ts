@@ -35,6 +35,19 @@ test.describe('signing in', () => {
     expect(calls.captcha).toBe(1)
   })
 
+  test('invalid fields never submit; Enter submits once after correction', async({ page }) => {
+    const calls = await installLoginMocks(page)
+    await page.goto('/#/login')
+    await expect(page.locator('.captcha-img')).toBeVisible()
+    await page.locator('.submit-btn').click()
+    await expect(page.locator('.arco-form-item-message')).toBeVisible()
+    expect(calls.login).toBe(0)
+    await page.locator('input[name=code]').fill(CAPTCHA_ANSWER)
+    await page.locator('input[name=code]').press('Enter')
+    await expect(page).toHaveURL(/#\/(dashboard)?$/)
+    expect(calls.login).toBe(1)
+  })
+
   test('clicking the captcha issues a new challenge', async({ page }) => {
     const calls = await installLoginMocks(page)
     await page.goto('/#/login')
@@ -140,7 +153,7 @@ test.describe('signing in on a phone', () => {
 
     // The decorative half is gone, and with it the second copy of the product
     // name -- the form already opens with it.
-    await expect(page.locator('.stage')).toBeHidden()
+    await expect(page.locator('.login-story__features')).toBeHidden()
     await expect(page.locator('.panel-title')).toBeVisible()
 
     const submit = (await page.locator('.submit-btn').boundingBox())!
@@ -157,14 +170,14 @@ test.describe('signing in on a phone', () => {
     expect(scrolls, 'the login form scrolls').toBe(false)
   })
 
-  test('the terminal is still there on a desktop', async({ page }) => {
+  test('the Motor story remains visible on a desktop', async({ page }) => {
     await installLoginMocks(page)
     await page.setViewportSize({ width: 1440, height: 900 })
     await page.goto('/#/login')
     await expect(page.locator('.captcha-img')).toBeVisible()
 
     // It is the page's main visual where there is room for it.
-    await expect(page.locator('.stage')).toBeVisible()
-    await expect(page.locator('.term')).toBeVisible()
+    await expect(page.locator('.login-story__features')).toBeVisible()
+    await expect(page.locator('.login-story')).toBeVisible()
   })
 })

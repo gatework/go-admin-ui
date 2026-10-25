@@ -36,7 +36,22 @@ export interface DBTables {
  * -- unlike SysTables above, which names only the handful of fields the list
  * page reads and which the contract checker verifies against the Go struct.
  */
-export type GenTable = Record<string, unknown>
+export interface GenTable extends Record<string, unknown> {
+  tableName?: string
+  tableComment?: string
+  className?: string
+  functionAuthor?: string
+  remark?: string
+  tplCategory?: string
+  packageName?: string
+  businessName?: string
+  functionName?: string
+  moduleName?: string
+  columns?: GenTable[]
+  columnName?: string
+  columnComment?: string
+  jsonField?: string
+}
 
 /** Filters the table list accepts. */
 export interface GenTableQuery {

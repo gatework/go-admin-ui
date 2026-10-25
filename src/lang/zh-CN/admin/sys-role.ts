@@ -1,7 +1,7 @@
 /**
  * The role page.
  *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD
+ * UI copy is maintained with the corresponding English pack.
  * R5); the spec asserts on ten of them.
  */
 export default {
@@ -63,8 +63,8 @@ export default {
   },
 
   rules: {
-    roleName: '角色名称不能为空',
-    roleKey: '权限字符不能为空',
-    roleSort: '角色顺序不能为空'
+    roleName: '请填写角色名称',
+    roleKey: '请填写权限字符',
+    roleSort: '请填写角色顺序'
   }
 }

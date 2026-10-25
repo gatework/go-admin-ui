@@ -14,9 +14,9 @@ test.describe('sys-config', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-config')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
     await expect(page.getByRole('cell', { name: '初始密码' })).toBeVisible()
   })
 
@@ -24,7 +24,7 @@ test.describe('sys-config', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-config')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     expect(calls.config.listQueries.at(-1) ?? '').toContain('createdAtOrder=desc')
   })
@@ -36,10 +36,10 @@ test.describe('sys-config', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-config')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.locator('th').filter({ hasText: '名称' }).first()
-      .locator('.sort-caret.ascending').click()
+      .locator('.arco-table-sorter-icon').first().click()
     await expect.poll(() => calls.config.listQueries.at(-1)).toContain('configNameOrder=asc')
 
     await page.locator('.pro-table__search').getByRole('button', { name: '重置' }).click()
@@ -54,10 +54,10 @@ test.describe('sys-config', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-config')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.locator('th').filter({ hasText: '编码' }).first()
-      .locator('.sort-caret.ascending').click()
+      .locator('.arco-table-sorter-icon').first().click()
 
     await expect.poll(() => calls.config.listQueries.at(-1)).toContain('idOrder=asc')
     // Two contradictory orders would otherwise reach the backend
@@ -68,11 +68,11 @@ test.describe('sys-config', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-config')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByText('sys_user_initPassword').hover()
 
-    const popover = page.locator('.el-popover:visible')
+    const popover = page.locator('.arco-popover-popup-content:visible')
     await expect(popover).toContainText('Init@123')
     await expect(popover).toContainText('否')
   })
@@ -81,7 +81,7 @@ test.describe('sys-config', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-config')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /初始密码/ }).getByRole('button', { name: '修改' }).click()
 
@@ -97,11 +97,11 @@ test.describe('sys-config', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-config')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     const before = calls.config.list
 
     await page.getByRole('row', { name: /应用名称/ }).getByRole('button', { name: '删除' }).click()
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '删除' }).click()
 
     await expect.poll(() => calls.config.remove).toBe(1)
     await expect.poll(() => calls.config.list).toBeGreaterThan(before)

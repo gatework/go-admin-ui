@@ -53,7 +53,7 @@ export default {
   fkLabelName: 'Relation Value',
 
   back: 'Back',
-  submit: 'Submit',
+  submit: 'Save generation settings',
   validationFailed: 'Some fields are not valid. Please check the form before submitting.',
   saveSuccess: 'Saved successfully'
 }

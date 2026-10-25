@@ -1,147 +1,72 @@
 <template>
-  <div>
-    <img :src="options.img" :title="$t('profile.avatar.hint')" class="img-circle img-lg" @click="editCropper()">
-    <el-dialog v-model="open" :title="title" width="800px" :close-on-click-modal="false">
-      <el-row>
-        <el-col :xs="24" :md="12" :style="{height: '350px'}">
-          <vue-cropper
-            ref="cropper"
-            :img="options.img"
-            :info="true"
-            :auto-crop="options.autoCrop"
-            :auto-crop-width="options.autoCropWidth"
-            :auto-crop-height="options.autoCropHeight"
-            :fixed-box="options.fixedBox"
-            @real-time="realTime"
-          />
-        </el-col>
-        <el-col :xs="24" :md="12" :style="{height: '350px'}">
-          <div class="avatar-upload-preview">
-            <img :src="previews.url" :style="previews.img">
-          </div>
-        </el-col>
-      </el-row>
-      <br>
-      <el-row>
-        <el-col :lg="2" :md="2">
-          <el-upload action="#" :http-request="requestUpload" :show-file-list="false" :before-upload="beforeUpload">
-            <el-button size="small">
-              {{ $t('profile.avatar.upload') }}
-              <i class="ri-upload-line el-icon--right" />
-            </el-button>
-          </el-upload>
-        </el-col>
-        <el-col :lg="{span: 1, offset: 2}" :md="2">
-          <el-button size="small" @click="changeScale(1)" />
-        </el-col>
-        <el-col :lg="{span: 1, offset: 1}" :md="2">
-          <el-button size="small" @click="changeScale(-1)" />
-        </el-col>
-        <el-col :lg="{span: 1, offset: 1}" :md="2">
-          <el-button size="small" @click="rotateLeft()" />
-        </el-col>
-        <el-col :lg="{span: 1, offset: 1}" :md="2">
-          <el-button size="small" @click="rotateRight()" />
-        </el-col>
-        <el-col :lg="{span: 2, offset: 6}" :md="2">
-          <el-button type="primary" size="small" @click="uploadImg()">{{ $t('profile.avatar.submit') }}</el-button>
-        </el-col>
-      </el-row>
-    </el-dialog>
+  <div class="avatar-editor">
+    <button type="button" class="avatar-trigger" :title="$t('profile.avatar.hint')" :aria-label="$t('profile.avatar.hint')" @click="open = true">
+      <a-avatar :key="`${session.avatar}:${avatarFailed}`" :size="72" :image-url="avatarFailed ? undefined : session.avatar" @error="avatarFailed = true">{{ (session.name || user?.username || 'M').slice(0, 1).toUpperCase() }}</a-avatar><span class="avatar-camera"><icon-camera /></span>
+    </button>
+    <AppModal v-model:visible="open" :title="$t('profile.avatar.dialogTitle')" :width="760" :mask-closable="false" :footer="false" :closable="!saving" :esc-to-close="!saving">
+      <div class="avatar-crop-layout">
+        <div class="avatar-crop"><VueCropper ref="cropper" :img="image" :info="true" :auto-crop="true" :auto-crop-width="200" :auto-crop-height="200" :fixed-box="true" @real-time="previews = $event" /></div>
+        <div class="avatar-upload-preview"><img v-if="previews.url" :src="previews.url" :style="previews.img" alt=""></div>
+      </div>
+      <div class="avatar-controls">
+        <a-upload action="#" :disabled="saving" :show-file-list="false" :on-before-upload="beforeUpload" accept="image/png,image/jpeg,image/webp"><a-button :disabled="saving"><template #icon><icon-upload /></template>{{ $t('profile.avatar.upload') }}</a-button></a-upload>
+        <a-button :disabled="saving" :aria-label="$t('profile.avatar.zoomIn')" @click="cropper?.changeScale(1)"><icon-plus /></a-button>
+        <a-button :disabled="saving" :aria-label="$t('profile.avatar.zoomOut')" @click="cropper?.changeScale(-1)"><icon-minus /></a-button>
+        <a-button :disabled="saving" :aria-label="$t('profile.avatar.rotateLeft')" @click="cropper?.rotateLeft()"><icon-rotate-left /></a-button>
+        <a-button :disabled="saving" :aria-label="$t('profile.avatar.rotateRight')" @click="cropper?.rotateRight()"><icon-rotate-right /></a-button>
+        <a-button type="primary" :loading="saving" @click="upload">{{ $t('profile.avatar.submit') }}</a-button>
+      </div>
+    </AppModal>
   </div>
 </template>
-
-<script>
-import { useUserStore } from '@/stores/user'
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { VueCropper } from 'vue-cropper'
+import 'vue-cropper/dist/index.css'
+import { useUserStore } from '@/stores/user'
 import { uploadAvatar } from '@/api/admin/sys-user'
-
-export default {
-  components: { VueCropper },
-  props: {
-    // eslint-disable-next-line vue/require-default-prop
-    user: { type: Object }
-  },
-  data() {
-    return {
-      // 是否显示弹出层
-      open: false,
-      options: {
-        img: useUserStore().avatar, // 裁剪图片的地址
-        autoCrop: true, // 是否默认生成截图框
-        autoCropWidth: 200, // 默认生成截图框宽度
-        autoCropHeight: 200, // 默认生成截图框高度
-        fixedBox: true // 固定截图框大小 不允许改变
-      },
-      previews: {}
-    }
-  },
-  computed: {
-    /**
-     * The dialog title, which used to live in data(). That runs once, so a
-     * title built from t() there would keep the language the page was opened
-     * in -- and this dialog is opened long after that.
-     */
-    title() {
-      return this.$t('profile.avatar.dialogTitle')
-    }
-  },
-  methods: {
-    // 编辑头像
-    editCropper() {
-      this.open = true
-    },
-    // 覆盖默认的上传行为
-    requestUpload() {
-    },
-    // 向左旋转
-    rotateLeft() {
-      this.$refs.cropper.rotateLeft()
-    },
-    // 向右旋转
-    rotateRight() {
-      this.$refs.cropper.rotateRight()
-    },
-    // 图片缩放
-    changeScale(num) {
-      num = num || 1
-      this.$refs.cropper.changeScale(num)
-    },
-    // 上传预处理
-    beforeUpload(file) {
-      if (file.type.indexOf('image/') === -1) {
-        this.msgError(this.$t('profile.avatar.wrongType'))
-      } else {
-        const reader = new FileReader()
-        reader.readAsDataURL(file)
-        reader.onload = () => {
-          this.options.img = reader.result
-        }
-      }
-    },
-    // 上传图片
-    uploadImg() {
-      this.$refs.cropper.getCropBlob(data => {
-        const formData = new FormData()
-        formData.append('upload[]', data)
-        uploadAvatar(formData).then(response => {
-          if (response.code === 200) {
-            this.open = false
-            // 后端返回的是不带前导斜杠的相对路径 static/uploadfile/xxx.jpg，
-            // 直接拼接会得到 http://host:8001static/... 这样的非法地址
-            this.options.img = process.env.VUE_APP_BASE_API + '/' + response.data
-            this.msgSuccess(response.msg)
-          } else {
-            this.msgError(response.msg)
-          }
-          this.$refs.cropper.clearCrop()
-        })
-      })
-    },
-    // 实时预览
-    realTime(data) {
-      this.previews = data
-    }
-  }
+import { msgSuccess, msgError } from '@/utils/message'
+import AppModal from '@/components/AppModal/index.vue'
+import type { SysUser } from '@/types/admin'
+defineProps<{ user?: SysUser }>()
+const emit = defineEmits<{ uploaded: [avatar: string] }>()
+const session = useUserStore(); const { t } = useI18n()
+const avatarFailed = ref(false)
+watch(() => session.avatar, () => { avatarFailed.value = false })
+const open = ref(false); const saving = ref(false); const image = ref('')
+const previews = ref<{ url?: string, img?: Record<string, string> }>({})
+const cropper = ref<{ changeScale: (delta: number) => void, rotateLeft: () => void, rotateRight: () => void, getCropBlob: (callback: (data: Blob) => void) => void }>()
+watch(open, visible => { if (visible) image.value = session.avatar; else { image.value = ''; previews.value = {} } })
+const beforeUpload = (file: File) => {
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) { msgError(t('profile.avatar.fileRule')); return false }
+  const reader = new FileReader()
+  reader.onload = () => { if (open.value) image.value = String(reader.result) }
+  reader.readAsDataURL(file)
+  return false
+}
+const upload = () => {
+  if (saving.value || !cropper.value || !image.value) return
+  saving.value = true
+  cropper.value.getCropBlob(async blob => {
+    try {
+      const data = new FormData(); data.append('upload[]', blob, 'avatar.png')
+      const response = await uploadAvatar(data)
+      session.setAvatar(response.data)
+      emit('uploaded', response.data)
+      open.value = false
+      msgSuccess(response.msg)
+    } catch { /* The interceptor reports the error; keep the crop for retry. */ } finally { saving.value = false }
+  })
 }
 </script>
+<style scoped>
+.avatar-trigger { position: relative; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.avatar-trigger :deep(.arco-avatar) { background: var(--motor-avatar-background); box-shadow: var(--motor-avatar-shadow); }
+.avatar-camera { position: absolute; bottom: -3px; right: -3px; width: 28px; height: 28px; display: grid; place-items: center; border: 2px solid var(--motor-surface); border-radius: 50%; background: var(--motor-primary); color: white; }
+.avatar-crop-layout { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 24px; align-items: center; }
+.avatar-crop { height: 320px; }
+.avatar-upload-preview { width: 180px; height: 180px; border-radius: 50%; overflow: hidden; }
+.avatar-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 20px; }
+@media (max-width: 600px) { .avatar-crop-layout { grid-template-columns: 1fr; } .avatar-upload-preview { display: none; } .avatar-crop { height: 280px; } }
+</style>

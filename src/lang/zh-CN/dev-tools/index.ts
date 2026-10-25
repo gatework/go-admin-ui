@@ -1,3 +1,4 @@
+import build from './build'
 import gen from './gen'
 import editTable from './edit-table'
 import basicInfoForm from './basic-info-form'
@@ -17,7 +18,6 @@ import importTable from './import-table'
  * swagger/index.vue is absent and needs nothing: it is an iframe around the
  * backend's own Swagger UI and contains no Chinese at all.
  *
- * build/index.vue is absent for the opposite reason -- it is not migrated yet,
- * and a half-migrated page is worse than an unmigrated one.
+ * build/index.vue embeds the locally bundled Arco designer.
  */
-export default { gen, editTable, basicInfoForm, genInfoForm, importTable }
+export default { build, gen, editTable, basicInfoForm, genInfoForm, importTable }

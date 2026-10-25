@@ -14,32 +14,32 @@
 <template>
   <PageContainer>
     <ProTable :table="table" selection row-key="id">
-      <template #search><!-- el-form-item --></template>
+      <template #search><!-- a-form-item --></template>
       <template #toolbar><!-- 操作按钮 --></template>
-      <!-- el-table-column，照常写 -->
+      <!-- a-table-column，照常写 -->
     </ProTable>
   </PageContainer>
 </template>
 ```
 
-`ProTable` 只接管重复的管道：搜索表单外壳、搜索/重置按钮、`el-table` 的
-loading/data/selection/sort 绑定、分页。**列仍然写 `<el-table-column>`**，
-Element Plus 的插槽能力一个都没少。传给它的其余属性会落到内部的 `el-table` 上
-（`border`、`max-height` 等照常可用）。
+`ProTable` 只接管重复的管道：搜索表单外壳、搜索/重置按钮、`a-table` 的
+loading/data/selection/sort 绑定、分页。**列仍然写 `<a-table-column>`**，
+Arco Design Vue 的插槽能力一个都没少。传给它的其余属性会落到内部的 `a-table` 上
+（`bordered`、`scroll` 等 Arco 属性）。列使用 `title`/`data-index`，单元格使用 `#cell="{ record }"`；业务 `#actions` 仍接收 `{ row }`。
 
-搜索框**不要再写 `@keyup.enter`** —— 搜索按钮是 `native-type="submit"`，回车已经
+搜索框**不要再写 `@keyup.enter`** —— 搜索按钮是 `html-type="submit"`，回车已经
 统一走表单提交；自己再加一遍，在只有一个文本框的搜索栏上会发两次请求。
 
 ### 卡片由 `ProTable` 画，`PageContainer` 不再包一层
 
 `PageContainer` 的 `card` **默认是 `false`**，它只管页面留白。列表页的两张卡片
 （上：搜索；下：工具栏+表格+分页）由 `ProTable` 自己画，间距用全站通用的
-`.el-card + .el-card`。
+`.arco-card + .arco-card`。
 
 所以**列表页写 `<PageContainer>` 就行**；表单页、控制台这类「整页一个面」的才写
 `<PageContainer card>`（`sys-config/set`、`schedule/log` 是仅有的两个）。
 `PageContainer` 之下还有别的东西挨着 `ProTable`（`sys-user` 的部门树），
-自己套 `<el-card shadow="never">`，否则它是页面上唯一没有面的元素。
+自己套 `<a-card>`，否则它是页面上唯一没有面的元素。
 
 对话框里的列表传 `:panels="false"`：对话框本身就是那张卡片，再套两张就是套盒。
 
@@ -50,7 +50,7 @@ Element Plus 的插槽能力一个都没少。传给它的其余属性会落到�
 
 按钮固定占第一行最后一格，所以三列时收起状态显示 **2 个**搜索项，多出来的
 藏在「展开」后面；搜索项本来就放得下时不显示这个按钮。
-`#search` 里照常写 `el-form-item`，但**不要再写 `style="width: 160px"`** ——
+`#search` 里照常写 `a-form-item`，但**不要再写 `style="width: 160px"`** ——
 控件会填满自己那一格，写死宽度只会让一列参差不齐。
 
 **`#search` 里的声明顺序从此有含义**：收起时保留的是**前面**几个，靠后的要点一下
@@ -58,23 +58,16 @@ Element Plus 的插槽能力一个都没少。传给它的其余属性会落到�
 **按重要性排**——`sys-oper-log` 的时间区间排在第三位，现在默认就是收起的那个。
 这和列顺序决定移动端信息层级是同一类事：改顺序不再只是改左右位置。
 
-日期区间这类一格装不下的（约 340px），在它的 `el-form-item` 上加
+日期区间这类一格装不下的（约 340px），在它的 `a-form-item` 上加
 `class="is-wide"` 占两格。
 
-### 列宽：文字列一律 `min-width`，不要用 `width`
+### 列宽和操作列
 
-`width` 是刚性的，列宽预算加起来超过容器时表格会横向溢出，而 `fixed="right"` 的操作列
-会**盖住**相邻列而不是滚过去 —— 在 1280px 这个最常见的笔记本宽度上就会发生。
-`min-width` 允许 el-table 压缩列以适应容器，并把富余宽度还给它们。
-
-只有这三类才用 `width`：选择框列、内容是固定控件的列（如状态开关）、`fixed` 的操作列。
-
-粗算一下：1280px 窗口下表格容器约 840px。减去选择框 45 + 状态 82 + 操作 140，
-留给文字列的是约 580px。**超了就会溢出，没有任何报错。**
+Arco 列宽使用数值 `:width`；文字列加 `ellipsis tooltip`。不要再传 Element 的 `min-width` 或 `show-overflow-tooltip`。使用 `ProTable` 的 `#actions` 固定操作列，宽度与按钮数量相符；较多操作收进原生下拉菜单。
 
 ### 操作列
 
-用 ProTable 的 `#actions` 插槽，不要自己写 `<el-table-column fixed="right">` ——
+用 ProTable 的 `#actions` 插槽，不要自己写 `<a-table-column fixed="right">` ——
 插槽会带上固定列必须的 `class-name`（否则单元格换行，只有固定列变高，和滚动区的行对不齐）。
 存量页面里有 `class-name="small-padding fixed-width"` 的旧写法，新页面不要沿用。
 
@@ -84,9 +77,9 @@ Element Plus 的插槽能力一个都没少。传给它的其余属性会落到�
 ### 工具栏按钮的层级
 
 - **新增**：`type="primary"`（始终可用，是页面主操作）
-- **依赖选中的批量操作**（修改/删除）：次级按钮，删除加 `type="danger" plain`
+- **依赖选中的批量操作**（修改/删除）：次级按钮，删除加 `status="danger"`
 
-**不要给它们用填充按钮。** Element Plus 的禁用填充按钮是"浅色填充 + 白字"，
+**不要给它们用填充按钮。** Arco Design Vue 的禁用填充按钮是"浅色填充 + 白字"，
 实测亮色下是 `oklab(0.81)`、暗色下 `oklab(0.36)` —— 看起来像渲染坏了或像启用状态，
 都不像禁用。次级按钮的禁用态靠文字颜色表达，一眼可辨。
 
@@ -97,30 +90,31 @@ Element Plus 的插槽能力一个都没少。传给它的其余属性会落到�
 
 ### 移动端：窄屏自动换成卡片
 
-768px 以下 `ProTable` 把表格换成卡片列表，操作按钮改为左滑呼出。
+768px 以下 `ProTable` 把平面表格换成卡片列表，操作按钮支持左滑呼出，也可通过「操作」按钮打开。
+传入 `tree-props` 的树形列表保留 `a-table` 的展开能力，避免把子节点丢在普通卡片之外。
 **页面默认不需要做任何事**，卡片各部分取自列的声明顺序：
 
 | 卡片位置 | 取自 |
 |---|---|
 | 标题 | 第一个不是主键的列 |
 | 副标题（收起时也可见，只有两个位置） | 其后两列 |
-| 徽章 | `prop` 是 `status`/`state` 且有自定义渲染的列 |
+| 徽章 | `data-index` 是 `status`/`state` 且有自定义渲染的列 |
 | 展开区 | 其余列，主键列排在最后 |
 | 左滑按钮 | `#actions` 插槽 |
 
 所以**调整列顺序会改变移动端的信息层级**，不再只是改变桌面端的左右位置。
 
 不少列表页的第一列是主键（`userId`、`roleId`、`dictCode`…），
-所以主键列会自动让位——否则卡片标题就是一个「1」。判断依据是 `prop`：
+所以主键列会自动让位——否则卡片标题就是一个「1」。判断依据是 `data-index`：
 `id`/`code`，或以 `Id`/`Code` 结尾。
 
-**两条规则都只看 `prop`，不看 label。** label 是给人看的标题，页面接入 i18n 之后
-它是读者选的那门语言——按 label 匹配的规则会在中文下正常、在英文下**静默失效**：
-不报错、不空白，卡片只是又拿主键当标题、徽章整个消失。`prop` 是代码标识符，不随语言变。
+**两条规则都只看 `data-index`，不看 title。** title 是给人看的标题，页面接入 i18n 之后
+它是读者选的那门语言——按 title 匹配的规则会在中文下正常、在英文下**静默失效**：
+不报错、不空白，卡片只是又拿主键当标题、徽章整个消失。`data-index` 是代码标识符，不随语言变。
 
-徽章认不出来时才标 `card-role="badge"`，**不要为了让它认出来去改 `prop`**。
+徽章认不出来时才标 `card-role="badge"`，**不要为了让它认出来去改 `data-index`**。
 `sys-config` 的「内置」列（`configType`）就是这种：它确实是徽章，但不是状态。
-把匹配模式放宽到能顺带捞到它，正是旧规则的下场——旧规则按 label 里的
+把匹配模式放宽到能顺带捞到它，正是旧规则的下场——旧规则按 title 里的
 状态/内置/类型/是否 取**第一个**匹配，于是在字典页选中了「字典类型」、
 在代码生成页选中了「go类型」，两个都不是状态，只是排在前面。
 
@@ -133,7 +127,7 @@ Element Plus 的插槽能力一个都没少。传给它的其余属性会落到�
 长文本列（JSON、长 URL、备注）在卡片里默认截断到 3 行，所以忘了标注也不会
 把列表撑开几屏。**确实不该出现在移动端的列**才标 `hidden`。
 
-列的 `#default` 会被卡片**原样复用**，状态开关、`DateCell`、权限按钮都不用为移动端
+列的 `#cell` 会被卡片**原样复用**，状态开关、`DateCell`、权限按钮都不用为移动端
 重写。但**自定义渲染里不要写死像素宽度** —— 卡片可用宽度比表格列窄，写死的会溢出。
 
 `ProTable` 自身：`card`（默认 `true`，置 `false` 则始终用表格，适合本身就靠横向
@@ -179,7 +173,7 @@ const { remove } = useRemove({
   不发分页键，响应体当集合读，`ProTable` 也不渲染分页器。
 - **`defaultSort: { prop, order }`** —— 列表默认按某列排序时用。它同时记住"当前排序的是哪一列"，
   否则第一次手动排序会把新键**加在**默认键旁边，后端收到两个互相矛盾的排序。
-  同一个值也传给 `ProTable`，表头箭头才会一致。
+  对应列的 `sortable.defaultSortOrder` 设置为 `ascend` / `descend`，表头箭头才会一致。
 - **`immediate: false`** —— 首次加载要等别的东西就绪时用。
 
 ### 导出用 `useExport`
@@ -207,20 +201,20 @@ const handleExport = () => exportExcel({
 三条必须知道的行为：
 
 - **提交有防重**。`submit()` 在飞行中会直接返回 `false`，不会发第二次请求。
-  `useRemove` 同理。**别自己写 `ElMessageBox.confirm` + 删除的那一套** ——
+  `useRemove` 同理。**别自己写 `confirmAction` + 删除的那一套** ——
   手写版本区分不了"用户点了取消"和"服务端报错"，这正是旧 mixin 的老问题。
 - **拦截器已经报过错**。`utils/request.ts` 对非 200 直接 reject 并弹了消息，
   所以 `.then(res => res.code === 200 ? ... : ...)` 的 else 分支是死代码。
   `onError` 只用来做额外处理，**不要再弹一次**。
-- **`resetQuery()` 用工厂重建**，不是 `resetFields()`。后者只还原带 `prop` 的字段，
+- **`resetQuery()` 用工厂重建**，不是 `resetFields()`。后者只还原带 `field` 的字段，
   从搜索表单之外设进来的过滤条件（点部门树、图表下钻）会残留。
 
 `useTable` / `useForm` 返回的是 `reactive()` 对象，模板里直接 `table.loading`、
 `form.model.name` 即可，**不用 `.value`，也不用解构**。
 
-el-form 用 **`:ref="form.bindFormRef"`** 绑定（注意有冒号，是表达式）。
+a-form 用 **`:ref="form.bindFormRef"`** 绑定（注意有冒号，是表达式）。
 不要写 `ref="form.formRef"` —— 不带冒号的 `ref` 认的是 setup 绑定名而非表达式，
-匹配不到就让校验被静默跳过。`useForm` 现在会在"声明了 rules 却没拿到 el-form"时
+匹配不到就让校验被静默跳过。`useForm` 现在会在"声明了 rules 却没拿到 a-form"时
 `console.warn`，但别依赖它兜底。
 
 `useRemove` 是例外，返回的是 ref，因为它的用法是解构（`const { remove } = ...`）；
@@ -295,7 +289,7 @@ export function listUser(query: SysUserQuery & PageQuery) {
 ## 权限
 
 ```vue
-<el-button v-permisaction="['admin:sysPost:add']">新增</el-button>
+<a-button v-permisaction="['admin:sysPost:add']">新增</a-button>
 ```
 
 标识格式 `模块:资源:操作`，需与后端 `sys_menu` 中的配置一致。
@@ -339,7 +333,7 @@ apps/<code>/<该应用内的相对路径>/index
 
 ```vue
 <template>
-  <el-button>{{ $t('common.add') }}</el-button>          <!-- Options API 页面照样能用 -->
+  <a-button>{{ $t('common.add') }}</a-button>          <!-- Options API 页面照样能用 -->
 </template>
 
 <script setup lang="ts">
@@ -421,7 +415,7 @@ e2e 的浏览器语言在 `playwright.config.ts` 里钉死为 `zh-CN`。别去�
 - 指令：`v-permisaction` `v-permission`
 - 组件：`<BasicLayout>` `<AppPagination>` `<SvgIcon>` `<CodeEditor>`
   （前两个是存量页面用的旧写法，新页面用 `PageContainer` / `ProTable`，显式 import）
-- Element Plus 图标已全局注册，模板中直接 `<el-icon><User /></el-icon>`
+- Arco 图标已全局注册，例如 `<icon-user />`。
 
 `this.$getDicts` `this.$parseTime` `this.$msgSuccess` 这类挂在 globalProperties 上的
 方法**只在 Options API 组件里可用**。`<script setup>` 没有 `this`，一律改 import：
@@ -447,8 +441,7 @@ e2e 的浏览器语言在 `playwright.config.ts` 里钉死为 `zh-CN`。别去�
 | `this.$set` / `this.$delete` | 直接赋值 |
 | 指令 `bind` / `inserted` / `unbind` | `beforeMount` / `mounted` / `unmounted` |
 
-`el-tag` 的 `type` 只接受 `primary/success/info/warning/danger`，**空字符串是非法值**，
-会在每次渲染时触发 prop 校验告警。
+`a-tag` 用 `color`（例如 `arcoblue/green/orange/red/gray`）；危险按钮用 `status="danger"`。Arco 表单 `validate()` 成功返回 `undefined`，错误返回字段映射；不能按 Element 的布尔返回值判断。
 
 ## 图标
 
@@ -484,3 +477,14 @@ scope 写改动落在哪一块——组件名、模块名或目录名，例如
 - 不在业务代码里写死后端地址，一律通过 `VUE_APP_BASE_API`
 - 删除组件前先确认零引用（`grep` 文件路径、标签名、全局注册三处）
 - 提交前跑 `pnpm run lint` 与 `pnpm run test:unit`
+
+## Arco 边界
+
+Arco 是唯一的 UI 组件库，不注册 `el-*` 别名，不加载 Element CSS 或字体。主题通过 `body[arco-theme="dark"]` 与 Arco 色阶变量切换；业务色彩沿用映射到 Arco 的 `--ga-*` token。
+
+- 弹窗和抽屉用 `AppModal` / `AppDrawer`，保留原生 Arco API，并提供对话框名称、卸载和关闭后的焦点回归。
+- 下拉操作菜单用 `AppDropdown`，内容仍是 `a-doption`，它补齐菜单语义、方向键与关闭后的焦点回归。
+- 页签用 `AppTabs`，内容仍是 `a-tab-pane`，它补齐 Arco 2.59 的 tab 语义和方向键。新增原生组件时检查键盘和无障碍行为。
+- `useForm` 负责表单会话与重复提交保护；直接使用 Arco 表单的页面调用 `useFormLocale(formRef)`，让已经显示的错误跟随语言切换。
+- Arco Checkbox 的值为 boolean；后端的 `"1"`/`"0"` 字段在绑定处显式转换。树和穿梭框同样保留 API 的 ID 类型，不将组件形状直接发送给后端。
+- `src/apps/` 是同步生成目录，不手改；内嵌 Swagger 由后端提供；表单设计器来自 `gatework/form-generator` 的 `feat/arco-design-vue` 分支，通过 `scripts/sync-form-generator.mjs` 同步到 `public/form-generator/`，不要直接修改构建产物。

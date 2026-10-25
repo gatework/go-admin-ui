@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
-    <el-card v-if="card" class="page-container__body" shadow="never">
+    <a-card v-if="card" class="page-container__body">
       <slot />
-    </el-card>
+    </a-card>
     <slot v-else />
   </div>
 </template>
@@ -13,7 +13,7 @@
  *
  * Supersedes BasicLayout, which offered padding through a named `#wrapper` slot
  * -- so every page opened with a template block whose only purpose was to fill
- * a slot, and then repeated `<el-card class="box-card">` inside it.
+ * a slot, and then repeated `<a-card class="box-card">` inside it.
  *
  * The card is off by default because a list page no longer wants one: ProTable
  * draws its own two, and a card around them puts a border round a pair of
@@ -61,6 +61,6 @@ withDefaults(defineProps<{
     border-radius: 0;
   }
 
-  :deep(.el-card__body) { padding: 12px; }
+  :deep(.arco-card-body) { padding: 12px; }
 }
 </style>

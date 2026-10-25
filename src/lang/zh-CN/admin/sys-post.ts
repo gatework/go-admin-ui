@@ -1,7 +1,7 @@
 /**
  * The position page.
  *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD
+ * UI copy is maintained with the corresponding English pack.
  * R5). The page carries three spellings of the same idea -- 岗位排序 in the
  * column, 岗位顺序 on the form, 排序 in the exported sheet -- and all three are
  * kept, because the assertions in tests/e2e/mocked/sys-post.spec.ts read the
@@ -46,8 +46,8 @@ export default {
   },
 
   rules: {
-    postName: '岗位名称不能为空',
-    postCode: '岗位编码不能为空',
-    sort: '岗位顺序不能为空'
+    postName: '请填写岗位名称',
+    postCode: '请填写岗位编码',
+    sort: '请填写岗位顺序'
   }
 }

@@ -40,7 +40,7 @@ const open = async(page: Page, stored?: string) => {
     if (value) localStorage.setItem('color-scheme', value)
   }, stored ?? '')
   await page.goto('/#/demo/product')
-  await page.waitForSelector('.el-table')
+  await page.waitForSelector('.arco-table')
 }
 
 test.describe('colour scheme', () => {
@@ -67,7 +67,7 @@ test.describe('colour scheme', () => {
     await open(page, 'dark')
     const dark = await page.evaluate(() => ({
       body: getComputedStyle(document.body).backgroundColor,
-      token: getComputedStyle(document.documentElement).getPropertyValue('--ga-bg-body').trim()
+      token: getComputedStyle(document.body).getPropertyValue('--ga-bg-body').trim()
     }))
     expect(dark.body).toBe(await page.evaluate(t => {
       const probe = document.createElement('div')
@@ -91,8 +91,8 @@ test.describe('colour scheme', () => {
     await open(page)
 
     await page.locator('#layout-settings').click()
-    await expect(page.locator('.rightPanel-container')).toHaveClass(/show/)
-    await page.locator('.drawer-color-scheme').getByText('深色', { exact: true }).click()
+    await expect(page.getByRole('dialog', { name: '偏好设置' })).toBeVisible()
+    await page.getByRole('button', { name: '暗色', exact: true }).click()
 
     await expect.poll(async() => (await surfaces(page)).hasDarkClass).toBe(true)
     expect(await page.evaluate(k => localStorage.getItem(k), KEY)).toBe('dark')
@@ -100,7 +100,7 @@ test.describe('colour scheme', () => {
     // Remembered, not just applied: a preference that resets on reload is worse
     // than none, because the page flashes the theme the user rejected.
     await page.reload()
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     expect((await surfaces(page)).hasDarkClass).toBe(true)
   })
 
@@ -114,7 +114,7 @@ test.describe('colour scheme', () => {
     await authenticate(dark)
     await installApiMocks(darkPage)
     await darkPage.goto('/#/demo/product')
-    await darkPage.waitForSelector('.el-table')
+    await darkPage.waitForSelector('.arco-table')
 
     expect(await darkPage.evaluate(() =>
       document.documentElement.classList.contains('dark')

@@ -1,4 +1,5 @@
 export default {
+  sections: { 'basic': 'Basic information', 'basicHint': 'Choose the menu type, parent and display order.', 'routing': 'Route and appearance', 'routingHint': 'Set the icon, page location and navigation visibility.', 'access': 'Permissions', 'accessHint': 'Set the permission key and select permitted APIs.' },
   menuName: 'Menu Name',
   menuNamePlaceholder: 'Enter menu name',
   status: 'Status',

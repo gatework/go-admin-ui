@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import variables from '@/styles/element-variables.module.scss'
 import defaultSettings from '@/settings'
 import { applyColorScheme, initColorScheme } from '@/utils/color-scheme'
 import type { ColorScheme } from '@/utils/color-scheme'
@@ -25,7 +24,7 @@ export type SettingKey =
  */
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
-    theme: variables.theme as string,
+    theme: '#165DFF',
     showSettings,
     topNav,
     tagsView,

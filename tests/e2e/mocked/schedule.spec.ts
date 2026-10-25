@@ -29,9 +29,9 @@ test.describe('schedule', () => {
     await installApiMocks(page)
 
     await page.goto('/#/schedule/manage')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await expect(page.locator('.el-table__row')).toHaveCount(3)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(3)
     await expect(page.getByRole('row', { name: /清理过期日志/ }).getByText('默认')).toBeVisible()
     await expect(page.getByRole('row', { name: /同步用户/ }).getByText('系统')).toBeVisible()
   })
@@ -43,7 +43,7 @@ test.describe('schedule', () => {
     await installApiMocks(page)
 
     await page.goto('/#/schedule/manage')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     const running = page.getByRole('row', { name: /清理过期日志/ })
     await expect(running.getByRole('button', { name: '停止' })).toBeVisible()
@@ -58,7 +58,7 @@ test.describe('schedule', () => {
     await installApiMocks(page)
 
     await page.goto('/#/schedule/manage')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     const disabled = page.getByRole('row', { name: /已停用的任务/ })
     await expect(disabled.getByRole('button', { name: '启动' })).toHaveCount(0)
@@ -70,12 +70,12 @@ test.describe('schedule', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/schedule/manage')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     const before = calls.job.list
 
     await page.getByRole('row', { name: /同步用户/ }).getByRole('button', { name: '启动' }).click()
-    await expect(page.locator('.el-message-box')).toContainText('同步用户')
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await expect(page.locator('.arco-modal-simple')).toContainText('同步用户')
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '启动' }).click()
 
     await expect.poll(() => calls.extra.jobStarts).toBe(1)
     await expect.poll(() => calls.job.list).toBeGreaterThan(before)
@@ -86,7 +86,7 @@ test.describe('schedule', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/schedule/manage')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.evaluate(() => {
       const row = Array.from(document.querySelectorAll('tr'))
@@ -97,8 +97,8 @@ test.describe('schedule', () => {
       stop.click()
     })
 
-    await expect(page.locator('.el-message-box')).toHaveCount(1)
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await expect(page.locator('.arco-modal-simple')).toHaveCount(1)
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '停止' }).click()
     await expect.poll(() => calls.extra.jobStops).toBe(1)
   })
 
@@ -108,7 +108,7 @@ test.describe('schedule', () => {
     await installApiMocks(page)
 
     await page.goto('/#/schedule/manage')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.locator('.pro-table__toolbar').getByRole('button', { name: '日志' }).click()
 
@@ -121,12 +121,12 @@ test.describe('schedule', () => {
     const bodies = await captureBodies(page, '**/api/v1/sysjob', 'PUT')
 
     await page.goto('/#/schedule/manage')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /清理过期日志/ }).getByRole('button', { name: '修改' }).click()
     const dialog = page.getByRole('dialog').filter({ hasText: '修改任务' })
     await dialog.getByPlaceholder('名称').fill('清理归档日志')
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
 
     await expect.poll(() => calls.job.update).toBe(1)
     expect(typeof JSON.parse(bodies.at(-1) || '{}').status).toBe('number')
@@ -138,13 +138,13 @@ test.describe('schedule in English', () => {
     await authenticate(context)
     await installApiMocks(page)
     await page.goto('/#/schedule/manage')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
   })
 
   test('the list, its toolbar and its row actions translate', async({ page }) => {
     await switchTo(page, 'English')
 
-    const header = page.locator('.el-table__header')
+    const header = page.locator('.arco-table thead')
     for (const label of ['ID', 'Name', 'Group', 'Cron Expression', 'Invoke Target', 'Status']) {
       await expect(header).toContainText(label)
     }
@@ -168,7 +168,7 @@ test.describe('schedule in English', () => {
     await switchTo(page, 'English')
     await page.getByRole('row', { name: /同步用户/ }).getByText('SyncUsers').hover()
 
-    const card = page.locator('.el-popover:visible')
+    const card = page.locator('.arco-popover-popup-content:visible')
     await expect(card).toContainText('Args: full')
     await expect(card).toContainText('Invoke type: Function')
     await expect(card).toContainText('Misfire policy: Run Once')
@@ -183,18 +183,18 @@ test.describe('schedule in English', () => {
     // that is already rendered.
     await page.getByRole('button', { name: '新增', exact: true }).click()
 
-    const dialog = page.locator('.el-dialog:visible')
+    const dialog = page.locator('.arco-modal:visible')
     await expect(dialog).toContainText('添加任务')
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
 
-    const errors = dialog.locator('.el-form-item__error')
-    await expect(errors.filter({ hasText: '名称不能为空' })).toHaveCount(1)
+    const errors = dialog.locator('.arco-form-item-message')
+    await expect(errors.filter({ hasText: '请填写名称' })).toHaveCount(1)
 
     await switchTo(page, 'English')
 
-    await expect(dialog.locator('.el-dialog__title')).toHaveText('Add Task')
+    await expect(dialog.locator('.arco-modal-title')).toHaveText('Add Task')
     await expect(errors.filter({ hasText: 'Name is required' })).toHaveCount(1)
-    await expect(errors.filter({ hasText: '名称不能为空' })).toHaveCount(0)
+    await expect(errors.filter({ hasText: '请填写名称' })).toHaveCount(0)
     await expect(errors.filter({ hasText: 'Invoke target is required' })).toHaveCount(1)
   })
 
@@ -204,7 +204,7 @@ test.describe('schedule in English', () => {
     // follow without being closed and reopened.
     await page.getByRole('row', { name: /清理过期日志/ }).getByRole('button', { name: '修改' }).click()
 
-    const dialog = page.locator('.el-dialog:visible')
+    const dialog = page.locator('.arco-modal:visible')
     await expect(dialog).toContainText('立即执行')
 
     await switchTo(page, 'English')
@@ -219,11 +219,11 @@ test.describe('schedule in English', () => {
     await switchTo(page, 'English')
     await page.getByRole('row', { name: /同步用户/ }).getByRole('button', { name: 'Start' }).click()
 
-    const box = page.locator('.el-message-box')
-    await expect(box.locator('.el-message-box__title')).toHaveText('Notice')
+    const box = page.locator('.arco-modal-simple')
+    await expect(box.locator('.arco-modal-title')).toHaveText('Notice')
     // The job's own name is Chinese in either language -- it is user data
-    await expect(box.locator('.el-message-box__message')).toHaveText('Start the task "同步用户"?')
-    await expect(box.getByRole('button', { name: 'OK' })).toBeVisible()
+    await expect(box.locator('.arco-modal-body')).toHaveText('Start the task "同步用户"?')
+    await expect(box.getByRole('button', { name: 'Start' })).toBeVisible()
     await expect(box.getByRole('button', { name: 'Cancel' })).toBeVisible()
   })
 
@@ -233,8 +233,8 @@ test.describe('schedule in English', () => {
     await page.getByRole('row', { name: /同步用户/ })
       .getByTitle('Delete task: 同步用户').click()
 
-    const box = page.locator('.el-message-box')
-    await expect(box.locator('.el-message-box__message')).toHaveText('Delete the selected task?')
+    const box = page.locator('.arco-modal-simple')
+    await expect(box.locator('.arco-modal-body')).toHaveText('Delete the selected task?')
   })
 })
 

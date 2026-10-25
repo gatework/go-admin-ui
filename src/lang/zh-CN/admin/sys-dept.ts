@@ -1,7 +1,7 @@
 /**
  * The department page.
  *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD R5).
+ * UI copy is maintained with the corresponding English pack.
  */
 export default {
   // ── Search and columns ──────────────────────────────────────────
@@ -30,10 +30,10 @@ export default {
   removeConfirm: '确认删除该部门？其下级部门也会一并删除。',
 
   rules: {
-    parentId: '上级部门不能为空',
-    deptName: '部门名称不能为空',
-    sort: '排序不能为空',
-    leader: '负责人不能为空',
+    parentId: '请选择上级部门',
+    deptName: '请填写部门名称',
+    sort: '请填写排序',
+    leader: '请填写负责人',
     emailFormat: '请输入正确的邮箱地址',
     phoneFormat: '请输入正确的手机号码'
   }

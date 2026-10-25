@@ -4,7 +4,7 @@ import { readCardColumns, splitCard, readProp } from '@/components/ProTable/colu
 
 /** Stands in for <el-table-column>; only props and children are read. */
 const column = (props: Record<string, unknown>, render?: () => VNode[]) =>
-  h({ name: 'ElTableColumn' }, props, render ? { default: render } : undefined)
+  h({ name: 'ATableColumn' }, { ...props, title: props.label, dataIndex: props.prop }, render ? { cell: render } : undefined)
 
 const slotOf = (...nodes: VNode[]) => () => nodes
 

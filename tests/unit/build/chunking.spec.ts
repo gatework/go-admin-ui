@@ -13,14 +13,14 @@ import config from '../../../vite.config.mjs'
  * is 481.44 kB and without it 481.60 kB. The exclusion buys 0.16 kB *today* and
  * is worth keeping anyway, for two reasons the numbers do not show.
  *
- * The first is that Element Plus's English pack cannot be excluded at all:
- * es/hooks/use-locale/index.mjs imports en.mjs statically as its default, so it
+ * The first is that Arco Design Vue's English pack cannot be excluded at all:
+ * es/hooks/use-locale/index.mjs imports en-us.js statically as its default, so it
  * is in the entry no matter what this rule says. Only the languages loaded
  * through src/lang are affected.
  *
  * The second is that the cost is per language added later. zh-CN is the default
  * and belongs in the entry; a third language does not, and without the rule it
- * would be named into chunk-elementPlus and land there anyway.
+ * would be named into chunk-arco and land there anyway.
  *
  * This tests the rule rather than the output, so it runs in milliseconds and
  * says which rule broke.
@@ -39,24 +39,24 @@ beforeAll(async() => {
 const id = (path: string) => `/repo/node_modules/${path}`
 
 describe('what goes into the first paint', () => {
-  it('names element-plus itself', () => {
+  it('names @arco-design/web-vue itself', () => {
     // The premise of the rest: if this stopped matching, every assertion below
     // would pass while checking nothing.
-    expect(manualChunks(id('element-plus/es/components/button/index.mjs')))
-      .toBe('chunk-elementPlus')
+    expect(manualChunks(id('@arco-design/web-vue/es/components/button/index.mjs')))
+      .toBe('chunk-arco')
   })
 
-  it('leaves element-plus locale packs out of it', () => {
-    // Naming these would put every language Element Plus ships into the entry.
+  it('leaves @arco-design/web-vue locale packs out of it', () => {
+    // Naming these would put every language Arco Design Vue ships into the entry.
     // src/lang loads them with import() and needs them to stay separate.
     //
-    // en.mjs is asserted here for the rule's sake, not because excluding it
-    // achieves anything -- Element Plus imports it statically as its fallback
+    // en-us.js is asserted here for the rule's sake, not because excluding it
+    // achieves anything -- Arco Design Vue imports it statically as its fallback
     // locale, so it reaches the entry through that edge regardless. ja is the
     // case this actually protects.
-    expect(manualChunks(id('element-plus/es/locale/lang/en.mjs'))).toBeUndefined()
-    expect(manualChunks(id('element-plus/es/locale/lang/zh-cn.mjs'))).toBeUndefined()
-    expect(manualChunks(id('element-plus/es/locale/lang/ja.mjs'))).toBeUndefined()
+    expect(manualChunks(id('@arco-design/web-vue/es/locale/lang/en-us.js'))).toBeUndefined()
+    expect(manualChunks(id('@arco-design/web-vue/es/locale/lang/zh-cn.js'))).toBeUndefined()
+    expect(manualChunks(id('@arco-design/web-vue/es/locale/lang/ja-jp.js'))).toBeUndefined()
   })
 
   it('leaves vue-i18n to the bundler rather than folding it into chunk-vue', () => {

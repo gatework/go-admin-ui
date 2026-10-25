@@ -2,147 +2,149 @@
   <PageContainer>
     <ProTable :table="table" selection row-key="postId" :actions-width="120">
       <template #search>
-        <el-form-item :label="$t('admin.sysPost.postCode')">
-          <el-input
+        <a-form-item :label="$t('admin.sysPost.postCode')">
+          <a-input
             v-model="table.query.postCode"
             :placeholder="$t('admin.sysPost.postCodePlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysPost.postName')">
-          <el-input
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysPost.postName')">
+          <a-input
             v-model="table.query.postName"
             :placeholder="$t('admin.sysPost.postNamePlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysPost.status')">
-          <el-select
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysPost.status')">
+          <a-select
             v-model="table.query.status"
             :placeholder="$t('admin.sysPost.statusPlaceholder')"
-            clearable
+            allow-clear
           >
-            <el-option
+            <a-option
               v-for="item in sys_normal_disable"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
-        </el-form-item>
+          </a-select>
+        </a-form-item>
       </template>
 
       <template #toolbar>
-        <el-button v-permisaction="['admin:sysPost:add']" type="primary" @click="form.openCreate()">
+        <a-button v-permisaction="['admin:sysPost:add']" type="primary" @click="form.openCreate()">
           {{ $t('common.add') }}
-        </el-button>
-        <el-button
+        </a-button>
+        <a-button
           v-permisaction="['admin:sysPost:edit']"
           :disabled="table.single"
           @click="form.openEdit(table.selection[0])"
-        >{{ $t('common.edit') }}</el-button>
-        <el-button
+        >{{ $t('common.edit') }}</a-button>
+        <a-button
           v-permisaction="['admin:sysPost:remove']"
-          type="danger"
-          plain
+          status="danger"
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >{{ $t('common.delete') }}</el-button>
-        <el-button
+        >{{ $t('common.delete') }}</a-button>
+        <a-button
           v-permisaction="['admin:sysPost:export']"
           :loading="exporting"
           @click="handleExport"
-        >{{ $t('common.export') }}</el-button>
+        >{{ $t('common.export') }}</a-button>
       </template>
 
-      <el-table-column :label="$t('admin.sysPost.postId')" prop="postId" min-width="90" />
-      <el-table-column
-        :label="$t('admin.sysPost.postCode')"
-        prop="postCode"
-        min-width="120"
-        show-overflow-tooltip
+      <a-table-column :title="$t('admin.sysPost.postId')" data-index="postId" :width="90" />
+      <a-table-column
+        :title="$t('admin.sysPost.postCode')"
+        data-index="postCode"
+        :width="120"
+        ellipsis
+        tooltip
       />
-      <el-table-column
-        :label="$t('admin.sysPost.postName')"
-        prop="postName"
-        min-width="120"
-        show-overflow-tooltip
+      <a-table-column
+        :title="$t('admin.sysPost.postName')"
+        data-index="postName"
+        :width="120"
+        ellipsis
+        tooltip
       />
-      <el-table-column :label="$t('admin.sysPost.postSort')" prop="sort" min-width="90" />
-      <el-table-column :label="$t('admin.sysPost.status')" prop="status" min-width="90">
-        <template #default="{ row }">
-          <el-tag :type="Number(row.status) === 1 ? 'danger' : 'success'" disable-transitions>
+      <a-table-column :title="$t('admin.sysPost.postSort')" data-index="sort" :width="90" />
+      <a-table-column :title="$t('admin.sysPost.status')" data-index="status" :width="90">
+        <template #cell="{ record: row }">
+          <a-tag :color="Number(row.status) === 1 ? 'red' : 'green'">
             {{ dictLabel(sys_normal_disable, row.status) }}
-          </el-tag>
+          </a-tag>
         </template>
-      </el-table-column>
-      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110">
-        <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
-      </el-table-column>
+      </a-table-column>
+      <a-table-column :title="$t('common.createdAt')" data-index="createdAt" :width="110">
+        <template #cell="{ record: row }"><DateCell :value="row.createdAt" /></template>
+      </a-table-column>
 
       <template #actions="{ row }">
-        <el-button v-permisaction="['admin:sysPost:edit']" link type="primary" @click="form.openEdit(row)">
+        <a-button v-permisaction="['admin:sysPost:edit']" type="text" @click="form.openEdit(row)">
           {{ $t('common.edit') }}
-        </el-button>
-        <el-button v-permisaction="['admin:sysPost:remove']" link type="danger" @click="remove(row.postId)">
+        </a-button>
+        <a-button v-permisaction="['admin:sysPost:remove']" status="danger" type="text" @click="remove(row.postId)">
           {{ $t('common.delete') }}
-        </el-button>
+        </a-button>
       </template>
     </ProTable>
 
-    <el-dialog
-      v-model="form.visible"
+    <AppModal
+      v-model:visible="form.visible"
       :title="form.title"
       width="500px"
-      :close-on-click-modal="false"
-      @closed="form.reset"
+      :mask-closable="false"
+      @close="form.reset"
     >
-      <el-form
+      <a-form
         :ref="form.bindFormRef"
-        v-loading="form.loading"
+        :disabled="form.loading"
         :model="form.model"
         :rules="form.rules"
-        label-width="auto"
+        layout="vertical"
       >
-        <el-form-item :label="$t('admin.sysPost.postName')" prop="postName">
-          <el-input v-model="form.model.postName" :placeholder="$t('admin.sysPost.postNamePlaceholder')" />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysPost.postCode')" prop="postCode">
-          <el-input v-model="form.model.postCode" :placeholder="$t('admin.sysPost.codeNamePlaceholder')" />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysPost.sort')" prop="sort">
-          <el-input-number v-model="form.model.sort" controls-position="right" :min="0" />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysPost.postStatus')" prop="status">
-          <el-radio-group v-model="form.model.status">
-            <el-radio
+        <a-form-item :label="$t('admin.sysPost.postName')" field="postName">
+          <a-input v-model="form.model.postName" :placeholder="$t('admin.sysPost.postNamePlaceholder')" />
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysPost.postCode')" field="postCode">
+          <a-input v-model="form.model.postCode" :placeholder="$t('admin.sysPost.codeNamePlaceholder')" />
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysPost.sort')" field="sort">
+          <a-input-number v-model="form.model.sort" :min="0" />
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysPost.postStatus')" field="status">
+          <a-radio-group v-model="form.model.status">
+            <a-radio
               v-for="item in sys_normal_disable"
               :key="item.value"
               :value="item.value"
-            >{{ item.label }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysPost.remark')" prop="remark">
-          <el-input
+            >{{ item.label }}</a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysPost.remark')" field="remark">
+          <a-textarea
             v-model="form.model.remark"
-            type="textarea"
+
             :placeholder="$t('admin.sysPost.remarkPlaceholder')"
           />
-        </el-form-item>
-      </el-form>
+        </a-form-item>
+      </a-form>
       <template #footer>
-        <el-button @click="form.close">{{ $t('common.dialogCancel') }}</el-button>
-        <el-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</el-button>
+        <a-button @click="form.close">{{ $t('common.dialogCancel') }}</a-button>
+        <a-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</a-button>
       </template>
-    </el-dialog>
+    </AppModal>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormRules } from 'element-plus'
+import type { FormRules } from '@/types/ui'
 
+import AppModal from '@/components/AppModal/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
@@ -174,9 +176,9 @@ const table = useTable<SysPost, SysPostQuery>({
  * unchanged.
  */
 const rules = computed<FormRules>(() => ({
-  postName: [{ required: true, message: t('admin.sysPost.rules.postName'), trigger: 'blur' }],
-  postCode: [{ required: true, message: t('admin.sysPost.rules.postCode'), trigger: 'blur' }],
-  sort: [{ required: true, message: t('admin.sysPost.rules.sort'), trigger: 'blur' }]
+  postName: [{ required: true, message: t('admin.sysPost.rules.postName') }],
+  postCode: [{ required: true, message: t('admin.sysPost.rules.postCode') }],
+  sort: [{ required: true, message: t('admin.sysPost.rules.sort') }]
 }))
 
 const form = useForm<SysPost, number>({

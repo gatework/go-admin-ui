@@ -1,156 +1,158 @@
 <template>
-  <el-card>
-    <el-tabs v-model="activeName">
-      <el-tab-pane :label="$t('devTools.editTable.tabBasic')" name="basic">
+  <a-card>
+    <AppTabs v-model:active-key="activeName" :lazy-load="false">
+      <a-tab-pane key="basic" :title="$t('devTools.editTable.tabBasic')">
         <BasicInfoForm ref="basicForm" v-model="info" />
-      </el-tab-pane>
-      <el-tab-pane :label="$t('devTools.editTable.tabColumns')" name="cloum">
-        <el-alert
+      </a-tab-pane>
+      <a-tab-pane key="cloum" :title="$t('devTools.editTable.tabColumns')">
+        <a-alert
           :title="$t('devTools.editTable.hiddenColumns')"
           type="warning"
           show-icon
         />
-        <el-table :data="columns" max-height="calc(100vh - 300px)" style="width: 100%">
-          <el-table-column fixed :label="$t('devTools.editTable.index')" type="index" width="50" />
-          <el-table-column
-            fixed
-            :label="$t('devTools.editTable.columnName')"
-            prop="columnName"
-            width="150"
-            :show-overflow-tooltip="true"
+        <a-table :data="columns" :pagination="false" :scroll="{ x: 2800, y: 'calc(100vh - 300px)' }"><template #columns>
+          <a-table-column fixed="left" :title="$t('devTools.editTable.index')" :width="50"><template #cell="{ rowIndex }">{{ rowIndex + 1 }}</template></a-table-column>
+          <a-table-column
+            fixed="left"
+            :title="$t('devTools.editTable.columnName')"
+            data-index="columnName"
+            :width="150"
+            ellipsis
+            tooltip
           />
-          <el-table-column fixed :label="$t('devTools.editTable.columnComment')" width="150">
-            <template #default="scope">
-              <el-input v-model="scope.row.columnComment" />
+          <a-table-column fixed="left" :title="$t('devTools.editTable.columnComment')" :width="150">
+            <template #cell="scope">
+              <a-input v-model="scope.record.columnComment" />
             </template>
-          </el-table-column>
-          <el-table-column
-            :label="$t('devTools.editTable.columnType')"
-            prop="columnType"
-            width="120"
-            :show-overflow-tooltip="true"
+          </a-table-column>
+          <a-table-column
+            :title="$t('devTools.editTable.columnType')"
+            data-index="columnType"
+            :width="120"
+            ellipsis
+            tooltip
           />
-          <el-table-column :label="$t('devTools.editTable.goType')" width="120">
-            <template #default="scope">
-              <el-select v-model="scope.row.goType">
-                <el-option label="int64" value="int64" />
-                <el-option label="string" value="string" />
-                <!-- <el-option label="int" value="int" />
-                <el-option label="bool" value="bool" /> -->
-              </el-select>
+          <a-table-column :title="$t('devTools.editTable.goType')" :width="120">
+            <template #cell="scope">
+              <a-select v-model="scope.record.goType">
+                <a-option label="int64" value="int64" />
+                <a-option label="string" value="string" />
+                <!-- <a-option label="int" value="int" />
+                <a-option label="bool" value="bool" /> -->
+              </a-select>
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('devTools.editTable.goField')" width="150">
-            <template #default="scope">
-              <el-input v-model="scope.row.goField" />
+          </a-table-column>
+          <a-table-column :title="$t('devTools.editTable.goField')" :width="150">
+            <template #cell="scope">
+              <a-input v-model="scope.record.goField" />
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('devTools.editTable.jsonField')" width="150">
-            <template #default="scope">
-              <el-input v-model="scope.row.jsonField" />
+          </a-table-column>
+          <a-table-column :title="$t('devTools.editTable.jsonField')" :width="150">
+            <template #cell="scope">
+              <a-input v-model="scope.record.jsonField" />
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('devTools.editTable.colWidth')" width="150">
-            <template #default="scope">
-              <el-input-number
-                :model-value="colWidthModel(scope.row)"
+          </a-table-column>
+          <a-table-column :title="$t('devTools.editTable.colWidth')" :width="150">
+            <template #cell="scope">
+              <a-input-number
+                :model-value="colWidthModel(scope.record)"
                 :min="40"
                 :max="800"
                 :placeholder="$t('devTools.editTable.colWidthPlaceholder')"
-                controls-position="right"
-                @update:model-value="(value: number | undefined) => setColWidth(scope.row, value)"
+
+                @update:model-value="(value: number | undefined) => setColWidth(scope.record, value)"
               />
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('devTools.editTable.defaultValue')" width="150">
-            <template #default="scope">
-              <el-input
-                v-model="scope.row.defaultValue"
+          </a-table-column>
+          <a-table-column :title="$t('devTools.editTable.defaultValue')" :width="150">
+            <template #cell="scope">
+              <a-input
+                v-model="scope.record.defaultValue"
                 :placeholder="$t('devTools.editTable.defaultValuePlaceholder')"
               />
             </template>
-          </el-table-column>
+          </a-table-column>
 
-          <el-table-column :label="$t('devTools.editTable.isInsert')" width="80" align="center">
-            <template #header>
+          <a-table-column :title="$t('devTools.editTable.isInsert')" :width="80" align="center">
+            <template #title>
               <FieldLabel
                 :label="$t('devTools.editTable.isInsert')"
                 :tip="$t('devTools.editTable.isInsertTip')"
               />
             </template>
-            <template #default="scope">
-              <el-checkbox v-model="scope.row.isInsert" true-value="1" false-value="0" />
+            <template #cell="scope">
+              <a-checkbox :model-value="scope.record.isInsert === '1'" @update:model-value="scope.record.isInsert = $event ? '1' : '0'" />
             </template>
-          </el-table-column>
+          </a-table-column>
           <!--
-            #header, not :render-header. The render functions this replaces were
+            #title, not :render-header. The render functions this replaces were
             Vue 2 syntax -- h('el-popover', { props }) with slot: 'reference' --
             which throws under Vue 3, and one throwing header renderer takes the
             whole header row with it: the table rendered with zero <th> and no
             column labels at all.
           -->
-          <el-table-column :label="$t('devTools.editTable.isList')" width="80" align="center">
-            <template #header>
+          <a-table-column :title="$t('devTools.editTable.isList')" :width="80" align="center">
+            <template #title>
               <FieldLabel
                 :label="$t('devTools.editTable.isList')"
                 :tip="$t('devTools.editTable.isListTip')"
               />
             </template>
-            <template #default="scope">
-              <el-checkbox v-model="scope.row.isList" true-value="1" false-value="0" />
+            <template #cell="scope">
+              <a-checkbox :model-value="scope.record.isList === '1'" @update:model-value="scope.record.isList = $event ? '1' : '0'" />
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('devTools.editTable.isQuery')" width="80" align="center">
-            <template #header>
+          </a-table-column>
+          <a-table-column :title="$t('devTools.editTable.isQuery')" :width="80" align="center">
+            <template #title>
               <FieldLabel
                 :label="$t('devTools.editTable.isQuery')"
                 :tip="$t('devTools.editTable.isQueryTip')"
               />
             </template>
-            <template #default="scope">
-              <el-checkbox v-model="scope.row.isQuery" true-value="1" false-value="0" />
+            <template #cell="scope">
+              <a-checkbox :model-value="scope.record.isQuery === '1'" @update:model-value="scope.record.isQuery = $event ? '1' : '0'" />
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('devTools.editTable.queryType')" width="120">
-            <template #default="scope">
-              <el-select v-model="scope.row.queryType">
-                <el-option label="=" value="EQ" />
-                <el-option label="!=" value="NE" />
-                <el-option label=">" value="GT" />
-                <el-option label=">=" value="GTE" />
-                <el-option label="<" value="LT" />
-                <el-option label="<=" value="LTE" />
-                <el-option label="LIKE" value="LIKE" />
-                <!-- <el-option label="BETWEEN" value="BETWEEN" /> -->
-              </el-select>
+          </a-table-column>
+          <a-table-column :title="$t('devTools.editTable.queryType')" :width="120">
+            <template #cell="scope">
+              <a-select v-model="scope.record.queryType">
+                <a-option label="=" value="EQ" />
+                <a-option label="!=" value="NE" />
+                <a-option label=">" value="GT" />
+                <a-option label=">=" value="GTE" />
+                <a-option label="<" value="LT" />
+                <a-option label="<=" value="LTE" />
+                <a-option label="LIKE" value="LIKE" />
+                <!-- <a-option label="BETWEEN" value="BETWEEN" /> -->
+              </a-select>
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('devTools.editTable.isRequired')" width="50">
-            <template #default="scope">
-              <el-checkbox v-model="scope.row.isRequired" true-value="1" false-value="0" />
+          </a-table-column>
+          <a-table-column :title="$t('devTools.editTable.isRequired')" :width="50">
+            <template #cell="scope">
+              <a-checkbox :model-value="scope.record.isRequired === '1'" @update:model-value="scope.record.isRequired = $event ? '1' : '0'" />
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('devTools.editTable.htmlType')" width="140">
-            <template #default="scope">
-              <el-select v-model="scope.row.htmlType">
-                <el-option :label="$t('devTools.editTable.htmlTypes.input')" value="input" />
-                <el-option :label="$t('devTools.editTable.htmlTypes.select')" value="select" />
-                <el-option :label="$t('devTools.editTable.htmlTypes.radio')" value="radio" />
-                <el-option :label="$t('devTools.editTable.htmlTypes.checkbox')" value="checkbox" />
-                <el-option :label="$t('devTools.editTable.htmlTypes.datetime')" value="datetime" />
-                <el-option :label="$t('devTools.editTable.htmlTypes.textarea')" value="textarea" />
-              </el-select>
+          </a-table-column>
+          <a-table-column :title="$t('devTools.editTable.htmlType')" :width="140">
+            <template #cell="scope">
+              <a-select v-model="scope.record.htmlType">
+                <a-option :label="$t('devTools.editTable.htmlTypes.input')" value="input" />
+                <a-option :label="$t('devTools.editTable.htmlTypes.select')" value="select" />
+                <a-option :label="$t('devTools.editTable.htmlTypes.radio')" value="radio" />
+                <a-option :label="$t('devTools.editTable.htmlTypes.checkbox')" value="checkbox" />
+                <a-option :label="$t('devTools.editTable.htmlTypes.datetime')" value="datetime" />
+                <a-option :label="$t('devTools.editTable.htmlTypes.textarea')" value="textarea" />
+              </a-select>
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('devTools.editTable.dictType')" width="160">
-            <template #default="scope">
-              <el-select
-                v-model="scope.row.dictType"
-                clearable
-                filterable
+          </a-table-column>
+          <a-table-column :title="$t('devTools.editTable.dictType')" :width="160">
+            <template #cell="scope">
+              <a-select
+                v-model="scope.record.dictType"
+                allow-clear
+                allow-search
                 :placeholder="$t('common.selectPlaceholder')"
               >
-                <el-option
+                <a-option
                   v-for="dict in dictOptions"
                   :key="dict.dictType"
                   :label="dictTypeName(dict)"
@@ -158,20 +160,20 @@
                 >
                   <span style="float: left">{{ dictTypeName(dict) }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ dict.dictType }}</span>
-                </el-option>
-              </el-select>
+                </a-option>
+              </a-select>
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('devTools.editTable.fkTableName')" width="160">
-            <template #default="scope">
-              <el-select
-                v-model="scope.row.fkTableName"
-                clearable
-                filterable
+          </a-table-column>
+          <a-table-column :title="$t('devTools.editTable.fkTableName')" :width="160">
+            <template #cell="scope">
+              <a-select
+                v-model="scope.record.fkTableName"
+                allow-clear
+                allow-search
                 :placeholder="$t('common.selectPlaceholder')"
-                @change="attachForeignColumns(scope.row)"
+                @change="attachForeignColumns(scope.record)"
               >
-                <el-option
+                <a-option
                   v-for="table in tableTree"
                   :key="table.tableName"
                   :label="table.tableName"
@@ -179,67 +181,68 @@
                 >
                   <span style="float: left">{{ table.tableName }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ table.tableComment }}</span>
-                </el-option>
-              </el-select>
+                </a-option>
+              </a-select>
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('devTools.editTable.fkLabelId')" width="150">
-            <template #default="scope">
-              <el-select
-                v-model="scope.row.fkLabelId"
-                clearable
-                filterable
+          </a-table-column>
+          <a-table-column :title="$t('devTools.editTable.fkLabelId')" :width="150">
+            <template #cell="scope">
+              <a-select
+                v-model="scope.record.fkLabelId"
+                allow-clear
+                allow-search
                 :placeholder="$t('common.selectPlaceholder')"
               >
-                <el-option
-                  v-for="column in scope.row.fkCol"
+                <a-option
+                  v-for="column in scope.record.fkCol"
                   :key="column.columnName"
                   :label="column.columnName"
                   :value="column.jsonField"
                 >
                   <span style="float: left">{{ column.jsonField }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ column.columnComment }}</span>
-                </el-option>
-              </el-select>
+                </a-option>
+              </a-select>
             </template>
-          </el-table-column>
-          <el-table-column :label="$t('devTools.editTable.fkLabelName')" width="150">
-            <template #default="scope">
-              <el-select
-                v-model="scope.row.fkLabelName"
-                clearable
-                filterable
+          </a-table-column>
+          <a-table-column :title="$t('devTools.editTable.fkLabelName')" :width="150">
+            <template #cell="scope">
+              <a-select
+                v-model="scope.record.fkLabelName"
+                allow-clear
+                allow-search
                 :placeholder="$t('common.selectPlaceholder')"
               >
-                <el-option
-                  v-for="column in scope.row.fkCol"
+                <a-option
+                  v-for="column in scope.record.fkCol"
                   :key="column.columnName"
                   :label="column.columnName"
                   :value="column.jsonField"
                 >
                   <span style="float: left">{{ column.jsonField }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ column.columnComment }}</span>
-                </el-option>
-              </el-select>
+                </a-option>
+              </a-select>
             </template>
-          </el-table-column>
-        </el-table>
-      </el-tab-pane>
-      <el-tab-pane :label="$t('devTools.editTable.tabGen')" name="genInfo">
+          </a-table-column>
+        </template></a-table>
+      </a-tab-pane>
+      <a-tab-pane key="genInfo" :title="$t('devTools.editTable.tabGen')">
         <GenInfoForm ref="genForm" v-model="info" />
-      </el-tab-pane>
-    </el-tabs>
-    <el-form label-width="100px">
-      <el-form-item style="text-align: center;margin-left:-100px;margin-top:10px;">
-        <el-button @click="close()">{{ $t('devTools.editTable.back') }}</el-button>
-        <el-button type="primary" :loading="saving" @click="submit()">
-          {{ $t('devTools.editTable.submit') }}
-        </el-button>
-      </el-form-item>
-    </el-form>
-  </el-card>
+      </a-tab-pane>
+    </AppTabs>
+    <div class="gen-editor-actions">
+
+      <a-button @click="close()">{{ $t('devTools.editTable.back') }}</a-button>
+      <a-button type="primary" :loading="saving" @click="submit()">
+        {{ $t('devTools.editTable.submit') }}
+      </a-button>
+
+    </div>
+  </a-card>
 </template>
 <script setup lang="ts">
+import AppTabs from '@/components/AppTabs/index.vue'
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -293,10 +296,10 @@ const dictTypeName = (dict: SysDictType) => translateDictTypeName(dict.dictType,
 /**
  * The relation pickers offer the columns of whichever table a row points at.
  *
- * Empty rather than a placeholder row: the two el-options below bind
+ * Empty rather than a placeholder row: the two a-options below bind
  * `:value="column.jsonField"`, which that row does not carry, so it rendered an
  * option whose value was undefined and Element Plus warned on every one of them.
- * el-select shows its own placeholder when it has no options.
+ * a-select shows its own placeholder when it has no options.
  */
 const attachForeignColumns = (row: GenTable) => {
   const target = tableTree.value.find(item => item.tableName === row.fkTableName)
@@ -306,8 +309,8 @@ const attachForeignColumns = (row: GenTable) => {
 /**
  * colWidth uses 0 as its "not set" sentinel (PRD 010 R2/G12): the generator
  * falls back to inferring a width from columnType when the column has never
- * been configured. el-input-number only shows its placeholder for
- * undefined/null though, so binding straight to scope.row.colWidth would
+ * been configured. a-input-number only shows its placeholder for
+ * undefined/null though, so binding straight to scope.record.colWidth would
  * render a literal, permanent 0 instead of the "leave blank" hint -- these two
  * are the display-layer conversion. The sentinel itself is untouched in
  * `columns`, which is what submit() sends back.
@@ -329,7 +332,7 @@ const load = async() => {
       getGenTable(tableId),
       getDictOptionselect()
     ])
-    // No placeholder row: el-select already has a placeholder, and this one
+    // No placeholder row: a-select already has a placeholder, and this one
     // carried `className` while the option below binds `tableName` -- so every
     // render rejected an undefined `value`. Same shape as the fkCol default
     // above, and the other half of the same fault.

@@ -26,7 +26,7 @@ test.describe('list pages on a narrow screen', () => {
     await expect(page.locator('.pro-card').first()).toBeVisible()
     // Both must hold: a card list rendered *beside* a surviving table would
     // still leave the horizontal drag in place.
-    await expect(page.locator('.el-table')).toHaveCount(0)
+    await expect(page.locator('.arco-table')).toHaveCount(0)
   })
 
   test('nothing has to be dragged sideways', async({ page }) => {
@@ -136,7 +136,25 @@ test.describe('list pages on a narrow screen', () => {
     await expect.poll(settled, { timeout: 5000 }).toBeLessThan(-50)
 
     // And the button underneath is now usable, which is the point.
-    await expect(card.locator('.pro-card__actions .el-button').first()).toBeVisible()
+    await expect(card.locator('.pro-card__actions .arco-btn').first()).toBeVisible()
+  })
+
+  test('row actions are also reachable by keyboard and return focus on Escape', async({ page }) => {
+    await installApiMocks(page)
+    await page.setViewportSize(PHONE)
+    await page.goto('/#/admin/sys-user')
+    const card = page.locator('.pro-card').first()
+    const actions = card.locator('.pro-card__actions')
+    const trigger = card.getByRole('button', { name: '操作', exact: true })
+    await expect(trigger).toBeVisible()
+    await expect(actions).toHaveAttribute('inert')
+    await trigger.focus()
+    await page.keyboard.press('Enter')
+    await expect(actions.locator('button').first()).toBeFocused()
+    await expect(actions).not.toHaveAttribute('inert')
+    await page.keyboard.press('Escape')
+    await expect(trigger).toBeFocused()
+    await expect(actions).toHaveAttribute('inert')
   })
 
   test('a column renders on the card the way it renders in the table', async({ page }) => {
@@ -148,7 +166,7 @@ test.describe('list pages on a narrow screen', () => {
     // sys-user draws its status column as an el-switch. Reusing the column's
     // own slot is what this whole approach buys -- a second renderer for
     // mobile is the thing that rots.
-    await expect(page.locator('.pro-card__badge .el-switch').first()).toBeVisible()
+    await expect(page.locator('.pro-card__badge .arco-switch').first()).toBeVisible()
   })
 
   test('the table comes back on a wide screen', async({ page }) => {
@@ -156,7 +174,7 @@ test.describe('list pages on a narrow screen', () => {
     await page.setViewportSize(DESKTOP)
     await page.goto('/#/admin/sys-user')
 
-    await expect(page.locator('.el-table').first()).toBeVisible()
+    await expect(page.locator('.arco-table').first()).toBeVisible()
     await expect(page.locator('.pro-card')).toHaveCount(0)
   })
 
@@ -164,16 +182,16 @@ test.describe('list pages on a narrow screen', () => {
     await installApiMocks(page)
     await page.setViewportSize(DESKTOP)
     await page.goto('/#/admin/sys-user')
-    await expect(page.locator('.el-table').first()).toBeVisible()
+    await expect(page.locator('.arco-table').first()).toBeVisible()
 
     // matchMedia only fires when the answer changes; a listener that never
     // registered leaves the table in place at phone width.
     await page.setViewportSize(PHONE)
     await expect(page.locator('.pro-card').first()).toBeVisible()
-    await expect(page.locator('.el-table')).toHaveCount(0)
+    await expect(page.locator('.arco-table')).toHaveCount(0)
 
     await page.setViewportSize(DESKTOP)
-    await expect(page.locator('.el-table').first()).toBeVisible()
+    await expect(page.locator('.arco-table').first()).toBeVisible()
   })
 })
 
@@ -201,9 +219,9 @@ const LIST_PAGES = [
   '/#/demo/product'
 ]
 
-test.describe('every list page as cards', () => {
+test.describe('every list page on a narrow screen', () => {
   for (const route of LIST_PAGES) {
-    test(`${route} renders cards without breaking`, async({ page, context }) => {
+    test(`${route} keeps its records reachable`, async({ page, context }) => {
       // Uncaught exceptions only. Console errors are dominated by resources the
       // mocks do not serve -- avatars and the like -- which say nothing about
       // whether the cards rendered.
@@ -221,18 +239,22 @@ test.describe('every list page as cards', () => {
       await page.setViewportSize(PHONE)
       await page.goto(route)
 
-      await expect(page.locator('.pro-card').first()).toBeVisible({ timeout: 15000 })
+      const child = route.endsWith('/sys-dept') ? '前端组' : route.endsWith('/sys-menu') ? '用户管理' : undefined
+      if (child) {
+        // Flat cards cannot represent expandable descendants. Keep the tree
+        // renderer and prove that a child, not just its root, is reachable.
+        await expect(page.locator('.arco-table')).toBeVisible({ timeout: 15000 })
+        await expect(page.locator('.arco-table tbody').getByText(child, { exact: true })).toBeVisible()
+        await expect(page.locator('.pro-card')).toHaveCount(0)
+      } else {
+        await expect(page.locator('.pro-card').first()).toBeVisible({ timeout: 15000 })
+        const title = await page.locator('.pro-card__title').first().textContent()
+        expect(title?.trim(), 'the first card has no heading').toBeTruthy()
+      }
 
-      // A card whose heading is blank means the column split produced nothing
-      // to lead with -- it renders, but it is useless.
-      const title = await page.locator('.pro-card__title').first().textContent()
-      expect(title?.trim(), 'the first card has no heading').toBeTruthy()
-
-      const { scrollWidth, clientWidth } = await page.evaluate(() => ({
-        scrollWidth: document.documentElement.scrollWidth,
-        clientWidth: document.documentElement.clientWidth
-      }))
-      expect(scrollWidth, `${route} scrolls sideways`).toBeLessThanOrEqual(clientWidth)
+      await expect.poll(() => page.evaluate(() =>
+        document.documentElement.scrollWidth - document.documentElement.clientWidth
+      ), { message: `${route} scrolls sideways` }).toBeLessThanOrEqual(0)
 
       expect(errors, `${route} logged: ${errors[0] ?? ''}`).toEqual([])
     })

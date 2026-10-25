@@ -22,7 +22,7 @@ const auth = {
   setToken: vi.fn(),
   removeToken: vi.fn()
 }
-const storage = { clear: vi.fn() }
+const storage = { clear: vi.fn(), get: vi.fn(), set: vi.fn() }
 
 vi.mock('@/api/user', () => ({
   login: (...args) => api.login(...args),
@@ -35,7 +35,7 @@ vi.mock('@/utils/auth', () => ({
   removeToken: (...args) => auth.removeToken(...args)
 }))
 vi.mock('@/utils/storage', () => ({
-  default: { clear: (...args) => storage.clear(...args) }
+  default: { clear: (...args) => storage.clear(...args), get: (...args) => storage.get(...args), set: (...args) => storage.set(...args) }
 }))
 
 const { useUserStore } = await import('@/stores/user')

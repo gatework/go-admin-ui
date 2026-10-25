@@ -14,9 +14,9 @@ test.describe('sys-role', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-role')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
     await expect(page.getByRole('cell', { name: '系统管理员' })).toBeVisible()
   })
 
@@ -24,7 +24,7 @@ test.describe('sys-role', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-role')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     expect(calls.role.list).toBeGreaterThan(0)
     const sent = calls.role.listQueries.at(-1) ?? ''
@@ -36,11 +36,11 @@ test.describe('sys-role', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-role')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     const before = calls.role.list
 
     await page.getByRole('row', { name: /普通角色/ }).getByRole('button', { name: '删除' }).click()
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '删除' }).click()
 
     await expect.poll(() => calls.role.remove).toBe(1)
     await expect.poll(() => calls.role.list).toBeGreaterThan(before)
@@ -50,12 +50,12 @@ test.describe('sys-role', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-role')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /普通角色/ }).getByRole('button', { name: '修改' }).click()
     const dialog = page.getByRole('dialog').filter({ hasText: '修改角色' })
     await expect(dialog).toBeVisible()
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
 
     await expect.poll(() => calls.role.update).toBe(1)
     await expect(dialog).toBeHidden()
@@ -69,13 +69,13 @@ test.describe('sys-role', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-role')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /普通角色/ }).getByRole('button', { name: '数据权限' }).click()
 
     const dialog = page.getByRole('dialog').filter({ hasText: '分配数据权限' })
     await expect(dialog).toBeVisible()
-    await expect(dialog.locator('.el-form-item').filter({ hasText: '角色名称' })
+    await expect(dialog.locator('.arco-form-item').filter({ hasText: '角色名称' })
       .locator('input')).toHaveValue('普通角色')
   })
 
@@ -83,29 +83,29 @@ test.describe('sys-role', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-role')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // 普通角色 is seeded with dataScope '2' -- the custom one
     await page.getByRole('row', { name: /普通角色/ }).getByRole('button', { name: '数据权限' }).click()
     const dialog = page.getByRole('dialog').filter({ hasText: '分配数据权限' })
-    await expect(dialog.locator('.el-tree')).toBeVisible()
+    await expect(dialog.locator('.arco-tree')).toBeVisible()
 
     // 系统管理员 is '1' -- all data, so there is nothing to pick
     await dialog.getByRole('button', { name: '取 消' }).click()
     await page.getByRole('row', { name: /系统管理员/ }).getByRole('button', { name: '数据权限' }).click()
-    await expect(dialog.locator('.el-tree')).toBeHidden()
+    await expect(dialog.locator('.arco-tree')).toBeHidden()
   })
 
   test('saving the data scope sends the ticked departments', async({ page }) => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-role')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /普通角色/ }).getByRole('button', { name: '数据权限' }).click()
     const dialog = page.getByRole('dialog').filter({ hasText: '分配数据权限' })
     await expect(dialog).toBeVisible()
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
 
     await expect.poll(() => calls.extra.roleDataScope).toBe(1)
     await expect(dialog).toBeHidden()
@@ -116,7 +116,7 @@ test.describe('sys-role', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-role')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /普通角色/ }).getByRole('button', { name: '数据权限' }).click()
     const scope = page.getByRole('dialog').filter({ hasText: '分配数据权限' })
@@ -136,7 +136,7 @@ test.describe('sys-role', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-role')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /普通角色/ }).getByRole('button', { name: '修改' }).click()
 
@@ -152,7 +152,7 @@ test.describe('sys-role', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-role')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // roleKey 'admin' holds everything implicitly
     await page.getByRole('row', { name: /系统管理员/ }).getByRole('button', { name: '修改' }).click()
@@ -165,16 +165,16 @@ test.describe('sys-role', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-role')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     const row = page.getByRole('row', { name: /普通角色/ })
-    await row.locator('.el-switch').click()
+    await row.locator('.arco-switch').click()
 
-    const confirm = page.locator('.el-message-box')
+    const confirm = page.locator('.arco-modal-simple')
     await expect(confirm).toBeVisible()
     await confirm.getByRole('button', { name: '取消' }).click()
 
     // Put back, so the switch matches what the server still holds
-    await expect(row.locator('.el-switch')).not.toHaveClass(/is-checked/)
+    await expect(row.locator('.arco-switch')).not.toHaveClass(/arco-switch-checked/)
   })
 })

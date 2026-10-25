@@ -22,6 +22,7 @@ export interface SysUser {
   deptId?: number
   postId?: number
   roleId?: number
+  roleIds?: number[]
   dept?: { deptId?: number, deptName?: string }
   createdAt?: string
 }

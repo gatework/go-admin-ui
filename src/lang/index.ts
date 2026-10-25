@@ -1,6 +1,6 @@
 import { createI18n } from 'vue-i18n'
 import { shallowRef } from 'vue'
-import elementZhCn from 'element-plus/es/locale/lang/zh-cn'
+import arcoZhCn from '@arco-design/web-vue/es/locale/lang/zh-cn'
 import zhCN from './zh-CN'
 import { DEFAULT_LOCALE, fixedLocale, initialLocale, rememberLocale, type Locale } from './locales'
 
@@ -25,22 +25,11 @@ const messageLoaders: Record<Locale, () => Promise<Record<string, unknown>>> = {
   'en-US': () => import('./en-US').then(module => module.default)
 }
 
-/**
- * Element Plus's own strings -- the date picker, the empty table, pagination.
- *
- * These cannot ride on the `locale` ref: Element Plus reads its locale from an
- * injected config, so the app has to be wrapped in <el-config-provider> bound
- * to this ref. Passing `locale` to `app.use(ElementPlus, ...)` instead, as this
- * project did, fixes the language at boot -- the plugin reads the option once.
- */
-type ElementLocale = typeof elementZhCn
-
-const elementLoaders: Record<Locale, () => Promise<ElementLocale>> = {
-  'zh-CN': () => Promise.resolve(elementZhCn),
-  'en-US': () => import('element-plus/es/locale/lang/en').then(module => module.default)
+export const arcoLocale = shallowRef(arcoZhCn)
+const arcoLoaders: Record<Locale, () => Promise<typeof arcoZhCn>> = {
+  'zh-CN': () => Promise.resolve(arcoZhCn),
+  'en-US': () => import('@arco-design/web-vue/es/locale/lang/en-us').then(module => module.default)
 }
-
-export const elementLocale = shallowRef<ElementLocale>(elementZhCn)
 
 export const i18n = createI18n({
   legacy: false,
@@ -64,7 +53,7 @@ export const setLocale = async(locale: Locale): Promise<void> => {
   if (!i18n.global.availableLocales.includes(locale)) {
     i18n.global.setLocaleMessage(locale, await messageLoaders[locale]())
   }
-  elementLocale.value = await elementLoaders[locale]()
+  arcoLocale.value = await arcoLoaders[locale]()
 
   i18n.global.locale.value = locale
   /*

@@ -1,135 +1,53 @@
 <template>
   <div ref="rootRef" class="pro-table" :class="{ 'pro-table--flat': !panels }">
-    <!--
-      On a phone the filters are collapsed behind a button. Left open they cost
-      181px -- a quarter of the screen -- before a single row is visible, and a
-      list page whose first screen is a form is not a list page. The count on
-      the button is what makes collapsing safe: a filter still applied while the
-      panel is shut would otherwise be invisible, and an empty-looking list with
-      no explanation is worse than the space the form took.
-    -->
     <div v-if="asCards && $slots.search" class="pro-table__filter-bar">
-      <el-button text @click="filtersOpen = !filtersOpen">
-        <el-icon class="pro-table__filter-icon"><Search /></el-icon>
-        {{ $t('components.proTable.filters') }}<template v-if="activeFilters"> · {{ activeFilters }}</template>
-      </el-button>
+      <a-button type="text" :aria-expanded="filtersOpen" @click="filtersOpen = !filtersOpen">
+        <icon-search />{{ $t('components.proTable.filters') }}<template v-if="activeFilters"> · {{ activeFilters }}</template>
+      </a-button>
     </div>
-
-    <!--
-      On a phone the filters live in a sheet that rises from the bottom, not in
-      a panel that pushes the list down. Inline, they cost 181px before a single
-      row is visible; in a sheet they cost a button, and the list stays the page.
-      Rising from the bottom rather than the side puts the controls within reach
-      of the thumb that opened them.
-    -->
-    <el-drawer
+    <a-drawer
       v-if="asCards && $slots.search"
-      v-model="filtersOpen"
-      direction="btt"
-      size="auto"
-      :with-header="false"
+      v-model:visible="filtersOpen"
+      placement="bottom"
+      height="auto"
+      :footer="false"
+      :title="$t('components.proTable.filters')"
       class="pro-table__sheet"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="$t('components.proTable.filters')"
+      unmount-on-close
+      :data-dialog-focus="restoreFilterFocus.id"
+      @open="restoreFilterFocus.open"
+      @close="restoreFilterFocus"
     >
-      <div class="pro-table__sheet-grip" />
-      <el-form :model="table.query" label-position="top" class="pro-table__sheet-form" @submit.prevent="submitFilters">
+      <a-form :model="table.query" layout="vertical" class="pro-table__sheet-form" @submit-success="submitFilters">
         <slot name="search" />
         <div class="pro-table__sheet-actions">
-          <el-button @click="resetFilters">{{ $t('common.reset') }}</el-button>
-          <el-button type="primary" native-type="submit" :loading="table.loading">{{ $t('components.proTable.showResults') }}</el-button>
+          <a-button @click="resetFilters">{{ $t('common.reset') }}</a-button>
+          <a-button type="primary" html-type="submit" :loading="table.loading">{{ $t('components.proTable.showResults') }}</a-button>
         </div>
-      </el-form>
-    </el-drawer>
-
-    <component
-      :is="panelTag"
-      v-if="$slots.search && !asCards"
-      v-bind="panelProps"
-      class="pro-table__search-panel"
-    >
-      <!--
-        A grid, not an inline row. Inline, the fields wrap wherever they happen
-        to run out of room, so the second line starts under whichever field was
-        widest and no two pages break in the same place. Fixed columns line the
-        labels and the controls up down the panel, and -- because a row now holds
-        a known number of fields -- make "everything past the first row" a
-        question the component can answer.
-      -->
-      <el-form
-        :model="table.query"
-        label-width="auto"
-        class="pro-table__search"
-        :style="{
-          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-          // Clamped here rather than in a second CSS rule: a field asking for
-          // two columns of a one-column grid would overflow it.
-          '--wide-span': Math.min(2, cols)
-        }"
-        :data-visible="collapsed ? collapsible() : 0"
-        @submit.prevent="table.search"
-      >
+      </a-form>
+    </a-drawer>
+    <component :is="panelTag" v-if="$slots.search && !asCards" class="pro-table__search-panel">
+      <a-form :model="table.query" layout="inline" class="pro-table__search" :style="{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, '--wide-span': Math.min(2, cols) }" :data-visible="collapsed ? collapsible() : 0" @submit-success="table.search">
         <slot name="search" />
-        <!--
-          The actions sit in the last column, which is where the eye ends up
-          after reading the fields and where the toolbar and the row actions
-          below already are. Not an el-form-item: it would be counted as a field
-          by the rule that hides the overflow, and it carries no label.
-        -->
         <div class="pro-table__search-actions">
-          <el-button @click="handleReset">{{ $t('common.reset') }}</el-button>
-          <!--
-            native-type="submit" makes this the form's default submit button, so
-            Enter in any search field reaches @submit.prevent above and nothing
-            else needs a @keyup.enter of its own. Without it the browser's implicit
-            submission rule applies, which only fires when the form has exactly one
-            field that blocks it -- so Enter worked on some search bars, did
-            nothing on others, and double-fired on any page that added its own
-            @keyup.enter to compensate.
-          -->
-          <el-button type="primary" native-type="submit" :loading="table.loading">{{ $t('common.search') }}</el-button>
-          <!--
-            Offered only when something is actually hidden. A toggle on a panel
-            that already shows every filter is a control whose two states look
-            identical, and pages here carry between two and four filters -- so on
-            a wide screen most of them never collapse at all.
-          -->
-          <el-button
-            v-if="collapsible()"
-            link
-            type="primary"
-            @click="collapsed = !collapsed"
-          >
+          <a-button @click="handleReset">{{ $t('common.reset') }}</a-button>
+          <a-button type="primary" html-type="submit" :loading="table.loading">{{ $t('common.search') }}</a-button>
+          <a-button v-if="collapsible()" type="text" @click="collapsed = !collapsed">
             {{ collapsed ? $t('components.proTable.expand') : $t('components.proTable.collapse') }}
-            <el-icon class="pro-table__search-caret" :class="{ 'is-open': !collapsed }"><ArrowDown /></el-icon>
-          </el-button>
+            <icon-down class="pro-table__search-caret" :class="{ 'is-open': !collapsed }" />
+          </a-button>
         </div>
-      </el-form>
+      </a-form>
     </component>
-
-    <component
-      :is="panelTag"
-      v-bind="panelProps"
-      class="pro-table__data-panel"
-    >
+    <component :is="panelTag" class="pro-table__data-panel">
       <div class="pro-table__data">
         <div v-if="$slots.toolbar && !asCards" class="pro-table__toolbar">
           <slot name="toolbar" />
-          <el-button
-            class="pro-table__refresh"
-            :loading="table.loading"
-            circle
-            :title="$t('common.refresh')"
-            @click="table.getList"
-          >
-            <el-icon><Refresh /></el-icon>
-          </el-button>
+          <a-button class="pro-table__refresh" :loading="table.loading" shape="circle" :title="$t('common.refresh')" :aria-label="$t('common.refresh')" @click="table.getList"><icon-refresh /></a-button>
         </div>
-
-        <!--
-          Below the breakpoint the table is replaced rather than restyled. A
-          table squeezed into 375px still has to be dragged sideways to read;
-          62% of a typical list here sits outside the viewport. The default slot
-          is still read for its column definitions -- it is simply not rendered.
-        -->
         <MobileCards
           v-if="asCards"
           :rows="stack as unknown as Record<string, unknown>[]"
@@ -144,130 +62,74 @@
           @toggle="row => toggleCardRow(row as unknown as TRow)"
           @load-more="loadMore"
         >
-          <template v-if="$slots.actions" #actions="scope">
-            <slot name="actions" v-bind="scope" />
-          </template>
+          <template v-if="$slots.actions" #actions="scope"><slot name="actions" v-bind="scope" /></template>
         </MobileCards>
-
-        <el-table
-          v-else
+        <a-empty v-if="asCards && !table.loading && !stack.length" :description="$t('common.empty')" />
+        <a-table
+          v-if="!asCards"
           ref="tableRef"
-          v-loading="table.loading"
-          :data="table.rows"
+          :loading="table.loading"
+          :data="table.rows as TableData[]"
           :row-key="rowKey"
+          :pagination="false"
+          :selected-keys="Array.from(selectedKeys) as (string | number)[]"
+          :row-selection="selection ? { type: 'checkbox', showCheckedAll: true, onlyCurrent: true } : undefined"
           v-bind="$attrs"
-          @selection-change="table.handleSelectionChange"
-          @sort-change="table.handleSortChange"
+          @selection-change="selectRows"
+          @sorter-change="sortRows"
         >
-          <!--
-            No reserve-selection: it makes el-table keep rows selected across a data
-            change and, crucially, skip the selection-change event. After a bulk
-            delete the deleted ids stayed in the selection, the bulk button stayed
-            enabled, and a second click deleted ids that no longer existed.
-          -->
-          <el-table-column v-if="selection" type="selection" width="45" />
-          <slot />
-          <!--
-            The pinned action column is rendered here rather than by each page, so the
-            class the nowrap rule needs cannot be misspelled or forgotten. Pages that
-            wrote it themselves used at least two different class conventions, none of
-            them documented, and getting it wrong wraps the cell -- which changes the
-            row height of the pinned column only, so the pinned rows stop lining up
-            with the scrolling ones.
-          -->
-          <el-table-column
-            v-if="$slots.actions"
-            :label="$t('common.actions')"
-            fixed="right"
-            :width="actionsWidth"
-            class-name="pro-table__actions"
-          >
-            <template #default="scope">
-              <slot name="actions" v-bind="scope" />
-            </template>
-          </el-table-column>
-          <template #empty>
-            <slot name="empty">
-              <el-empty :image-size="80" :description="$t('common.empty')" />
-            </slot>
+          <template #columns>
+            <slot />
+            <a-table-column v-if="$slots.actions" :title="$t('common.actions')" fixed="right" :width="Number(actionsWidth)">
+              <template #cell="{ record, rowIndex }"><div class="pro-table__actions"><slot name="actions" v-bind="{ row: record, $index: rowIndex }" /></div></template>
+            </a-table-column>
           </template>
-        </el-table>
-
-        <!--
-          `pagination` carries both the page and the size, and handlePagination
-          writes both back into the query -- which flows straight back down as
-          :page and :limit. Handling update:page and update:limit as well would
-          only set the same values a moment earlier.
-        -->
-        <!--
-          Page actions move to the thumb.
-          A row of small buttons in the top-right corner is a pointer's layout:
-          on a phone they are the furthest thing from the hand and the smallest
-          target on screen. Collapsed into one floating button, which opens the
-          page's own toolbar above it -- so a page contributes the same buttons to
-          both layouts and states them once.
-        -->
+          <template #empty><slot name="empty"><a-empty :description="$t('common.empty')" /></slot></template>
+        </a-table>
         <div v-if="asCards && $slots.toolbar" class="pro-table__fab">
           <div v-show="fabOpen" class="pro-table__fab-menu">
             <slot name="toolbar" />
-            <el-button class="pro-table__fab-refresh" :loading="table.loading" @click="table.getList">
-              <el-icon><Refresh /></el-icon>{{ $t('common.refresh') }}
-            </el-button>
+            <a-button class="pro-table__fab-refresh" :loading="table.loading" @click="table.getList"><icon-refresh />{{ $t('common.refresh') }}</a-button>
           </div>
-          <button
-            type="button"
-            class="pro-table__fab-btn"
-            :class="{ 'is-open': fabOpen }"
-            :aria-expanded="fabOpen"
-            :aria-label="$t('components.proTable.pageActions')"
-            @click="fabOpen = !fabOpen"
-          >
-            <el-icon><Plus /></el-icon>
-          </button>
+          <button type="button" class="pro-table__fab-btn" :class="{ 'is-open': fabOpen }" :aria-expanded="fabOpen" :aria-label="$t('components.proTable.pageActions')" @click="fabOpen = !fabOpen"><icon-plus /></button>
         </div>
-
-        <Pagination
-          v-if="paginated && !asCards"
-          v-show="table.total > 0"
-          :total="table.total"
-          :page="table.query.pageIndex"
-          :limit="table.query.pageSize"
-          @pagination="table.handlePagination"
-        />
+        <Pagination v-if="paginated && !asCards" v-show="table.total > 0" :total="table.total" :page="table.query.pageIndex" :limit="table.query.pageSize" @pagination="table.handlePagination" />
       </div>
     </component>
   </div>
 </template>
 
 <script setup lang="ts" generic="TRow extends object, TQuery extends object">
-import { ref, computed, watch, useSlots, type Ref } from 'vue'
-import { ArrowDown, Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { nextTick, ref, computed, watch, useSlots, type Ref } from 'vue'
+import { Card as ACard, type TableData } from '@arco-design/web-vue'
+import { IconDown, IconPlus, IconRefresh, IconSearch } from '@arco-design/web-vue/es/icon'
 import Pagination from '@/components/Pagination/index.vue'
 import MobileCards from './MobileCards.vue'
 import { readCardColumns } from './columns'
 import { searchFieldSpans, colsFor, collapseTo } from './search'
 import { useElementWidth } from '@/composables/useElementWidth'
 import { useNarrowScreen } from '@/composables/useNarrowScreen'
+import { useDialogFocus } from '@/composables/useDialogFocus'
 import type { UseTableReturn } from '@/composables/useTable'
 
 /**
  * Wiring for a list page: search form, toolbar, table and pagination, all bound
  * to one useTable result.
  *
- * Columns stay as <el-table-column> in the default slot rather than moving into
+ * Columns stay as <a-table-column> in the default slot rather than moving into
  * a `columns` array. A column config looks tidier until the first page needs a
  * switch, a tag, a nested prop or a conditional button -- then it grows render
  * functions and per-type flags, and ends up a worse version of the slot API
- * Element Plus already has. What repeats across pages is the plumbing, so only
+ * Arco already has. What repeats across pages is the plumbing, so only
  * the plumbing is here.
  *
  *   <ProTable :table="table" selection row-key="userId">
- *     <template #search>...el-form-items...</template>
+ *     <template #search>...arco-form-items...</template>
  *     <template #toolbar>...buttons...</template>
- *     <el-table-column label="登录名" prop="username" />
+ *     <a-table-column label="登录名" prop="username" />
  *   </ProTable>
  *
- * Attributes not listed below land on the inner el-table, so `border`,
+ * Attributes not listed below land on the inner a-table, so `border`,
  * `max-height`, `row-class-name` and the rest work as usual.
  */
 defineOptions({ name: 'ProTable', inheritAttrs: false })
@@ -313,6 +175,9 @@ const props = withDefaults(defineProps<{
    * own padding is the framing the content needs.
    */
   panels?: boolean
+  /** Preserve hierarchical rows with a-table at every viewport size. */
+  defaultExpandAllRows?: boolean
+  treeProps?: { children?: string, hasChildren?: string, checkStrictly?: boolean }
 }>(), {
   card: true,
   cardBreakpoint: 768,
@@ -320,36 +185,48 @@ const props = withDefaults(defineProps<{
   rowKey: '',
   paginated: true,
   actionsWidth: 120,
-  panels: true
+  panels: true,
+  treeProps: undefined
 })
 
 const tableRef = ref()
+// Native defaults run before async rows arrive. Expand each fetched tree once;
+// subsequent user collapse/expand remains under the table's own control.
+watch(() => props.table.rows, async() => {
+  if (props.defaultExpandAllRows) {
+    await nextTick()
+    tableRef.value?.expandAll(true)
+  }
+})
 const rootRef = ref<HTMLElement>()
 const panelWidth = useElementWidth(rootRef)
 
 /**
  * resetQuery drops the sort key from the query, but the header keeps drawing
- * its arrow until el-table is told as well -- leaving the column marked as
+ * its arrow until a-table is told as well -- leaving the column marked as
  * sorted while the list is not. Clearing it lives here rather than in useTable,
- * which stays free of anything Element Plus.
+ * which stays free of anything Arco.
  */
+let resettingSort = false
 const handleReset = async() => {
-  tableRef.value?.clearSort()
-  // Not required for correctness: with reserve-selection gone, el-table clears
+  resettingSort = true
+  try { tableRef.value?.resetSorters() } finally { resettingSort = false }
+  // Not required for correctness: with reserve-selection gone, a-table clears
   // its own selection as soon as `rows` is reassigned, and emits
   // selection-change so useTable follows. This only makes the boxes untick on
   // the click rather than when the response lands -- otherwise a slow list
   // request leaves them visibly ticked while the bulk buttons are already
   // disabled. Do NOT copy this onto every data-changing path; the others are
   // handled by that reassignment.
-  tableRef.value?.clearSelection()
+  props.table.handleSelectionChange([])
   await props.table.resetQuery()
 }
 
 // Shared with the pages, which need the same answer -- see useNarrowScreen.
 const slots = useSlots()
 const narrow = useNarrowScreen(props.cardBreakpoint - 1)
-const asCards = computed(() => props.card && narrow.value)
+// Tree expansion belongs to a-table until cards have a hierarchy contract.
+const asCards = computed(() => props.card && narrow.value && !props.treeProps)
 
 /**
  * Read on every render rather than memoised: a page may add or drop a column
@@ -358,15 +235,9 @@ const asCards = computed(() => props.card && narrow.value)
  */
 const cardColumns = () => readCardColumns(slots.default)
 
-/**
- * el-table owns selection in table mode; in card mode nothing does, so this
- * holds it and reports through the same handler useTable already listens to.
- */
-// `ref([]) as Ref<TRow[]>`, not `ref<TRow[]>([])`: UnwrapRefSimple rewrites
-// the generic and the result stops matching TRow. useTable does the same.
-const cardSelection = ref([]) as Ref<TRow[]>
+// Both presentations read the same selection, including external resets.
 const selectedKeys = computed(() => new Set(
-  cardSelection.value.map(row => keyOf(row))
+  props.table.selection.map(row => keyOf(row))
 ))
 
 const keyOf = (row: TRow) => {
@@ -379,20 +250,16 @@ const keyOf = (row: TRow) => {
 
 const toggleCardRow = (row: TRow) => {
   const key = keyOf(row)
-  const next = cardSelection.value.filter(picked => keyOf(picked) !== key)
-  if (next.length === cardSelection.value.length) next.push(row)
-  cardSelection.value = next
+  const next = props.table.selection.filter(picked => keyOf(picked) !== key)
+  if (next.length === props.table.selection.length) next.push(row)
   props.table.handleSelectionChange(next)
 }
 
-// Leaving the card view hands selection back to el-table, which starts empty;
+// Leaving the card view hands selection back to a-table, which starts empty;
 // carrying stale rows across would leave the bulk buttons enabled for rows
 // nothing is showing as ticked.
 watch(asCards, () => {
-  if (cardSelection.value.length) {
-    cardSelection.value = []
-    props.table.handleSelectionChange([])
-  }
+  props.table.handleSelectionChange([])
 })
 
 /**
@@ -404,8 +271,7 @@ watch(asCards, () => {
 const cols = computed(() => colsFor(panelWidth.value))
 
 // Both halves are drawn the same way, so what a panel is gets said once.
-const panelTag = computed(() => (props.panels ? 'el-card' : 'div'))
-const panelProps = computed(() => (props.panels ? { shadow: 'never' } : {}))
+const panelTag = computed(() => (props.panels ? ACard : 'div'))
 
 const collapsed = ref(true)
 
@@ -423,6 +289,7 @@ const collapsed = ref(true)
 const collapsible = () => collapseTo(searchFieldSpans(slots.search), cols.value)
 
 const filtersOpen = ref(false)
+const restoreFilterFocus = useDialogFocus(() => filtersOpen.value)
 const fabOpen = ref(false)
 
 // The sheet closes on submit: on a phone the result *is* the feedback, and a
@@ -470,21 +337,37 @@ const activeFilters = computed(() =>
  * still replaces `rows` per page, and this only stacks them for the cards.
  */
 const stack = ref([]) as Ref<TRow[]>
+const pages = new Map<number, TRow[]>()
+let stackQuery = ''
+const querySignature = () => JSON.stringify(Object.entries(props.table.query).filter(([key]) => key !== 'pageIndex'))
 
 watch(() => props.table.rows, rows => {
   if (!asCards.value) return
-  // search() and resetQuery() both reset pageIndex, so page one is also the
-  // signal that the list has been re-queried and the stack is stale.
-  stack.value = props.table.query.pageIndex <= 1 ? [...rows] : [...stack.value, ...rows]
+  const page = props.paginated ? props.table.query.pageIndex : 1
+  const signature = querySignature()
+  if (page <= 1 || signature !== stackQuery || !props.table.total) pages.clear()
+  stackQuery = signature
+  pages.set(page, [...rows])
+  const combined = [...pages.entries()].sort(([a], [b]) => a - b).flatMap(([, items]) => items)
+  // A refresh replaces its page. Stable keys also prevent duplicates when an
+  // insertion moves a record across a page boundary between requests.
+  stack.value = [...new Map(combined.map(row => [keyOf(row), row])).values()]
+  const selected = selectedKeys.value
+  props.table.handleSelectionChange(page <= 1 ? [] : stack.value.filter(row => selected.has(keyOf(row))))
 }, { immediate: true })
 
 // Entering card mode mid-session starts from whatever page is loaded; leaving
 // it hands the list back to the pager, which reads table.rows directly.
 watch(asCards, cards => {
-  if (cards) stack.value = [...props.table.rows]
+  pages.clear()
+  if (cards) {
+    stackQuery = querySignature()
+    pages.set(props.table.query.pageIndex || 1, [...props.table.rows])
+    stack.value = [...props.table.rows]
+  }
 })
 
-const hasMore = computed(() => props.paginated && stack.value.length < props.table.total)
+const hasMore = computed(() => props.paginated && props.table.query.pageIndex * props.table.query.pageSize < props.table.total)
 
 const loadMore = () => {
   if (props.table.loading || !hasMore.value) return
@@ -495,15 +378,35 @@ const loadMore = () => {
 }
 
 /**
- * Ticking a row from a click on the row: the one thing el-table's own instance
+ * Ticking a row from a click on the row: the one thing a-table's own instance
  * does that `table` cannot. Exposed by name rather than by handing out the
  * instance, so the rest of its imperative API does not become an ambient escape
  * hatch -- the same reason the generator's forms expose `validate` and not their
  * FormInstance.
  */
+const selectRows = (keys: (string | number)[]) => {
+  const selected = new Set(keys)
+  const collect = (rows: TRow[]): TRow[] => rows.flatMap(row => {
+    const children = (row as Record<string, unknown>)[props.treeProps?.children || 'children']
+    return [row, ...(Array.isArray(children) ? collect(children as TRow[]) : [])]
+  })
+  props.table.handleSelectionChange(collect(props.table.rows).filter(row => selected.has(keyOf(row) as string | number)))
+}
+const sortRows = (dataIndex: string, direction: string) => {
+  if (resettingSort) return
+  return props.table.handleSortChange({
+    prop: dataIndex || null,
+    order: direction === 'ascend' ? 'ascending' : direction === 'descend' ? 'descending' : null
+  })
+}
+watch(() => props.table.rows, () => { if (!asCards.value) props.table.handleSelectionChange([]) })
 defineExpose({
-  toggleRowSelection: (row: TRow, selected?: boolean) =>
-    tableRef.value?.toggleRowSelection(row, selected)
+  toggleRowSelection: (row: TRow, selected?: boolean) => {
+    const checked = selected ?? !selectedKeys.value.has(keyOf(row))
+    const next = props.table.selection.filter(picked => keyOf(picked) !== keyOf(row))
+    if (checked) next.push(row)
+    props.table.handleSelectionChange(next)
+  }
 })
 </script>
 
@@ -518,9 +421,9 @@ defineExpose({
  * more plainly than a rule inside one card, which reads as one block of
  * controls with a line drawn through it.
  *
- * Neither panel needs a rule of its own: el-card draws the surface, and the gap
+ * Neither panel needs a rule of its own: arco-card draws the surface, and the gap
  * between them is the one the stylesheet already gives any two stacked cards
- * (.el-card + .el-card), so a list page is spaced like everything else.
+ * (.arco-card + .arco-card), so a list page is spaced like everything else.
  */
 
 /*
@@ -548,18 +451,20 @@ defineExpose({
   column-gap: 16px;
   row-gap: 16px;
 
-  :deep(.el-form-item) {
+  :deep(.arco-form-item) {
     /* The grid owns the spacing; the form-item's own bottom margin would add a
        second, uneven gap to it. */
     margin: 0;
+    width: 100%;
+    min-width: 0;
   }
 
   /* Fields fill their column. Pages used to set a pixel width on each control,
      which is what an inline row needs and what a grid column undoes. */
-  :deep(.el-input),
-  :deep(.el-select),
-  :deep(.el-tree-select),
-  :deep(.el-date-editor) { width: 100%; }
+  :deep(.arco-input-wrapper),
+  :deep(.arco-select-view),
+  :deep(.arco-tree-select),
+  :deep(.arco-picker) { width: 100%; }
 }
 
 /*
@@ -571,11 +476,11 @@ defineExpose({
  * -- does not take up one of the visible slots, and searchFieldSpans skips it
  * for the same reason.
  *
- * The buttons are not an el-form-item, so they are never the element this hides.
+ * The buttons are not an arco-form-item, so they are never the element this hides.
  */
-.pro-table__search[data-visible="1"] :deep(.el-form-item:nth-of-type(n + 2)),
-.pro-table__search[data-visible="2"] :deep(.el-form-item:nth-of-type(n + 3)),
-.pro-table__search[data-visible="3"] :deep(.el-form-item:nth-of-type(n + 4)) {
+.pro-table__search[data-visible="1"] :deep(.arco-form-item:nth-of-type(n + 2)),
+.pro-table__search[data-visible="2"] :deep(.arco-form-item:nth-of-type(n + 3)),
+.pro-table__search[data-visible="3"] :deep(.arco-form-item:nth-of-type(n + 4)) {
   display: none;
 }
 
@@ -594,10 +499,10 @@ defineExpose({
   align-items: center;
   justify-content: flex-end;
 
-  /* Element Plus spaces adjacent buttons itself, which leaves this run unevenly
+  /* Arco spaces adjacent buttons itself, which leaves this run unevenly
      spaced -- its 12px between the two it recognises, the declared 8px around
      the toggle. The gap above is meant to be the only spacing here. */
-  :deep(.el-button + .el-button) { margin-left: 0; }
+  :deep(.arco-btn + .arco-btn) { margin-left: 0; }
 }
 
 .pro-table__search-caret {
@@ -614,7 +519,7 @@ defineExpose({
  * there are two columns to give. (`span 1`, where a one-column panel lands, is
  * the same placement as no rule at all.)
  */
-.pro-table__search :deep(.el-form-item.is-wide) {
+.pro-table__search :deep(.arco-form-item.is-wide) {
   grid-column: span var(--wide-span);
 }
 
@@ -660,7 +565,7 @@ defineExpose({
   box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
   transition: transform 0.2s ease;
 
-  .el-icon { font-size: 24px; }
+  .arco-icon { font-size: 24px; }
 
   &.is-open { transform: rotate(45deg); }
 }
@@ -676,9 +581,9 @@ defineExpose({
   border-radius: 10px;
   box-shadow: 0 6px 20px rgb(0 0 0 / 12%);
 
-  // The page's own buttons, restacked. Element Plus lays sibling buttons out
+  // The page's own buttons, restacked. Arco lays sibling buttons out
   // in a row with a left margin; here each one is a full-width menu entry.
-  :deep(.el-button) {
+  :deep(.arco-btn) {
     justify-content: flex-start;
     min-width: 120px;
     min-height: 40px;
@@ -702,7 +607,7 @@ defineExpose({
 :global(.pro-table__sheet) {
   border-radius: 16px 16px 0 0;
 
-  .el-drawer__body { padding: 0 16px 16px; }
+  .arco-drawer-body { padding: 0 16px 16px; }
 }
 
 .pro-table__sheet-grip {
@@ -714,14 +619,14 @@ defineExpose({
 }
 
 .pro-table__sheet-form {
-  :deep(.el-form-item) { margin-bottom: 14px; }
+  :deep(.arco-form-item) { margin-bottom: 14px; }
 
   /* No !important: the pages no longer set a width on their search controls,
-     and Element Plus's own widths are a single class each. */
-  :deep(.el-input),
-  :deep(.el-select),
-  :deep(.el-tree-select),
-  :deep(.el-date-editor) { width: 100%; }
+     and Arco's own widths are a single class each. */
+  :deep(.arco-input-wrapper),
+  :deep(.arco-select-view),
+  :deep(.arco-tree-select),
+  :deep(.arco-picker) { width: 100%; }
 }
 
 .pro-table__sheet-actions {
@@ -729,7 +634,7 @@ defineExpose({
   gap: 10px;
   padding-top: 4px;
 
-  :deep(.el-button) {
+  :deep(.arco-btn) {
     flex: 1;
     min-height: 44px;
     margin: 0;
@@ -779,13 +684,13 @@ defineExpose({
  * and at the default 32px with 14px text they carried more weight than the
  * rows they act on.
  */
-.pro-table__toolbar :deep(.el-button) {
+.pro-table__toolbar :deep(.arco-btn) {
   height: 28px;
   padding: 0 12px;
   font-size: 13px;
 }
 
-.pro-table__refresh {
+.pro-table__toolbar :deep(.pro-table__refresh) {
   flex-shrink: 0;
   /*
    * Last in the markup, which the reversed row would otherwise put at the far
@@ -804,9 +709,16 @@ defineExpose({
   padding: 0;
 }
 
-/* el-table renders the cell, so this needs :deep to reach it. Lives with the
+/* a-table renders the cell, so this needs :deep to reach it. Lives with the
    component that emits the class rather than in the global stylesheet. */
 .pro-table :deep(.pro-table__actions .cell) {
   white-space: nowrap;
 }
+</style>
+
+<style scoped>
+.pro-table__search-panel { margin-bottom: 12px; }
+.pro-table__toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.pro-table__refresh { margin-left: auto; }
+.pro-table__actions { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
 </style>

@@ -5,6 +5,7 @@
       :key="keyOf(row, index)"
       class="pro-card"
       :class="{ 'is-open': expanded.has(index), 'is-dragging': drag.index === index }"
+      @keydown.esc.stop="closeActions(index)"
     >
       <!--
         Actions sit underneath and the surface slides off them, so their width
@@ -12,18 +13,22 @@
         different numbers of buttons here, and a fixed width would leave a gap
         or clip the last one.
       -->
-      <div v-if="actions" class="pro-card__actions">
+      <div v-if="actions" class="pro-card__actions" :inert="swiped !== index ? true : undefined" :aria-hidden="swiped !== index">
         <!--
           Bound as an object so the scope matches what el-table-column hands its
           own default slot; pages destructure `{ row }` and some read `$index`,
           which cannot be written as a plain attribute name.
         -->
         <slot name="actions" v-bind="{ row, column: {}, $index: index }" />
+        <button type="button" class="pro-card__close" :aria-label="$t('common.close')" @click="closeActions(index)">
+          <icon-close />
+        </button>
       </div>
 
       <div
         class="pro-card__surface"
         :style="{ transform: `translateX(${offsetOf(index)}px)` }"
+        :inert="swiped === index ? true : undefined"
         @pointerdown="onDown($event, index)"
         @pointermove="onMove($event, index)"
         @pointerup="onUp(index)"
@@ -31,10 +36,11 @@
         @click="onClick($event, index)"
       >
         <div class="pro-card__head">
-          <el-checkbox
+          <a-checkbox
             v-if="selection"
             class="pro-card__check"
             :model-value="selected.has(keyOf(row, index))"
+            :aria-label="$t('components.cards.selectRow', { name: rowLabel(row, index) })"
             @change="toggleRow(row, index)"
             @click.stop
           />
@@ -54,7 +60,7 @@
           </div>
         </div>
 
-        <div class="pro-card__more">
+        <div class="pro-card__more" :inert="!expanded.has(index) ? true : undefined" :aria-hidden="!expanded.has(index)">
           <div>
             <div class="pro-card__fields">
               <div v-for="column in card.detail" :key="column.label" class="pro-card__field">
@@ -66,19 +72,29 @@
         </div>
 
         <div v-if="card.detail.length || actions" class="pro-card__foot">
-          <button v-if="card.detail.length" type="button" class="pro-card__toggle">
-            <el-icon class="pro-card__chev"><ArrowDown /></el-icon>
+          <button v-if="card.detail.length" type="button" class="pro-card__toggle" :aria-expanded="expanded.has(index)" @click.stop="toggleDetail(index)">
+            <icon-down class="pro-card__chev" />
             {{ expanded.has(index) ? $t('components.cards.collapse') : $t('components.cards.more', { count: card.detail.length }) }}
           </button>
           <span v-else />
-          <!--
-            Shown on the first card only. The gesture is invisible until someone
-            tries it, so it has to be said once; repeating it on every card
-            turns a hint into wallpaper and costs a line in each of them.
-          -->
-          <span v-if="actions && index === 0" class="pro-card__hint">{{ $t('components.cards.swipeHint') }}</span>
+          <button v-if="actions" type="button" class="pro-card__action-toggle" :aria-expanded="swiped === index" @click.stop="openActions(index)">
+            {{ $t('common.actions') }}<icon-more />
+          </button>
         </div>
       </div>
+      <!-- Keep tapping or swiping the exposed surface available while its
+           clipped controls are inert; the action strip also has a close button. -->
+      <div
+        v-if="swiped === index"
+        class="pro-card__dismiss"
+        :style="{ width: `calc(100% - ${actionWidth}px)` }"
+        aria-hidden="true"
+        @pointerdown="onDown($event, index)"
+        @pointermove="onMove($event, index)"
+        @pointerup="onUp(index)"
+        @pointercancel="onUp(index)"
+        @click="onClick($event, index)"
+      />
     </div>
 
     <!--
@@ -87,9 +103,9 @@
       the next page immediately does not have to scroll for it.
     -->
     <div v-if="hasMore || loading" ref="sentinelEl" class="pro-cards__more">
-      <el-button text :loading="loading" @click="emit('loadMore')">
+      <a-button type="text" :loading="loading" @click="emit('loadMore')">
         {{ loading ? $t('common.loading') : $t('components.cards.loadMore') }}
-      </el-button>
+      </a-button>
     </div>
     <div v-else-if="showEnd && rows.length" class="pro-cards__end">{{ $t('components.cards.noMore') }}</div>
   </div>
@@ -97,7 +113,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick, type Slot } from 'vue'
-import { ArrowDown } from '@element-plus/icons-vue'
+import { IconDown, IconClose, IconMore } from '@arco-design/web-vue/es/icon'
 import { splitCard, readProp, type CardColumn } from './columns'
 
 /**
@@ -132,7 +148,7 @@ const Cell = (cellProps: { column: CardColumn, row: Record<string, unknown>, ind
   if (column.render) {
     // The scope el-table-column hands its default slot. `column` is passed as an
     // empty object rather than omitted: templates commonly destructure it.
-    return column.render({ row, column: {}, $index: index })
+    return column.render({ record: row, row, column: {}, rowIndex: index, $index: index })
   }
   const value = readProp(row, column.prop)
   return value === null || value === undefined ? '' : String(value)
@@ -145,6 +161,8 @@ const keyOf = (row: Record<string, unknown>, index: number): PropertyKey => {
   const value = props.rowKey ? readProp(row, props.rowKey) : undefined
   return (value as PropertyKey | undefined) ?? index
 }
+const rowLabel = (row: Record<string, unknown>, index: number) =>
+  String((card.value.title?.prop ? readProp(row, card.value.title.prop) : undefined) ?? keyOf(row, index))
 
 const expanded = ref(new Set<number>())
 const swiped = ref(-1)
@@ -153,8 +171,8 @@ const drag = reactive({ index: -1, startX: 0, startY: 0, base: 0, offset: 0, axi
 // A re-query replaces every row, and keeping the old indices would leave a card
 // open or swiped over a different record. Appending a page is not that: the
 // rows already on screen are unchanged, so their state stays.
-watch(() => props.rows.length, (now, before) => {
-  if (before !== undefined && now > before) return
+watch(() => props.rows, (now, before) => {
+  if (before && now.length > before.length && before.every((row, index) => row === now[index])) return
   expanded.value = new Set()
   swiped.value = -1
   drag.index = -1
@@ -167,13 +185,25 @@ const actionWidth = ref(0)
  * no longer fills an array ref from a loop, so that read came back empty and
  * every swipe clamped straight back to zero.
  */
-const measure = () => {
-  const strip = rootEl.value?.querySelector('.pro-card__actions')
+const measure = (index = 0) => {
+  const strip = rootEl.value?.querySelectorAll('.pro-card__actions')[index]
   const width = strip?.getBoundingClientRect().width
   if (width) actionWidth.value = Math.round(width)
 }
-onMounted(() => nextTick(measure))
-watch(() => props.rows.length, () => nextTick(measure))
+onMounted(() => nextTick(() => measure()))
+watch(() => props.rows.length, () => nextTick(() => measure()))
+
+function closeActions(index: number) {
+  if (swiped.value !== index) return
+  swiped.value = -1
+  void nextTick(() => rootEl.value?.querySelectorAll<HTMLElement>('.pro-card__action-toggle')[index]?.focus())
+}
+
+function openActions(index: number) {
+  measure(index)
+  swiped.value = index
+  void nextTick(() => rootEl.value?.querySelectorAll('.pro-card__actions')[index]?.querySelector<HTMLElement>('button:not(:disabled), [tabindex="0"]')?.focus())
+}
 
 /**
  * Fires when the sentinel actually reaches the viewport.
@@ -218,8 +248,8 @@ const offsetOf = (index: number) => {
 const AXIS_THRESHOLD = 8
 
 function onDown(event: PointerEvent, index: number) {
-  if ((event.target as HTMLElement).closest('.pro-card__actions, .el-checkbox')) return
-  measure()
+  if (!props.actions || (event.target as HTMLElement).closest('button, a, input, [role="switch"], .a-checkbox')) return
+  measure(index)
   drag.index = index
   drag.startX = event.clientX
   drag.startY = event.clientY
@@ -263,8 +293,7 @@ function onUp(index: number) {
   if (drag.index !== index) return
   // Snap by distance rather than velocity: in an admin list a slow deliberate
   // drag is the norm, and a flick-based rule makes those feel unresponsive.
-  const open = drag.axis === 'x' && drag.offset < -actionWidth.value / 2
-  swiped.value = open ? index : (swiped.value === index ? -1 : swiped.value)
+  if (drag.axis === 'x') swiped.value = drag.offset < -actionWidth.value / 2 ? index : -1
   drag.index = -1
   drag.axis = ''
 }
@@ -277,12 +306,15 @@ function onClick(event: MouseEvent, index: number) {
     event.stopPropagation()
     return
   }
-  if ((event.target as HTMLElement).closest('.pro-card__actions, .el-checkbox')) return
+  if ((event.target as HTMLElement).closest('button, a, input, [role="switch"], .a-checkbox')) return
   // A swiped-open card closes on the next tap instead of expanding, matching
   // what every native list does.
-  if (swiped.value === index) { swiped.value = -1; return }
-  if (!card.value.detail.length) return
+  if (swiped.value === index) { closeActions(index); return }
+  toggleDetail(index)
+}
 
+function toggleDetail(index: number) {
+  if (!card.value.detail.length) return
   const next = new Set(expanded.value)
   next.has(index) ? next.delete(index) : next.add(index)
   expanded.value = next
@@ -302,7 +334,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
 .pro-cards__end {
   padding: 12px 0 4px;
   font-size: 13px;
-  color: var(--ga-text-4, #00000040);
+  color: var(--ga-text-3);
   text-align: center;
 }
 
@@ -319,10 +351,12 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   inset: 0 0 0 auto;
   display: flex;
   align-items: stretch;
+  max-width: 100%;
+  overflow-x: auto;
 
   // Element Plus buttons carry their own radius, margins and small size; the
   // swipe strip needs them square, full-height and touchable.
-  :deep(.el-button) {
+  :deep(.arco-btn) {
     height: auto;
     margin: 0 !important;
     padding: 0 20px;
@@ -330,7 +364,20 @@ function toggleRow(row: Record<string, unknown>, index: number) {
     border: none;
     border-radius: 0;
   }
+
+  :deep(.arco-btn--primary.is-link) { color: var(--ga-text-link); }
 }
+
+.pro-card__close {
+  flex-shrink: 0;
+  width: 44px;
+  border: none;
+  background: var(--ga-bg-subtle);
+  color: var(--ga-text-2);
+  cursor: pointer;
+}
+
+.pro-card__dismiss { position: absolute; inset: 0 auto 0 0; }
 
 .pro-card__surface {
   position: relative;
@@ -371,7 +418,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   color: var(--ga-text-3);
 }
 
-.pro-card__sub-item { display: inline-flex; align-items: baseline; }
+.pro-card__sub-item { display: inline-flex; align-items: baseline; min-width: 0; overflow-wrap: anywhere; }
 
 .pro-card__dot { margin: 0 6px; color: var(--ga-text-4, #00000040); }
 
@@ -424,20 +471,21 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   align-items: center;
   justify-content: space-between;
   padding: 0 12px;
-  background: var(--ga-bg-sunken, #fafafa);
+  background: var(--ga-bg-subtle);
   border-top: 1px solid var(--ga-border-light, #0505050f);
 }
 
-.pro-card__toggle {
+.pro-card__toggle,
+.pro-card__action-toggle {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   // 44px, per the iOS HIG minimum -- the visible text is much shorter.
-  min-height: 40px;
+  min-height: 44px;
   padding: 0;
   font-family: inherit;
   font-size: 13px;
-  color: var(--ga-brand, #1677ff);
+  color: var(--ga-text-link);
   cursor: pointer;
   background: none;
   border: none;
@@ -447,12 +495,6 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   transition: transform 0.2s ease;
 
   .pro-card.is-open & { transform: rotate(180deg); }
-}
-
-.pro-card__hint {
-  font-size: 12px;
-  color: var(--ga-text-4, #00000040);
-  user-select: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -16,7 +16,7 @@ test.describe('sys-menu', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-menu')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await expect(page.getByRole('cell', { name: '系统管理' })).toBeVisible()
     await expect(page.getByRole('cell', { name: '用户管理' })).toBeVisible()
@@ -30,7 +30,7 @@ test.describe('sys-menu', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-menu')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await expect(page.getByRole('row', { name: /用户管理/ }).getByText('显示')).toBeVisible()
     await expect(page.getByRole('row', { name: /用户新增/ }).getByText('--')).toBeVisible()
@@ -40,11 +40,11 @@ test.describe('sys-menu', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-menu')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByText('admin:sysUser:list').hover()
 
-    const popover = page.locator('.el-popover:visible')
+    const popover = page.locator('.arco-popover-popup-content:visible')
     await expect(popover).toContainText('用户列表')
     await expect(popover).toContainText('/api/v1/sys-user')
   })
@@ -55,7 +55,7 @@ test.describe('sys-menu', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-menu')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await page.locator('.pro-table__toolbar').getByRole('button', { name: '新增' }).click()
 
     const dialog = page.getByRole('dialog').filter({ hasText: '添加菜单' })
@@ -66,12 +66,12 @@ test.describe('sys-menu', () => {
     await expect(dialog.getByPlaceholder('如 admin:sysUser:add')).toHaveCount(0)
 
     // Element Plus hides the native input and paints a label, so click the label
-    const typeGroup = dialog.locator('.el-form-item').filter({ hasText: '菜单类型' })
-    await typeGroup.locator('.el-radio__label').filter({ hasText: /^菜单$/ }).click()
+    const typeGroup = dialog.locator('.arco-form-item').filter({ hasText: '菜单类型' })
+    await typeGroup.locator('.arco-radio-label').filter({ hasText: /^菜单$/ }).click()
     await expect(dialog.getByPlaceholder('如 admin:sysUser:add')).toBeVisible()
-    await expect(dialog.locator('.el-transfer')).toBeVisible()
+    await expect(dialog.locator('.arco-transfer')).toBeVisible()
 
-    await typeGroup.locator('.el-radio__label').filter({ hasText: /^按钮$/ }).click()
+    await typeGroup.locator('.arco-radio-label').filter({ hasText: /^按钮$/ }).click()
     await expect(dialog.getByPlaceholder('请输入路由地址')).toHaveCount(0)
     await expect(dialog.getByPlaceholder('如 admin:sysUser:add')).toBeVisible()
   })
@@ -80,13 +80,13 @@ test.describe('sys-menu', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-menu')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /系统管理/ }).getByRole('button', { name: '新增' }).click()
 
     const dialog = page.getByRole('dialog').filter({ hasText: '添加菜单' })
-    await expect(dialog.locator('.el-form-item').filter({ hasText: '上级菜单' })
-      .locator('.el-select__wrapper')).toHaveText('系统管理')
+    await expect(dialog.locator('.arco-form-item').filter({ hasText: '上级菜单' })
+      .locator('.arco-select-view')).toHaveText('系统管理')
   })
 
   // The picker used to read `table.rows`, so a search truncated it: opening 修改
@@ -111,7 +111,7 @@ test.describe('sys-menu', () => {
     })
 
     await page.goto('/#/admin/sys-menu')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByPlaceholder('请输入菜单名称').fill('用户管理')
     await page.getByPlaceholder('请输入菜单名称').press('Enter')
@@ -121,8 +121,8 @@ test.describe('sys-menu', () => {
 
     const dialog = page.getByRole('dialog').filter({ hasText: '修改菜单' })
     // Its parent was filtered out of the list, but the picker still resolves it
-    await expect(dialog.locator('.el-form-item').filter({ hasText: '上级菜单' })
-      .locator('.el-select__wrapper')).toHaveText('系统管理')
+    await expect(dialog.locator('.arco-form-item').filter({ hasText: '上级菜单' })
+      .locator('.arco-select-view')).toHaveText('系统管理')
   })
 
   // The picker and the list read the same endpoint, so fetching the tree on
@@ -132,7 +132,7 @@ test.describe('sys-menu', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-menu')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await page.waitForTimeout(300)
 
     // Just the list; nothing has asked for the picker yet
@@ -152,7 +152,7 @@ test.describe('sys-menu', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-menu')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /用户管理/ }).getByRole('button', { name: '修改' }).click()
 
@@ -169,20 +169,20 @@ test.describe('sys-menu', () => {
     const bodies = await captureBodies(page, /\/api\/v1\/menu\/\d+/, 'PUT')
 
     await page.goto('/#/admin/sys-menu')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await page.getByRole('row', { name: /用户管理/ }).getByRole('button', { name: '修改' }).click()
 
     const dialog = page.getByRole('dialog').filter({ hasText: '修改菜单' })
-    const transfer = dialog.locator('.el-transfer')
+    const transfer = dialog.locator('.arco-transfer')
     await expect(transfer).toBeVisible()
 
     // Grant the second route, so two are held
     // The left panel lists the routes not yet granted; its checkbox is a label too
-    await transfer.locator('.el-transfer-panel').first()
-      .locator('.el-transfer-panel__list .el-checkbox').first().click()
-    await transfer.getByRole('button', { name: '授权' }).click()
+    await transfer.locator('.arco-transfer-view').first()
+      .locator('.arco-transfer-view-body .arco-checkbox').first().click()
+    await transfer.getByRole('button', { name: 'Move selected right' }).click()
 
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
     await expect.poll(() => calls.menu.update).toBeGreaterThan(0)
 
     const sent = JSON.parse(bodies.at(-1) || '{}')
@@ -195,11 +195,11 @@ test.describe('sys-menu', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-menu')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     const before = calls.menu.list
 
     await page.getByRole('row', { name: /用户新增/ }).getByRole('button', { name: '删除' }).click()
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '删除' }).click()
 
     await expect.poll(() => calls.menu.remove).toBe(1)
     await expect.poll(() => calls.menu.list).toBeGreaterThan(before)

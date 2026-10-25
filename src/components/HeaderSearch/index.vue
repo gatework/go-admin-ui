@@ -1,19 +1,22 @@
 <template>
-  <div :class="{'show':show}" class="header-search">
-    <svg-icon class-name="search-icon" icon-class="search" @click.stop="click" />
-    <el-select
+  <div :class="{'show':show}" class="header-search" @click.stop @keydown.esc.stop="close(); $refs.searchTrigger.focus()">
+    <button ref="searchTrigger" type="button" class="search-trigger" :aria-label="$t('common.search')" :aria-expanded="show" @click.stop="click">
+      <icon-search class="search-icon" />
+    </button>
+    <a-select
+      v-if="show"
       ref="headerSearchSelect"
       v-model="search"
-      :remote-method="querySearch"
-      filterable
-      default-first-option
-      remote
-      placeholder="Search"
+      :filter-option="false"
+      allow-search
+      :placeholder="$t('common.search')"
+      :aria-label="$t('common.search')"
       class="header-search-select"
+      @search="querySearch"
       @change="change"
     >
-      <el-option v-for="item in options" :key="item.path" :value="item" :label="item.title.join(' > ')" />
-    </el-select>
+      <a-option v-for="item in options" :key="item.path" :value="item.path" :label="item.title.join(' > ')" />
+    </a-select>
   </div>
 </template>
 
@@ -53,6 +56,7 @@ export default {
      * `routes` watcher above would not fire.
      */
     '$i18n.locale'() {
+      this.close()
       this.searchPool = this.generateRoutes(this.routes)
     },
     searchPool(list) {
@@ -69,20 +73,23 @@ export default {
   mounted() {
     this.searchPool = this.generateRoutes(this.routes)
   },
+  beforeUnmount() {
+    document.body.removeEventListener('click', this.close)
+  },
   methods: {
     click() {
       this.show = !this.show
       if (this.show) {
-        this.$refs.headerSearchSelect && this.$refs.headerSearchSelect.focus()
+        this.$nextTick(() => this.$el.querySelector('input')?.focus())
       }
     },
     close() {
-      this.$refs.headerSearchSelect && this.$refs.headerSearchSelect.blur()
+      this.$el.querySelector('input')?.blur()
       this.options = []
       this.show = false
     },
     change(val) {
-      this.$router.push(val.path)
+      this.$router.push(val)
       this.search = ''
       this.options = []
       this.$nextTick(() => {
@@ -163,6 +170,19 @@ export default {
 .header-search {
   font-size: 0 !important;
 
+  .search-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
   .search-icon {
     cursor: pointer;
     font-size: 18px;
@@ -179,7 +199,7 @@ export default {
     display: inline-block;
     vertical-align: middle;
 
-    :deep(.el-input__inner) {
+    :deep(.arco-select-view-input) {
       border-radius: 0;
       border: 0;
       padding-left: 0;
@@ -197,4 +217,9 @@ export default {
     }
   }
 }
+</style>
+
+<style scoped>
+.search-trigger { width: 32px; height: 32px; padding: 0; display: grid; place-items: center; border-radius: var(--motor-radius-sm); color: var(--motor-text-2); } .search-trigger:hover { background: var(--motor-surface-hover); }
+@media (max-width: 767px) { .header-search.show { position: absolute; left: 8px; right: 8px; z-index: 1; background: var(--motor-surface); } .header-search-select { width: calc(100vw - 70px) !important; } }
 </style>

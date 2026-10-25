@@ -1,6 +1,6 @@
 <template>
-  <el-card style="margin-bottom:20px;">
-    <template #header>
+  <a-card style="margin-bottom:20px;">
+    <template #title>
       <div class="clearfix">
         <span>About me</span>
       </div>
@@ -34,24 +34,24 @@
         <div class="user-bio-section-body">
           <div class="progress-item">
             <span>Vue</span>
-            <el-progress :percentage="70" />
+            <a-progress :percent="(70) / 100" />
           </div>
           <div class="progress-item">
             <span>JavaScript</span>
-            <el-progress :percentage="18" />
+            <a-progress :percent="(18) / 100" />
           </div>
           <div class="progress-item">
             <span>Css</span>
-            <el-progress :percentage="12" />
+            <a-progress :percent="(12) / 100" />
           </div>
           <div class="progress-item">
             <span>ESLint</span>
-            <el-progress :percentage="100" status="success" />
+            <a-progress :percent="(100) / 100" status="success" />
           </div>
         </div>
       </div>
     </div>
-  </el-card>
+  </a-card>
 </template>
 
 <script>
@@ -109,7 +109,7 @@ export default {
   .box-social {
     padding-top: 30px;
 
-    .el-table {
+    .arco-table {
       border-top: 1px solid #dfe6ec;
     }
   }

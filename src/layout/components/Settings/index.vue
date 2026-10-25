@@ -6,27 +6,27 @@
           {{ $t('layout.settings.title') }}
         </div>
         <div class="setting-drawer-block-checbox">
-          <div class="setting-drawer-block-checbox-item" @click="handleTheme('light')">
+          <button type="button" class="setting-drawer-block-checbox-item" :aria-label="$t('layout.settings.lightSidebar')" :aria-pressed="themeStyle === 'light'" @click="handleTheme('light')">
             <img src="@/assets/light.svg" alt="light">
             <div v-if="themeStyle === 'light'" class="setting-drawer-block-checbox-selectIcon" style="display: block;">
-              <i aria-label="图标: check" class="anticon anticon-check">
+              <i aria-hidden="true" class="anticon anticon-check">
                 <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" :fill="theme" aria-hidden="true" focusable="false" class=""><path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z" />
                 </svg>
               </i>
             </div>
-          </div>
-          <div class="setting-drawer-block-checbox-item" @click="handleTheme('dark')">
+          </button>
+          <button type="button" class="setting-drawer-block-checbox-item" :aria-label="$t('layout.settings.darkSidebar')" :aria-pressed="themeStyle === 'dark'" @click="handleTheme('dark')">
             <img src="@/assets/dark.svg" alt="dark">
             <div v-if="themeStyle === 'dark'" class="setting-drawer-block-checbox-selectIcon" style="display: block;">
-              <i aria-label="图标: check" class="anticon anticon-check">
+              <i aria-hidden="true" class="anticon anticon-check">
                 <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" :fill="theme" aria-hidden="true" focusable="false" class=""><path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z" />
                 </svg>
               </i>
             </div>
-          </div>
+          </button>
         </div>
       </div>
-      <el-divider />
+      <a-divider />
       <div class="setting-drawer-content">
         <div class="setting-drawer-title">
           {{ $t('layout.settings.theme') }}
@@ -40,14 +40,14 @@
              那里只决定侧栏那一条。跟随系统是默认值，也是唯一会随系统变的选项。 -->
         <div class="drawer-item">
           <span>{{ $t('layout.settings.colorScheme') }}</span>
-          <el-radio-group v-model="colorScheme" size="small" class="drawer-color-scheme">
-            <el-radio-button value="system">{{ $t('layout.settings.system') }}</el-radio-button>
-            <el-radio-button value="light">{{ $t('layout.settings.light') }}</el-radio-button>
-            <el-radio-button value="dark">{{ $t('layout.settings.dark') }}</el-radio-button>
-          </el-radio-group>
+          <a-radio-group v-model="colorScheme" type="button" size="small" class="drawer-color-scheme" :aria-label="$t('layout.settings.colorScheme')">
+            <a-radio value="system">{{ $t('layout.settings.system') }}</a-radio>
+            <a-radio value="light">{{ $t('layout.settings.light') }}</a-radio>
+            <a-radio value="dark">{{ $t('layout.settings.dark') }}</a-radio>
+          </a-radio-group>
         </div>
       </div>
-      <el-divider />
+      <a-divider />
       <div class="setting-drawer-content">
         <div class="setting-drawer-title">
           {{ $t('layout.settings.layout') }}
@@ -55,22 +55,22 @@
 
         <div class="drawer-item">
           <span>{{ $t('layout.settings.topNav') }}</span>
-          <el-switch v-model="topNav" class="drawer-switch" />
+          <a-switch v-model="topNav" :aria-label="$t('layout.settings.topNav')" class="drawer-switch" />
         </div>
 
         <div class="drawer-item">
           <span>{{ $t('layout.settings.tagsView') }}</span>
-          <el-switch v-model="tagsView" :active-color="activeColor" class="drawer-switch" />
+          <a-switch v-model="tagsView" :aria-label="$t('layout.settings.tagsView')" class="drawer-switch" />
         </div>
 
         <div class="drawer-item">
           <span>{{ $t('layout.settings.fixedHeader') }}</span>
-          <el-switch v-model="fixedHeader" :active-color="activeColor" class="drawer-switch" />
+          <a-switch v-model="fixedHeader" :aria-label="$t('layout.settings.fixedHeader')" class="drawer-switch" />
         </div>
 
         <div class="drawer-item">
           <span>{{ $t('layout.settings.sidebarLogo') }}</span>
-          <el-switch v-model="sidebarLogo" :active-color="activeColor" class="drawer-switch" />
+          <a-switch v-model="sidebarLogo" :aria-label="$t('layout.settings.sidebarLogo')" class="drawer-switch" />
         </div>
       </div>
     </div>
@@ -178,6 +178,9 @@ export default {
     justify-content: flex-start;
     align-items: center;
     .setting-drawer-block-checbox-item {
+      border: none;
+      padding: 0;
+      background: transparent;
         position: relative;
         margin-right: 16px;
         border-radius: 2px;

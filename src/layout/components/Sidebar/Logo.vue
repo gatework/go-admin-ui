@@ -25,6 +25,7 @@
 
 <script>
 
+import { resolveAppName } from '@/config/app-meta'
 import { mapState } from 'pinia'
 import { useSystemStore } from '@/stores/system'
 
@@ -42,7 +43,7 @@ export default {
   computed: {
     ...mapState(useSystemStore, { appInfo: 'info' }),
     appName() {
-      return (this.appInfo && this.appInfo.sys_app_name) || 'Go Admin'
+      return resolveAppName(this.appInfo?.sys_app_name)
     },
     monogram() {
       return this.appName.trim().charAt(0).toUpperCase()

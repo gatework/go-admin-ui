@@ -9,179 +9,178 @@
       :paginated="false"
       row-key="deptId"
       :actions-width="180"
-      default-expand-all
+      default-expand-all-rows
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
       <template #search>
-        <el-form-item :label="$t('admin.sysDept.deptName')">
-          <el-input
+        <a-form-item :label="$t('admin.sysDept.deptName')">
+          <a-input
             v-model="table.query.deptName"
             :placeholder="$t('admin.sysDept.deptNamePlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysDept.status')">
-          <el-select
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysDept.status')">
+          <a-select
             v-model="table.query.status"
             :placeholder="$t('admin.sysDept.statusPlaceholder')"
-            clearable
+            allow-clear
           >
-            <el-option
+            <a-option
               v-for="item in sys_normal_disable"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
-        </el-form-item>
+          </a-select>
+        </a-form-item>
       </template>
 
       <template #toolbar>
-        <el-button v-permisaction="['admin:sysDept:add']" type="primary" @click="handleAdd()">
+        <a-button v-permisaction="['admin:sysDept:add']" type="primary" @click="handleAdd()">
           {{ $t('common.add') }}
-        </el-button>
+        </a-button>
       </template>
 
-      <el-table-column
-        prop="deptName"
-        :label="$t('admin.sysDept.deptName')"
-        min-width="180"
-        show-overflow-tooltip
+      <a-table-column
+        data-index="deptName"
+        :title="$t('admin.sysDept.deptName')"
+        :width="180"
+        ellipsis
+        tooltip
       />
-      <el-table-column prop="sort" :label="$t('admin.sysDept.sort')" width="80" />
-      <el-table-column prop="status" :label="$t('admin.sysDept.status')" width="90">
-        <template #default="{ row }">
-          <el-tag :type="Number(row.status) === 1 ? 'danger' : 'success'" disable-transitions>
+      <a-table-column data-index="sort" :title="$t('admin.sysDept.sort')" :width="80" />
+      <a-table-column data-index="status" :title="$t('admin.sysDept.status')" :width="90">
+        <template #cell="{ record: row }">
+          <a-tag :color="Number(row.status) === 1 ? 'red' : 'green'">
             {{ dictLabel(sys_normal_disable, row.status) }}
-          </el-tag>
+          </a-tag>
         </template>
-      </el-table-column>
-      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110">
-        <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
-      </el-table-column>
+      </a-table-column>
+      <a-table-column :title="$t('common.createdAt')" data-index="createdAt" :width="110">
+        <template #cell="{ record: row }"><DateCell :value="row.createdAt" /></template>
+      </a-table-column>
 
       <template #actions="{ row }">
-        <el-button
+        <a-button
           v-permisaction="['admin:sysDept:edit']"
-          link
-          type="primary"
+
+          type="text"
           @click="handleUpdate(row)"
-        >{{ $t('common.edit') }}</el-button>
-        <el-button
+        >{{ $t('common.edit') }}</a-button>
+        <a-button
           v-permisaction="['admin:sysDept:add']"
-          link
-          type="primary"
+
+          type="text"
           @click="handleAdd(row)"
-        >{{ $t('common.add') }}</el-button>
+        >{{ $t('common.add') }}</a-button>
         <!-- A root has no parent to fall back to, so it cannot be removed here -->
-        <el-button
+        <a-button
           v-if="row.parentId !== 0"
           v-permisaction="['admin:sysDept:remove']"
-          link
-          type="danger"
+          status="danger"
+          type="text"
           @click="handleDelete(row)"
-        >{{ $t('common.delete') }}</el-button>
+        >{{ $t('common.delete') }}</a-button>
       </template>
     </ProTable>
 
-    <el-dialog
-      v-model="form.visible"
+    <AppModal
+      v-model:visible="form.visible"
       :title="form.title"
       width="600px"
-      :close-on-click-modal="false"
-      @closed="form.reset"
+      :mask-closable="false"
+      @close="form.reset"
     >
-      <el-form
+      <a-form
         :ref="form.bindFormRef"
-        v-loading="form.loading"
+        :disabled="form.loading"
         :model="form.model"
         :rules="form.rules"
-        label-width="auto"
+        layout="vertical"
       >
-        <el-row :gutter="16">
-          <el-col :span="24">
-            <el-form-item :label="$t('admin.sysDept.parent')" prop="parentId">
+        <a-row :gutter="16">
+          <a-col :span="24">
+            <a-form-item :label="$t('admin.sysDept.parent')" field="parentId">
               <!-- Disabled while editing: moving a department between parents is
                    not something this endpoint supports. -->
-              <el-tree-select
+              <a-tree-select
                 v-model="form.model.parentId"
                 :data="parent.options"
-                :props="{ label: 'deptName', children: 'children' }"
-                node-key="deptId"
+                :field-names="{ key: 'deptId', title: 'deptName', children: 'children' }"
                 :placeholder="$t('admin.sysDept.parentPlaceholder')"
                 :disabled="form.isEdit"
-                check-strictly
-                :render-after-expand="false"
                 style="width: 100%"
               />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysDept.deptName')" prop="deptName">
-              <el-input
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="$t('admin.sysDept.deptName')" field="deptName">
+              <a-input
                 v-model="form.model.deptName"
                 :placeholder="$t('admin.sysDept.deptNamePlaceholder')"
               />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysDept.displaySort')" prop="sort">
-              <el-input-number v-model="form.model.sort" controls-position="right" :min="0" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysDept.leader')" prop="leader">
-              <el-input
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="$t('admin.sysDept.displaySort')" field="sort">
+              <a-input-number :model-value="form.model.sort === undefined ? undefined : Number(form.model.sort)" :min="0" @update:model-value="form.model.sort = $event" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="$t('admin.sysDept.leader')" field="leader">
+              <a-input
                 v-model="form.model.leader"
                 :placeholder="$t('admin.sysDept.leaderPlaceholder')"
-                maxlength="20"
+                max-length="20"
               />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysDept.phone')" prop="phone">
-              <el-input
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="$t('admin.sysDept.phone')" field="phone">
+              <a-input
                 v-model="form.model.phone"
                 :placeholder="$t('admin.sysDept.phonePlaceholder')"
-                maxlength="11"
+                max-length="11"
               />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysDept.email')" prop="email">
-              <el-input
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="$t('admin.sysDept.email')" field="email">
+              <a-input
                 v-model="form.model.email"
                 :placeholder="$t('admin.sysDept.emailPlaceholder')"
-                maxlength="50"
+                max-length="50"
               />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('admin.sysDept.deptStatus')" prop="status">
-              <el-radio-group v-model="form.model.status">
-                <el-radio
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="$t('admin.sysDept.deptStatus')" field="status">
+              <a-radio-group v-model="form.model.status">
+                <a-radio
                   v-for="item in sys_normal_disable"
                   :key="item.value"
                   :value="item.value"
-                >{{ item.label }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
+                >{{ item.label }}</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
       <template #footer>
-        <el-button @click="form.close">{{ $t('common.dialogCancel') }}</el-button>
-        <el-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</el-button>
+        <a-button @click="form.close">{{ $t('common.dialogCancel') }}</a-button>
+        <a-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</a-button>
       </template>
-    </el-dialog>
+    </AppModal>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormRules } from 'element-plus'
+import type { FormRules } from '@/types/ui'
 
+import AppModal from '@/components/AppModal/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
@@ -225,12 +224,12 @@ const parent = useTreePicker<SysDept>({
  * so :rules="form.rules" is unchanged.
  */
 const rules = computed<FormRules>(() => ({
-  parentId: [{ required: true, message: t('admin.sysDept.rules.parentId'), trigger: 'change' }],
-  deptName: [{ required: true, message: t('admin.sysDept.rules.deptName'), trigger: 'blur' }],
-  sort: [{ required: true, message: t('admin.sysDept.rules.sort'), trigger: 'blur' }],
-  leader: [{ required: true, message: t('admin.sysDept.rules.leader'), trigger: 'blur' }],
-  email: [{ type: 'email', message: t('admin.sysDept.rules.emailFormat'), trigger: ['blur', 'change'] }],
-  phone: [{ pattern: /^1[3-9]\d{9}$/, message: t('admin.sysDept.rules.phoneFormat'), trigger: 'blur' }]
+  parentId: [{ required: true, message: t('admin.sysDept.rules.parentId') }],
+  deptName: [{ required: true, message: t('admin.sysDept.rules.deptName') }],
+  sort: [{ required: true, message: t('admin.sysDept.rules.sort') }],
+  leader: [{ required: true, message: t('admin.sysDept.rules.leader') }],
+  email: [{ type: 'email', message: t('admin.sysDept.rules.emailFormat') }],
+  phone: [{ match: /^1[3-9]\d{9}$/, message: t('admin.sysDept.rules.phoneFormat') }]
 }))
 
 const form = useForm<SysDept, number>({

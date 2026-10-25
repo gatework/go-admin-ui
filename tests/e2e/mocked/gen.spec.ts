@@ -25,9 +25,9 @@ test.describe('dev-tools gen', () => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
     await expect(page.getByRole('cell', { name: 'sys_demo' })).toBeVisible()
   })
 
@@ -38,7 +38,7 @@ test.describe('dev-tools gen', () => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('row', { name: /sys_demo/ }).getByRole('button', { name: '预览' }).click()
 
@@ -53,7 +53,7 @@ test.describe('dev-tools gen', () => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await page.getByRole('row', { name: /sys_demo/ }).getByRole('button', { name: '预览' }).click()
 
     const dialog = page.getByRole('dialog').filter({ hasText: '代码预览' })
@@ -67,13 +67,13 @@ test.describe('dev-tools gen', () => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     const row = page.getByRole('row', { name: /sys_demo/ })
     await expect(row.locator('.pro-table__actions button')).toHaveCount(3)
 
-    await row.locator('.el-dropdown button').click()
-    const menu = page.locator('.el-dropdown-menu:visible')
+    await row.locator('.row-icon-action').click()
+    const menu = page.locator('.arco-dropdown:visible')
     await expect(menu).toContainText('生成到项目')
     await expect(menu).toContainText('生成配置')
     await expect(menu).toContainText('生成迁移脚本')
@@ -86,20 +86,20 @@ test.describe('dev-tools gen', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     const row = page.getByRole('row', { name: /sys_demo/ })
-    await row.locator('.el-dropdown button').click()
-    await page.locator('.el-dropdown-menu:visible').getByText('删除').click()
+    await row.locator('.row-icon-action').click()
+    await page.locator('.arco-dropdown:visible').getByText('删除').click()
 
-    const confirm = page.locator('.el-message-box')
+    const confirm = page.locator('.arco-modal-simple')
     await expect(confirm).toBeVisible()
     await confirm.getByRole('button', { name: '取消' }).click()
     expect(calls.extra.tableDeletes).toBe(0)
 
-    await row.locator('.el-dropdown button').click()
-    await page.locator('.el-dropdown-menu:visible').getByText('删除').click()
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await row.locator('.row-icon-action').click()
+    await page.locator('.arco-dropdown:visible').getByText('删除').click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '删除' }).click()
 
     await expect.poll(() => calls.extra.tableDeletes).toBe(1)
     expect(calls.extra.tableDeleteUrl).toContain('/sys/tables/info/1')
@@ -109,11 +109,11 @@ test.describe('dev-tools gen', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     const row = page.getByRole('row', { name: /sys_demo/ })
-    await row.locator('.el-dropdown button').click()
-    await page.locator('.el-dropdown-menu:visible').getByText('生成配置').click()
+    await row.locator('.row-icon-action').click()
+    await page.locator('.arco-dropdown:visible').getByText('生成配置').click()
 
     await expect.poll(() => calls.extra.generated).toEqual(['todb'])
   })
@@ -128,7 +128,7 @@ test.describe('dev-tools import', () => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.locator('.pro-table__toolbar').getByRole('button', { name: '导入' }).click()
 
@@ -143,7 +143,7 @@ test.describe('dev-tools import', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     const before = calls.extra.genTableList
 
     await page.locator('.pro-table__toolbar').getByRole('button', { name: '导入' }).click()
@@ -153,7 +153,7 @@ test.describe('dev-tools import', () => {
     await dialog.getByRole('cell', { name: 'sys_order' }).click()
     await expect(dialog).toContainText('已选 1 张表')
 
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '导入所选表' }).click()
 
     await expect.poll(() => calls.extra.tableImports).toBe(1)
     expect(new URL(calls.extra.tableImportUrl).searchParams.get('tables')).toBe('sys_order')
@@ -164,12 +164,12 @@ test.describe('dev-tools import', () => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.locator('.pro-table__toolbar').getByRole('button', { name: '导入' }).click()
     const dialog = page.getByRole('dialog').filter({ hasText: '导入表' })
 
-    await expect(dialog.getByRole('button', { name: '确 定' })).toBeDisabled()
+    await expect(dialog.getByRole('button', { name: '导入所选表' })).toBeDisabled()
   })
 })
 
@@ -187,12 +187,12 @@ test.describe('dev-tools editTable', () => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/editTable?tableId=1')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    const headers = page.locator('.el-table th')
+    const headers = page.locator('.arco-table th')
     await expect(headers.first()).toBeVisible()
 
-    const text = await page.locator('.el-table__header').innerText()
+    const text = await page.locator('.arco-table thead').innerText()
     for (const label of ['字段描述', 'go类型', 'json属性', '表单', '列表', '查询', '必填', '显示类型']) {
       expect(text).toContain(label)
     }
@@ -202,12 +202,12 @@ test.describe('dev-tools editTable', () => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/editTable?tableId=1')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // Three headers carry an explanation; the rest are plain labels. 表单 joined
     // them when it was renamed: it is the column most easily misread, so it is
     // the one that most needed saying what it does.
-    const hints = page.locator('.el-table__header .field-label__hint')
+    const hints = page.locator('.arco-table thead .field-label__hint')
     await expect(hints).toHaveCount(3)
 
     // In column order -- 表单, 列表, 查询.
@@ -220,7 +220,7 @@ test.describe('dev-tools editTable', () => {
       // Located by its own text rather than by :visible -- hovering the next
       // hint while the previous tooltip is still fading out leaves two of them
       // on screen, and a bare :visible matches both.
-      await expect(page.locator('.el-popper').filter({ hasText: expected })).toBeVisible()
+      await expect(page.locator('.arco-tooltip-content').filter({ hasText: expected })).toBeVisible()
     }
   })
 
@@ -228,10 +228,10 @@ test.describe('dev-tools editTable', () => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/editTable?tableId=1')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await expect(page.locator('.el-table__body .el-table__row')).toHaveCount(2)
-    await expect(page.locator('.el-table__body input[type="text"]').first()).toHaveValue('名称')
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody input[type="text"]').first()).toHaveValue('名称')
   })
 
   // true-value, not the deprecated true-label
@@ -239,19 +239,19 @@ test.describe('dev-tools editTable', () => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/editTable?tableId=1')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    const rows = page.locator('.el-table__body .el-table__row')
+    const rows = page.locator('.arco-table tbody tr')
     // name: isList 1, status: isList 0
-    await expect(rows.nth(0).locator('.el-checkbox').nth(1)).toHaveClass(/is-checked/)
-    await expect(rows.nth(1).locator('.el-checkbox').nth(1)).not.toHaveClass(/is-checked/)
+    await expect(rows.nth(0).locator('.arco-checkbox').nth(1)).toHaveClass(/arco-checkbox-checked/)
+    await expect(rows.nth(1).locator('.arco-checkbox').nth(1)).not.toHaveClass(/arco-checkbox-checked/)
   })
 
   test('the basic tab is filled from the record', async({ page }) => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/editTable?tableId=1')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('tab', { name: '基本信息' }).click()
     await expect(page.getByPlaceholder('请输入表名称')).toHaveValue('sys_demo')
@@ -265,11 +265,11 @@ test.describe('dev-tools editTable', () => {
     const bodies = await captureBodies(page, '**/api/v1/sys/tables/info', 'PUT')
 
     await page.goto('/#/dev-tools/editTable?tableId=1')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await page.getByRole('tab', { name: '基本信息' }).click()
     await page.getByPlaceholder('请输入菜单名称').fill('演示菜单')
-    await page.getByRole('button', { name: '提交' }).click()
+    await page.getByRole('button', { name: '保存生成配置' }).click()
 
     await expect.poll(() => bodies.length).toBe(1)
     const sent = JSON.parse(bodies[0] || '{}')
@@ -294,18 +294,18 @@ test.describe('dev-tools editTable', () => {
     await installApiMocks(page)
 
     await page.goto('/#/dev-tools/editTable?tableId=1')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // Column 17: PRD 010 F6 inserted colWidth/defaultValue right after
     // jsonField (index 6), shifting every later column, this one included,
     // two places to the right.
-    const cell = page.locator('.el-table__body .el-table__row').first().locator('td').nth(17)
-    await expect(cell.locator('.el-select__placeholder')).toHaveText('请选择')
-    await cell.locator('.el-select').click()
+    const cell = page.locator('.arco-table tbody tr').first().locator('td').nth(17)
+    await expect(cell.getByPlaceholder('请选择')).toBeVisible()
+    await cell.locator('.arco-select').click()
 
-    const dropdown = page.locator('.el-select-dropdown:visible')
+    const dropdown = page.locator('.arco-select-dropdown:visible')
     await expect(dropdown).toBeVisible()
-    await expect(dropdown.locator('.el-select-dropdown__item')).toHaveCount(0)
+    await expect(dropdown.locator('.arco-select-option')).toHaveCount(0)
   })
 })
 
@@ -330,17 +330,17 @@ test.describe('dev-tools gen in English', () => {
     })
 
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
-    await expect(page.locator('.el-table__header')).toContainText('模型名称')
+    await page.waitForSelector('.arco-table')
+    await expect(page.locator('.arco-table thead')).toContainText('模型名称')
 
     reloaded = false
     await switchTo(page, 'English')
 
-    const header = page.locator('.el-table__header')
+    const header = page.locator('.arco-table thead')
     for (const label of ['ID', 'Table Name', 'Menu Name', 'Model Name', 'Created At']) {
       await expect(header).toContainText(label)
     }
-    await expect(page.locator('.el-table__header')).not.toContainText('模型名称')
+    await expect(page.locator('.arco-table thead')).not.toContainText('模型名称')
 
     const toolbar = page.locator('.pro-table__toolbar')
     await expect(toolbar.getByRole('button', { name: 'Import' })).toBeVisible()
@@ -351,18 +351,18 @@ test.describe('dev-tools gen in English', () => {
 
   test('the row actions and the overflow menu translate', async({ page }) => {
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await switchTo(page, 'English')
 
     const row = page.getByRole('row', { name: /sys_demo/ })
     await expect(row.getByRole('button', { name: 'Edit' })).toBeVisible()
     await expect(row.getByRole('button', { name: 'Preview' })).toBeVisible()
 
-    await row.locator('.el-dropdown button').click()
+    await row.locator('.row-icon-action').click()
     // The language switcher is an el-dropdown too, and its popper is still on
     // screen a moment after the switch -- so the row's menu is the one that is
     // not offering languages.
-    const menu = page.locator('.el-dropdown-menu:visible').filter({ hasNotText: '简体中文' })
+    const menu = page.locator('.arco-dropdown:visible').filter({ hasNotText: '简体中文' })
     await expect(menu).toContainText('Generate into Project')
     await expect(menu).toContainText('Generate Configuration')
     await expect(menu).toContainText('Generate Migration Script')
@@ -376,28 +376,28 @@ test.describe('dev-tools gen in English', () => {
     // tables". The row menu deletes exactly one, which is the form the
     // composable's own default never exercises.
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await switchTo(page, 'English')
 
     const row = page.getByRole('row', { name: /sys_demo/ })
-    await row.locator('.el-dropdown button').click()
-    await page.locator('.el-dropdown-menu:visible').getByText('Delete').click()
+    await row.locator('.row-icon-action').click()
+    await page.locator('.arco-dropdown:visible').getByText('Delete').click()
 
-    const box = page.locator('.el-message-box')
-    await expect(box.locator('.el-message-box__message'))
+    const box = page.locator('.arco-modal-simple')
+    await expect(box.locator('.arco-modal-body'))
       .toHaveText('Delete the generator configuration for the selected table?')
     expect(await box.innerText(), 'Chinese left in the dialog').not.toMatch(/[一-龥]/)
   })
 
   test('the preview dialog is titled in English', async({ page }) => {
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await switchTo(page, 'English')
 
     await page.getByRole('row', { name: /sys_demo/ }).getByRole('button', { name: 'Preview' }).click()
 
     const dialog = page.getByRole('dialog')
-    await expect(dialog.locator('.el-dialog__title')).toHaveText('Code Preview')
+    await expect(dialog.locator('.arco-modal-title')).toHaveText('Code Preview')
   })
 })
 
@@ -413,19 +413,19 @@ test.describe('dev-tools editTable in English', () => {
     await authenticate(context)
     await installApiMocks(page)
     await page.goto('/#/dev-tools/editTable?tableId=1')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
   })
 
   test('the tabs, the column headers and the footer translate', async({ page }) => {
     await switchTo(page, 'English')
 
     // Scoped to the page's own card: the tab strip above it is an el-tabs too
-    const tabs = page.locator('.el-card .el-tabs__nav')
+    const tabs = page.locator('.arco-card .arco-tabs-nav')
     await expect(tabs).toContainText('Basic Information')
     await expect(tabs).toContainText('Field Information')
     await expect(tabs).toContainText('Generation Information')
 
-    const header = page.locator('.el-table__header')
+    const header = page.locator('.arco-table thead')
     for (const label of [
       'No.', 'Column Name', 'Description', 'DB Type', 'Go Type', 'Go Field', 'JSON Field',
       'Form', 'List', 'Query', 'Query Type', 'Required', 'Display Type', 'Dictionary Type',
@@ -436,16 +436,16 @@ test.describe('dev-tools editTable in English', () => {
     expect(await header.innerText(), 'Chinese left in the headers').not.toMatch(/[一-龥]/)
 
     await expect(page.getByRole('button', { name: 'Back' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Save generation settings' })).toBeVisible()
 
     // The alert above the table, and the headers that carry an explanation
-    await expect(page.locator('.el-alert__title')).toContainText('are hidden from this list')
+    await expect(page.locator('.arco-alert-title')).toContainText('are hidden from this list')
     // first() is now the Form column, which gained its hint when it was renamed
     // from Edit -- the label that read as "may be edited", the one flag the
     // checkbox does not control.
-    await page.locator('.el-table__header .field-label__hint').first().hover()
-    // role=tooltip, not .el-popper: the switcher's own popper is still fading
-    // out and is an .el-popper too
+    await page.locator('.arco-table thead .field-label__hint').first().hover()
+    // role=tooltip, not .arco-tooltip-content: the switcher's own popper is still fading
+    // out and is an .arco-tooltip-content too
     await expect(page.locator('[role="tooltip"]:visible'))
       .toContainText('Whether the column appears in the add/edit form')
   })
@@ -463,7 +463,7 @@ test.describe('dev-tools editTable in English', () => {
     await author.fill('')
     await author.blur()
 
-    const errors = page.locator('.el-form-item__error')
+    const errors = page.locator('.arco-form-item-message')
     await expect(errors.filter({ hasText: '请输入作者' })).toHaveCount(1)
 
     await switchTo(page, 'English')
@@ -478,11 +478,11 @@ test.describe('dev-tools editTable in English', () => {
     // -- and both tabs are visible one click apart.
     await page.getByRole('tab', { name: '生成信息' }).click()
 
-    const business = page.locator('.el-form-item').filter({ hasText: '业务名' }).locator('input')
+    const business = page.locator('.arco-form-item').filter({ hasText: '业务名' }).locator('input')
     await business.fill('')
     await business.blur()
 
-    const errors = page.locator('.el-form-item__error')
+    const errors = page.locator('.arco-form-item-message')
     await expect(errors.filter({ hasText: '请输入生成业务名' })).toHaveCount(1)
 
     await switchTo(page, 'English')
@@ -504,10 +504,10 @@ test.describe('dev-tools editTable in English', () => {
     // Column 15 is 字典类型; 17 is the relation key the test above uses --
     // both shifted two places right by PRD 010 F6's colWidth/defaultValue
     // columns, inserted right after jsonField (index 6).
-    const cell = page.locator('.el-table__body .el-table__row').first().locator('td').nth(15)
-    await cell.locator('.el-select').click()
+    const cell = page.locator('.arco-table tbody tr').first().locator('td').nth(15)
+    await cell.locator('.arco-select').click()
 
-    const dropdown = page.locator('.el-select-dropdown:visible')
+    const dropdown = page.locator('.arco-select-dropdown:visible')
     await expect(dropdown).toContainText('System Status')
     await expect(dropdown).not.toContainText('系统状态')
     // The dict_type itself is an identifier and stays as it is
@@ -519,8 +519,8 @@ test.describe('dev-tools editTable in English', () => {
     // Where the backend does send one it wins, in whatever language it was
     // written -- see the note in the batch report.
     await switchTo(page, 'English')
-    await page.getByRole('button', { name: 'Submit' }).click()
+    await page.getByRole('button', { name: 'Save generation settings' }).click()
 
-    await expect(page.locator('.el-message--success')).toContainText('Saved successfully')
+    await expect(page.locator('.arco-message-success')).toContainText('Saved successfully')
   })
 })

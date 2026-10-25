@@ -23,11 +23,11 @@ test('no component gets a directive Vue will refuse to run', async({ page, conte
   // The scheduler is where the only such directive lived; its dialog is the
   // component that produced the warning.
   await page.goto('/#/schedule')
-  await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+  await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
   await page.locator('#loader-wrapper').waitFor({ state: 'detached', timeout: 10000 })
     .catch(() => { /* already gone */ })
   await page.locator('.pro-table__toolbar button').first().click()
-  await expect(page.locator('.el-dialog:visible')).toBeVisible({ timeout: 10000 })
+  await expect(page.locator('.arco-modal:visible')).toBeVisible({ timeout: 10000 })
 
   expect(warnings, `Vue refused to run a directive: ${warnings[0] ?? ''}`).toEqual([])
 })

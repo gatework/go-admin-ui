@@ -1,5 +1,5 @@
 <template>
-  <el-tag :type="type" disable-transitions>{{ method }}</el-tag>
+  <a-tag :color="color">{{ method }}</a-tag>
 </template>
 
 <script setup lang="ts">
@@ -20,16 +20,16 @@ defineOptions({ name: 'MethodTag' })
 
 const props = defineProps<{ method?: string }>()
 
-type TagType = 'primary' | 'success' | 'warning' | 'danger'
+type TagType = 'arcoblue' | 'green' | 'orange' | 'red'
 
 const COLOURS: Record<string, TagType> = {
-  GET: 'primary',
-  POST: 'success',
-  PUT: 'warning',
-  DELETE: 'danger'
+  GET: 'arcoblue',
+  POST: 'green',
+  PUT: 'orange',
+  DELETE: 'red'
 }
 
 // PATCH, HEAD and anything else fall back rather than passing el-tag an empty
 // string, which is not a legal `type` and warns on every render
-const type = computed<TagType>(() => COLOURS[props.method?.toUpperCase() ?? ''] ?? 'primary')
+const color = computed<TagType>(() => COLOURS[props.method?.toUpperCase() ?? ''] ?? 'arcoblue')
 </script>

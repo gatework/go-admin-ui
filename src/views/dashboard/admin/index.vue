@@ -1,13 +1,13 @@
 <template>
   <div class="dashboard-editor-container">
-    <el-row :gutter="12">
-      <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
+    <a-row :gutter="12">
+      <a-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
         <chart-card :title="$t('dashboard.sales.title')" total="￥126,560" color="#1677ff">
           <template #icon><i class="ri-money-dollar-circle-line" /></template>
           <template #action>
-            <el-tooltip class="item" effect="dark" :content="$t('dashboard.metricHelp')" placement="top-start">
+            <a-tooltip class="item" :content="$t('dashboard.metricHelp')" position="tl">
               <i class="ri-error-warning-line" />
-            </el-tooltip>
+            </a-tooltip>
           </template>
           <div>
             <trend flag="top" style="margin-right: 16px;" rate="12">
@@ -19,48 +19,48 @@
           </div>
           <template #footer>{{ $t('dashboard.sales.dailyAverage') }}<span>￥ 234.56</span></template>
         </chart-card>
-      </el-col>
+      </a-col>
 
-      <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
+      <a-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
         <chart-card :title="$t('dashboard.visits.title')" :total="8846" color="#52c41a">
           <template #icon><i class="ri-group-line" /></template>
           <template #action>
-            <el-tooltip class="item" effect="dark" :content="$t('dashboard.metricHelp')" placement="top-start">
+            <a-tooltip class="item" :content="$t('dashboard.metricHelp')" position="tl">
               <i class="ri-error-warning-line" />
-            </el-tooltip>
+            </a-tooltip>
           </template>
           <div>
             <mini-area />
           </div>
           <template #footer>{{ $t('dashboard.visits.daily') }}<span>{{ '1234' }}</span></template>
         </chart-card>
-      </el-col>
+      </a-col>
 
-      <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
+      <a-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
         <chart-card :title="$t('dashboard.payments.title')" :total="6560" color="#fa8c16">
           <template #icon><i class="ri-bank-card-line" /></template>
           <template #action>
-            <el-tooltip class="item" effect="dark" :content="$t('dashboard.metricHelp')" placement="top-start">
+            <a-tooltip class="item" :content="$t('dashboard.metricHelp')" position="tl">
               <i class="ri-error-warning-line" />
-            </el-tooltip>
+            </a-tooltip>
           </template>
           <div>
             <mini-bar />
           </div>
           <template #footer>{{ $t('dashboard.payments.conversion') }}<span>60%</span></template>
         </chart-card>
-      </el-col>
+      </a-col>
 
-      <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
+      <a-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
         <chart-card :title="$t('dashboard.campaign.title')" total="78%" color="#722ed1">
           <template #icon><i class="ri-bar-chart-box-line" /></template>
           <template #action>
-            <el-tooltip class="item" effect="dark" :content="$t('dashboard.metricHelp')" placement="top-start">
+            <a-tooltip class="item" :content="$t('dashboard.metricHelp')" position="tl">
               <i class="ri-error-warning-line" />
-            </el-tooltip>
+            </a-tooltip>
           </template>
           <div>
-            <mini-progress :target="80" :percentage="78" height="8px" />
+            <mini-progress :target="80" :percent="(78) / 100" height="8px" />
           </div>
           <template #footer>
             <trend flag="top" style="margin-right: 8px;" rate="12">
@@ -71,39 +71,40 @@
             </trend>
           </template>
         </chart-card>
-      </el-col>
-    </el-row>
+      </a-col>
+    </a-row>
 
-    <el-card :bordered="false" :body-style="{ padding: '0' }">
+    <a-card :bordered="false" :body-style="{ padding: '0' }">
       <div class="salesCard">
-        <el-tabs>
-          <el-tab-pane :label="$t('dashboard.tabs.sales')">
-            <el-row>
-              <el-col :xl="16" :lg="12" :md="12" :sm="24" :xs="24">
+        <AppTabs>
+          <a-tab-pane :key="$t('dashboard.tabs.sales')" :title="$t('dashboard.tabs.sales')">
+            <a-row>
+              <a-col :xl="16" :lg="12" :md="12" :sm="24" :xs="24">
                 <bar :list="barData" :title="$t('dashboard.charts.salesRanking')" />
-              </el-col>
-              <el-col :xl="8" :lg="12" :md="12" :sm="24" :xs="24">
+              </a-col>
+              <a-col :xl="8" :lg="12" :md="12" :sm="24" :xs="24">
                 <rank-list :title="$t('dashboard.charts.storeRanking')" :list="rankList" />
-              </el-col>
-            </el-row>
-          </el-tab-pane>
-          <el-tab-pane :label="$t('dashboard.visits.title')">
-            <el-row>
-              <el-col :xl="16" :lg="12" :md="12" :sm="24" :xs="24">
+              </a-col>
+            </a-row>
+          </a-tab-pane>
+          <a-tab-pane :key="$t('dashboard.visits.title')" :title="$t('dashboard.visits.title')">
+            <a-row>
+              <a-col :xl="16" :lg="12" :md="12" :sm="24" :xs="24">
                 <bar :list="barData2" :title="$t('dashboard.charts.salesTrend')" />
-              </el-col>
-              <el-col :xl="8" :lg="12" :md="12" :sm="24" :xs="24">
+              </a-col>
+              <a-col :xl="8" :lg="12" :md="12" :sm="24" :xs="24">
                 <rank-list :title="$t('dashboard.charts.storeRanking')" :list="rankList" />
-              </el-col>
-            </el-row>
-          </el-tab-pane>
-        </el-tabs>
+              </a-col>
+            </a-row>
+          </a-tab-pane>
+        </AppTabs>
       </div>
-    </el-card>
+    </a-card>
   </div>
 </template>
 
 <script>
+import AppTabs from '@/components/AppTabs/index.vue'
 import ChartCard from '@/components/ChartCard'
 import Trend from '@/components/Trend'
 import MiniArea from '@/components/MiniArea'
@@ -133,7 +134,7 @@ for (let i = 0; i < 7; i++) {
 
 export default {
   name: 'DashboardAdmin',
-  components: { ChartCard, Trend, MiniArea, MiniBar, MiniProgress, RankList, Bar },
+  components: { AppTabs, ChartCard, Trend, MiniArea, MiniBar, MiniProgress, RankList, Bar },
   computed: {
     barData() {
       return barValues.map((y, i) => ({ x: this.$t('dashboard.charts.month', { n: i + 1 }), y }))
@@ -158,7 +159,7 @@ export default {
   position: relative;
 }
 
-:deep(.el-tabs__item) {
+:deep(.a-tabs__item) {
   padding-left: 16px !important;
   height: 50px;
   line-height: 50px;

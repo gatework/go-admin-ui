@@ -19,7 +19,7 @@ const switchTo = async(page: Page, label: string) => {
 
 const openList = async(page: Page) => {
   await page.goto('/#/admin/sys-user')
-  await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+  await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
   await page.locator('#loader-wrapper').waitFor({ state: 'detached', timeout: 10000 })
     .catch(() => { /* already gone */ })
 }
@@ -53,6 +53,7 @@ test.describe('switching language', () => {
     // The breadcrumb reads $route.matched[].meta.title -- router state, not the
     // Pinia menu tree. Anything that translated by rewriting the store would
     // leave this in the old language while the sidebar changed.
+    await page.addInitScript(() => localStorage.setItem('motor-admin-ui-preferences', JSON.stringify({ tabBar: false, breadcrumbEnabled: true })))
     await openList(page)
     const breadcrumb = page.locator('#breadcrumb-container')
     await expect(breadcrumb).toContainText('User')
@@ -81,7 +82,7 @@ test.describe('switching language', () => {
     // the request landed. These rows are already on screen when the language
     // changes and nothing refetches -- the labels have to be recomputed.
     await page.goto('/#/admin/sys-post')
-    const table = page.locator('.el-table').first()
+    const table = page.locator('.arco-table').first()
     await expect(table).toBeVisible({ timeout: 15000 })
     await expect(table).toContainText('正常')
 
@@ -107,12 +108,12 @@ test.describe('switching language', () => {
 
     // Located by visibility rather than by its title, which is one of the
     // things about to change.
-    const dialog = page.locator('.el-dialog:visible')
+    const dialog = page.locator('.arco-modal:visible')
     await expect(dialog).toContainText('添加用户')
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
 
-    const errors = dialog.locator('.el-form-item__error')
-    await expect(errors.filter({ hasText: '用户名称不能为空' })).toHaveCount(1)
+    const errors = dialog.locator('.arco-form-item-message')
+    await expect(errors.filter({ hasText: '请填写用户名称' })).toHaveCount(1)
 
     // Dispatched rather than clicked, and that is the one liberty this test
     // takes: el-dialog puts .el-overlay-dialog over the whole viewport at
@@ -125,7 +126,7 @@ test.describe('switching language', () => {
     await page.getByRole('menuitem', { name: 'English', exact: true }).click()
 
     await expect(errors.filter({ hasText: 'Username is required' })).toHaveCount(1)
-    await expect(errors.filter({ hasText: '用户名称不能为空' })).toHaveCount(0)
+    await expect(errors.filter({ hasText: '请填写用户名称' })).toHaveCount(0)
 
     // And the route a user does take: close, reopen, fail validation again.
     // Reopening does not re-run setup, so a frozen object would still be
@@ -135,7 +136,7 @@ test.describe('switching language', () => {
     await page.getByRole('button', { name: 'Add', exact: true }).click()
 
     await expect(dialog).toContainText('Add User')
-    await dialog.getByRole('button', { name: 'OK' }).click()
+    await dialog.getByRole('button', { name: 'Save' }).click()
     await expect(errors.filter({ hasText: 'Username is required' })).toHaveCount(1)
   })
 
@@ -153,7 +154,7 @@ test.describe('switching language', () => {
     // operator created are not in menu.ts and never will be. PRD R2 and A5 say
     // they show their stored title -- not a blank, not 'menu.DemoProduct'.
     await page.goto('/#/demo/product')
-    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
     await page.locator('#loader-wrapper').waitFor({ state: 'detached', timeout: 10000 })
       .catch(() => { /* already gone */ })
 
@@ -164,7 +165,7 @@ test.describe('switching language', () => {
     await expect(sidebar).not.toContainText('menu.')
   })
 
-  test('translates Element Plus\'s own strings too', async({ page }) => {
+  test('translates Arco\'s own strings too', async({ page }) => {
     // Element Plus reads its locale from an injected config rather than from
     // vue-i18n. Passing it to app.use() -- which this project did -- fixes it
     // at boot, so the app would switch language around an untouched date picker
@@ -174,7 +175,7 @@ test.describe('switching language', () => {
     await expect(pager).toContainText('条/页')
 
     await switchTo(page, 'English')
-    await expect(pager).toContainText('/page')
+    await expect(pager).toContainText(/\/\s*Page/)
   })
 
   test('translates what the navbar search can find', async({ page }) => {
@@ -191,7 +192,7 @@ test.describe('switching language', () => {
     // Scoped to the dropdown that is actually open: el-select teleports its
     // popper to <body>, and the page behind has its own selects whose options
     // are in the DOM too.
-    const results = page.locator('.el-select-dropdown:visible .el-select-dropdown__item')
+    const results = page.locator('.arco-select-dropdown:visible .arco-select-option')
 
     // The icon toggles, so it is clicked once per open -- and switching
     // language closes it, because the switcher click reaches the body listener
@@ -206,6 +207,7 @@ test.describe('switching language', () => {
     await expect(results.first()).toHaveText('Admin > User')
 
     await switchTo(page, 'English')
+    await expect(search.getByRole('button', { name: 'Search', exact: true })).toHaveAttribute('aria-expanded', 'false')
 
     await search.locator('.search-icon').click()
     await expect(input).toBeVisible()
@@ -240,7 +242,7 @@ test.describe('switching language', () => {
 
     await switchTo(page, 'English')
 
-    await expect(page.locator('.el-message--error')).toBeVisible()
+    await expect(page.locator('.arco-message-error')).toBeVisible()
     // And the interface is still the language it was, rather than half-switched.
     await expect(page.locator('.sidebar-container')).toContainText('User')
     await expect(page.locator('.sidebar-container')).not.toContainText('User Management')
@@ -258,24 +260,24 @@ test.describe('switching language', () => {
    */
   test('asks to delete in English, box and buttons included', async({ page }) => {
     await page.goto('/#/admin/sys-config')
-    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
 
     await switchTo(page, 'English')
     await page.getByRole('row', { name: /应用名称/ }).getByRole('button', { name: 'Delete' }).click()
 
-    const box = page.locator('.el-message-box')
+    const box = page.locator('.arco-modal-simple')
     await expect(box).toBeVisible()
-    await expect(box.locator('.el-message-box__title')).toHaveText('Notice')
-    await expect(box.locator('.el-message-box__message')).toHaveText('Delete the selected record?')
-    await expect(box.getByRole('button', { name: 'OK' })).toBeVisible()
+    await expect(box.locator('.arco-modal-title')).toHaveText('Notice')
+    await expect(box.locator('.arco-modal-body')).toHaveText('Delete the selected record?')
+    await expect(box.getByRole('button', { name: 'Delete' })).toBeVisible()
     await expect(box.getByRole('button', { name: 'Cancel' })).toBeVisible()
 
     // And nothing else in it either -- the four assertions above name the parts
     // that were wrong once, this one catches the next one.
     expect(await box.innerText(), 'Chinese left in the dialog').not.toMatch(/[\u4e00-\u9fa5]/)
 
-    await box.getByRole('button', { name: 'OK' }).click()
-    await expect(page.locator('.el-message--success')).toContainText('Deleted successfully')
+    await box.getByRole('button', { name: 'Delete' }).click()
+    await expect(page.locator('.arco-message-success')).toContainText('Deleted successfully')
   })
 
   test('renames the picker root that no API sends', async({ page }) => {
@@ -289,10 +291,10 @@ test.describe('switching language', () => {
     // does not re-run setup, so nothing here refetches or rebuilds: the label
     // has to follow on its own.
     await page.goto('/#/admin/sys-dept')
-    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
 
-    const dialog = page.locator('.el-dialog:visible')
-    const root = () => dialog.locator('.el-form-item').first().locator('.el-select__wrapper')
+    const dialog = page.locator('.arco-modal:visible')
+    const root = () => dialog.locator('.arco-form-item').first().locator('.arco-select-view')
 
     await page.getByRole('button', { name: '新增', exact: true }).first().click()
     await expect(dialog).toContainText('添加部门')
@@ -316,13 +318,13 @@ test.describe('switching language', () => {
     await openList(page)
     await page.getByRole('button', { name: '新增', exact: true }).click()
 
-    const dialog = page.locator('.el-dialog:visible')
-    await expect(dialog.locator('.el-dialog__title')).toHaveText('添加用户')
+    const dialog = page.locator('.arco-modal:visible')
+    await expect(dialog.locator('.arco-modal-title')).toHaveText('添加用户')
 
     await page.locator('#lang-select').dispatchEvent('click')
     await page.getByRole('menuitem', { name: 'English', exact: true }).click()
 
-    await expect(dialog.locator('.el-dialog__title')).toHaveText('Add User')
+    await expect(dialog.locator('.arco-modal-title')).toHaveText('Add User')
   })
 
   /**
@@ -338,16 +340,16 @@ test.describe('switching language', () => {
    */
   test('translates a validation message already on screen, on a page that is not sys-user', async({ page }) => {
     await page.goto('/#/admin/sys-post')
-    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
 
     await page.locator('.pro-table__toolbar').getByRole('button', { name: '新增' }).click()
 
-    const dialog = page.locator('.el-dialog:visible')
+    const dialog = page.locator('.arco-modal:visible')
     await expect(dialog).toContainText('添加岗位')
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
 
-    const errors = dialog.locator('.el-form-item__error')
-    await expect(errors.filter({ hasText: '岗位名称不能为空' })).toHaveCount(1)
+    const errors = dialog.locator('.arco-form-item-message')
+    await expect(errors.filter({ hasText: '请填写岗位名称' })).toHaveCount(1)
 
     // Dispatched rather than clicked: the dialog's overlay covers the navbar,
     // so the switcher is genuinely unreachable by mouse while it is open. The
@@ -356,9 +358,9 @@ test.describe('switching language', () => {
     await page.getByRole('menuitem', { name: 'English', exact: true }).click()
 
     await expect(errors.filter({ hasText: 'Position name is required' })).toHaveCount(1)
-    await expect(errors.filter({ hasText: '岗位名称不能为空' })).toHaveCount(0)
+    await expect(errors.filter({ hasText: '请填写岗位名称' })).toHaveCount(0)
     // The title is read on every render, so it has to follow the same switch.
-    await expect(dialog.locator('.el-dialog__title')).toHaveText('Add Position')
+    await expect(dialog.locator('.arco-modal-title')).toHaveText('Add Position')
   })
 
   /**
@@ -375,7 +377,7 @@ test.describe('switching language', () => {
     await page.getByPlaceholder('请输入系统名称').fill('')
     await page.getByRole('button', { name: '保存设置' }).click()
 
-    const error = page.locator('.el-form-item__error')
+    const error = page.locator('.arco-form-item-message')
     await expect(error).toHaveText('请输入系统名称')
 
     await switchTo(page, 'English')
@@ -395,25 +397,25 @@ test.describe('switching language', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-oper-log')
-    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
 
     await switchTo(page, 'English')
     await page.locator('.pro-table__toolbar').getByRole('button', { name: 'Clear' }).click()
 
-    const box = page.locator('.el-message-box')
+    const box = page.locator('.arco-modal-simple')
     await expect(box).toBeVisible()
-    await expect(box.locator('.el-message-box__title')).toHaveText('Notice')
-    await expect(box.locator('.el-message-box__message'))
+    await expect(box.locator('.arco-modal-title')).toHaveText('Notice')
+    await expect(box.locator('.arco-modal-body'))
       .toHaveText('Clear every operation log? This cannot be undone.')
-    await expect(box.getByRole('button', { name: 'OK' })).toBeVisible()
+    await expect(box.getByRole('button', { name: 'Clear' })).toBeVisible()
     await expect(box.getByRole('button', { name: 'Cancel' })).toBeVisible()
     // The four assertions above name the parts that were Chinese; this one
     // catches whichever part is next.
     expect(await box.innerText(), 'Chinese left in the dialog').not.toMatch(/[一-龥]/)
 
-    await box.getByRole('button', { name: 'OK' }).click()
+    await box.getByRole('button', { name: 'Clear' }).click()
     await expect.poll(() => calls.extra.operLogClean).toBe(1)
-    await expect(page.locator('.el-message--success')).toContainText('Cleared')
+    await expect(page.locator('.arco-message-success')).toContainText('Cleared')
   })
 
   /**
@@ -427,17 +429,17 @@ test.describe('switching language', () => {
    */
   test('writes the exported sheet in the language the reader asked in', async({ page }) => {
     await page.goto('/#/admin/sys-post')
-    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
 
     await switchTo(page, 'English')
     await page.locator('.pro-table__toolbar').getByRole('button', { name: 'Export' }).click()
 
     // Located by role rather than by name: useExport still writes its own
     // confirm in Chinese, which is not this test's subject.
-    const confirm = page.locator('.el-message-box')
+    const confirm = page.locator('.arco-modal-simple')
     await expect(confirm).toBeVisible()
     const downloaded = page.waitForEvent('download')
-    await confirm.locator('.el-message-box__btns .el-button--primary').click()
+    await confirm.locator('.arco-modal-footer .arco-btn-primary').click()
 
     const download = await downloaded
     expect(download.suggestedFilename()).toBe('Position Management.xlsx')
@@ -452,18 +454,18 @@ test.describe('switching language', () => {
     // dialog stayed Chinese on an English page in exactly the way useRemove's
     // did: an English page, a Chinese question, Chinese buttons.
     await page.goto('/#/admin/sys-post')
-    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
     await page.locator('#loader-wrapper').waitFor({ state: 'detached', timeout: 10000 })
       .catch(() => { /* already gone */ })
 
     await switchTo(page, 'English')
     await page.getByRole('button', { name: 'Export' }).click()
 
-    const box = page.locator('.el-message-box')
+    const box = page.locator('.arco-modal-simple')
     await expect(box).toBeVisible()
-    await expect(box.locator('.el-message-box__title')).toHaveText('Notice')
-    await expect(box.locator('.el-message-box__message')).toHaveText('Export the current page of the list?')
-    await expect(box.getByRole('button', { name: 'OK' })).toBeVisible()
+    await expect(box.locator('.arco-modal-title')).toHaveText('Notice')
+    await expect(box.locator('.arco-modal-body')).toHaveText('Export data from the current page? Data on other pages will not be included.')
+    await expect(box.getByRole('button', { name: 'Export' })).toBeVisible()
     await expect(box.getByRole('button', { name: 'Cancel' })).toBeVisible()
     // Nothing Chinese left anywhere in the dialog, not just in the parts named
     // above -- the failure this replaces was a mix, not a single string.
@@ -485,13 +487,13 @@ test.describe('switching language', () => {
     // in English (app/other/apis/tools/gen.go), so a Chinese user reading a
     // Chinese interface was shown an English sentence.
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     const row = page.getByRole('row', { name: /sys_demo/ })
-    await row.locator('.el-dropdown button').click()
-    await page.locator('.el-dropdown-menu:visible').getByText('生成配置').click()
+    await row.locator('.row-icon-action').click()
+    await page.locator('.arco-dropdown:visible').getByText('生成配置').click()
 
-    const toast = page.locator('.el-message--success')
+    const toast = page.locator('.arco-message-success')
     await expect(toast).toContainText('已生成')
     await expect(toast).not.toContainText('Code generated successfully')
   })
@@ -506,7 +508,7 @@ test.describe('switching language', () => {
     await switchTo(page, 'English')
     await page.getByRole('button', { name: 'Save Settings' }).click()
 
-    const toast = page.locator('.el-message--success')
+    const toast = page.locator('.arco-message-success')
     await expect(toast).toContainText('Saved successfully')
     expect(await toast.innerText(), 'the server\'s Chinese reached the toast').not.toMatch(/[一-龥]/)
   })
@@ -521,7 +523,7 @@ test.describe('switching language', () => {
    */
   test('translates the import dialog, which is opened from a migrated page', async({ page }) => {
     await page.goto('/#/dev-tools/gen')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await switchTo(page, 'English')
     await page.locator('.pro-table__toolbar').getByRole('button', { name: 'Import' }).click()
@@ -539,15 +541,15 @@ test.describe('switching language', () => {
     // sys_order, and data out of the database stays in the language it was
     // written in. That is the same line lang/backend.ts draws.
     const chrome = [
-      await dialog.locator('.el-dialog__header').innerText(),
+      await dialog.locator('.arco-modal-header').innerText(),
       await dialog.locator('form').first().innerText(),
-      await dialog.locator('.el-table__header-wrapper').innerText(),
-      await dialog.locator('.el-dialog__footer').innerText()
+      await dialog.locator('.arco-table thead').innerText(),
+      await dialog.locator('.arco-modal-footer').innerText()
     ].join('\n')
     expect(chrome, 'Chinese left in the import dialog').not.toMatch(/[一-龥]/)
 
-    await dialog.getByRole('button', { name: 'OK' }).click()
-    await expect(page.locator('.el-message--success')).toContainText('Imported successfully')
+    await dialog.getByRole('button', { name: 'Import selected tables' }).click()
+    await expect(page.locator('.arco-message-success')).toContainText('Imported successfully')
   })
 
   /**
@@ -560,15 +562,15 @@ test.describe('switching language', () => {
    */
   test('writes dictionary labels into the sheet, not the codes behind them', async({ page }) => {
     await page.goto('/#/admin/sys-oper-log')
-    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
 
     await switchTo(page, 'English')
     await page.locator('.pro-table__toolbar').getByRole('button', { name: 'Export' }).click()
 
-    const confirm = page.locator('.el-message-box')
+    const confirm = page.locator('.arco-modal-simple')
     await expect(confirm).toBeVisible()
     const downloaded = page.waitForEvent('download')
-    await confirm.locator('.el-message-box__btns .el-button--primary').click()
+    await confirm.locator('.arco-modal-footer .arco-btn-primary').click()
 
     const workbook = await readWorkbook(await downloaded)
     const [, first, second] = values(workbook)
@@ -594,7 +596,7 @@ test.describe('switching language', () => {
 
     await switchTo(page, '简体中文')
     await expect(page.locator('#tags-view-container')).toContainText('User')
-    await expect(page.locator('#breadcrumb-container')).not.toContainText('User Management')
+    await expect(page.locator('#tags-view-container')).not.toContainText('User Management')
   })
 })
 
@@ -618,10 +620,10 @@ test.describe('the login page', () => {
     // of. Without one here, someone who cannot read Chinese is stopped at the
     // first screen -- there is nothing to click past.
     await page.goto('/#/login')
-    await expect(page.locator('.panel-sub')).toHaveText('使用管理员账号登录控制台')
+    await expect(page.locator('.panel-sub')).toHaveText('使用你的用户名和密码登录 motor。')
 
     await switchTo(page, 'English')
-    await expect(page.locator('.panel-sub')).toHaveText('Log in to the console with an administrator account')
+    await expect(page.locator('.panel-sub')).toHaveText('Sign in to motor with your username and password.')
   })
 
   test('keeps the switcher reachable on a phone', async({ page }) => {
@@ -656,7 +658,7 @@ test.describe('on a phone', () => {
     await page.locator('#loader-wrapper').waitFor({ state: 'detached', timeout: 10000 })
       .catch(() => { /* already gone */ })
 
-    await expect(page.locator('#header-search')).toHaveCount(0)
+    await expect(page.locator('#header-search')).toBeVisible()
     await expect(page.locator('#lang-select')).toBeVisible()
   })
 })

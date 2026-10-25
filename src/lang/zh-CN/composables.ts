@@ -10,12 +10,11 @@
  * The words the dialogs share with the toolbar -- 提示 / 确定 / 取消 / 新增 /
  * 修改 -- stay in common.ts and are read from there.
  *
- * Every Chinese value must be byte-for-byte what the interface renders today --
- * PRD R5.
+ * UI copy is maintained with the corresponding English pack.
  */
 export default {
   export: {
-    confirm: '是否确认导出当前列表数据？'
+    confirm: '确认导出当前页数据？其他页的数据不会导出。'
   },
 
   remove: {

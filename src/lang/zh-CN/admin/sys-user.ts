@@ -1,7 +1,7 @@
 /**
  * The user page.
  *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD
+ * UI copy is maintained with the corresponding English pack.
  * R5) -- sys-user carries the densest block of Chinese assertions in the e2e
  * suite, 18 in its own spec alone, and none of them were touched.
  *
@@ -65,15 +65,15 @@ export default {
   disableOk: '停用成功',
 
   rules: {
-    username: '用户名称不能为空',
-    nickName: '用户昵称不能为空',
-    deptId: '归属部门不能为空',
-    password: '用户密码不能为空',
-    email: '邮箱地址不能为空',
+    username: '请填写用户名称',
+    nickName: '请填写用户昵称',
+    deptId: '请选择归属部门',
+    password: '请填写用户密码',
+    email: '请填写邮箱地址',
     emailFormat: '请输入正确的邮箱地址',
-    phone: '手机号码不能为空',
+    phone: '请填写手机号码',
     phoneFormat: '请输入正确的手机号码',
-    newPassword: '新密码不能为空',
+    newPassword: '请填写新密码',
     passwordLength: '密码长度为 6 到 20 位'
   }
 }

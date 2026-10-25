@@ -1,5 +1,20 @@
 export default {
   monitor: {
+    title: 'Server monitor',
+    resources: 'Resource usage',
+    snapshot: 'Current sample · utilization',
+    network: 'Network traffic',
+    refresh: 'Refresh data',
+    autoRefresh: 'Auto refresh',
+    refreshHint: 'Refreshes 5 seconds after each sample',
+    updated: 'Sample time',
+    failed: 'Sampling failed. Refresh to retry. Existing values show the last successful sample.',
+    loading: 'Loading host metrics',
+    usage: 'Used / total',
+    cpu: 'CPU',
+    unknown: 'Unavailable',
+    paused: 'Auto refresh paused',
+
     system: 'System',
     memory: 'Memory',
     swap: 'Swap',

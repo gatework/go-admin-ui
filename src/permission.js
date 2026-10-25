@@ -1,7 +1,8 @@
 import router from './router'
+import { usePreferencesStore } from '@/stores/preferences'
 import { useUserStore } from '@/stores/user'
 import { usePermissionStore } from '@/stores/permission'
-import { ElMessage } from 'element-plus'
+import { msgError } from '@/utils/message'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
@@ -22,17 +23,17 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration
  * working in another tab.
  */
 watch(() => i18n.global.locale.value, () => {
-  document.title = getPageTitle(routeTitle(router.currentRoute.value))
+  document.title = getPageTitle(usePreferencesStore().dynamicTitle ? routeTitle(router.currentRoute.value) : '')
 })
 
 const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
 
 router.beforeEach(async(to, from, next) => {
   // start progress bar
-  NProgress.start()
+  if (usePreferencesStore().progressEnabled) NProgress.start()
 
   // set page title
-  document.title = getPageTitle(routeTitle(to))
+  document.title = getPageTitle(usePreferencesStore().dynamicTitle ? routeTitle(to) : '')
 
   // determine whether the user has logged in
   const hasToken = getToken()
@@ -83,10 +84,10 @@ router.beforeEach(async(to, from, next) => {
           // such as getInfo's "roles must be a non-null array".
           //
           // The message is read off `.message` rather than passed as the error:
-          // ElMessage treats a non-string argument as its options bag, and an
+          // Message helpers need a string; an
           // Error's `message` is non-enumerable, so the toast came out empty.
           if (!error?.reported) {
-            ElMessage.error(error?.message || i18n.global.t('common.unknownError'))
+            msgError(error?.message || i18n.global.t('common.unknownError'))
           }
           next(`/login?redirect=${to.path}`)
           NProgress.done()

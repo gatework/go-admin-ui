@@ -35,7 +35,7 @@
     "go-admin",
     "go-admin-ui",
     "dashboard",
-    "element-ui",
+    "arco-design-vue",
     "boilerplate",
     "admin-template",
     "management-system"
@@ -48,12 +48,12 @@
     "url": "https://github.com/go-admin-team/go-admin/issues"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^2.3.2",
+    "@arco-design/color": "0.4.0",
+    "@arco-design/web-vue": "2.59.0",
     "axios": "^1.20.0",
     "codemirror": "^6.0.2",
     "core-js": "^3.50.0",
     "echarts": "^6.1.0",
-    "element-plus": "^2.14.4",
     "fuse.js": "6.6.2",
     "js-cookie": "3.0.8",
     "moment": "^2.31.0",

@@ -19,7 +19,7 @@ test.describe('sys-user', () => {
 
     await page.goto('/#/admin/sys-user')
 
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
     await expect(page.getByRole('cell', { name: 'admin', exact: true })).toBeVisible()
     await expect(page.getByRole('cell', { name: '研发部' })).toBeVisible()
   })
@@ -30,10 +30,10 @@ test.describe('sys-user', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-user')
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
 
     await page.getByPlaceholder('请输入用户名称').fill('tester')
-    await page.getByRole('button', { name: '搜索' }).click()
+    await page.locator('.pro-table__search').getByRole('button', { name: '搜索' }).click()
 
     await expect.poll(() => calls.user.list).toBeGreaterThan(1)
     const latest = calls.user.listQueries[calls.user.listQueries.length - 1]
@@ -50,7 +50,7 @@ test.describe('sys-user', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-user')
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
     const before = calls.user.list
 
     await page.getByPlaceholder('请输入用户名称').fill('tester')
@@ -70,9 +70,9 @@ test.describe('sys-user', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-user')
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
 
-    await page.locator('.el-tree-node__label').filter({ hasText: '测试部' }).click()
+    await page.locator('.arco-tree-node-title').filter({ hasText: '测试部' }).click()
     await expect.poll(() => calls.user.listQueries.at(-1)).toContain('deptId=')
 
     // Scoped to the search bar: `name` matches a substring, so an unscoped
@@ -86,9 +86,9 @@ test.describe('sys-user', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-user')
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
 
-    await page.locator('th').filter({ hasText: '登录名' }).locator('.sort-caret.ascending').click()
+    await page.locator('th').filter({ hasText: '登录名' }).locator('.arco-table-sorter-icon').first().click()
 
     await expect.poll(() => calls.user.listQueries.at(-1)).toContain('usernameOrder=asc')
   })
@@ -137,15 +137,15 @@ test.describe('sys-user', () => {
     await dialog.getByPlaceholder('请输入邮箱').fill('newbie@example.com')
 
     // el-tree-select renders a tree in its dropdown, but each node's label is an
-    // li.el-select-dropdown__item rather than the .el-tree-node__label a plain
+    // li.arco-tree-node-title rather than the .arco-tree-node-title a plain
     // el-tree would emit. Scoped to its own popper: the page has several other
     // selects, and the same department name sits in the tree on the left.
-    await dialog.locator('.el-form-item').filter({ hasText: '归属部门' })
-      .locator('.el-select__wrapper').click()
-    await page.locator('.el-tree-select__popper')
-      .locator('.el-select-dropdown__item').filter({ hasText: '测试部' }).click()
+    await dialog.locator('.arco-form-item').filter({ hasText: '归属部门' })
+      .locator('.arco-select-view').click()
+    await page.locator('.arco-tree-select-popup')
+      .locator('.arco-tree-node-title').filter({ hasText: '测试部' }).click()
 
-    const confirm = dialog.getByRole('button', { name: '确 定' })
+    const confirm = dialog.getByRole('button', { name: '保存' })
     await confirm.click()
     // Second click lands while the first request is still open
     await confirm.click({ force: true })
@@ -163,9 +163,9 @@ test.describe('sys-user', () => {
     await page.getByRole('button', { name: '新增' }).click()
 
     const dialog = page.getByRole('dialog').filter({ hasText: '添加用户' })
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
 
-    await expect(dialog.locator('.el-form-item__error').first()).toBeVisible()
+    await expect(dialog.locator('.arco-form-item-message').first()).toBeVisible()
     await expect(dialog).toBeVisible()
     expect(calls.user.create).toBe(0)
   })
@@ -180,7 +180,7 @@ test.describe('sys-user', () => {
     await page.goto('/#/admin/sys-user')
     // Wait for the list, as every other case here does. Clicking 新增 while the
     // page is still resolving its lookups raced under parallel load.
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await page.getByRole('button', { name: '新增' }).click()
     const dialog = page.getByRole('dialog').filter({ hasText: '添加用户' })
     await expect(dialog).toBeVisible()
@@ -189,9 +189,9 @@ test.describe('sys-user', () => {
 
     await page.getByRole('button', { name: '新增' }).click()
     await expect(dialog).toBeVisible()
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '保存' }).click()
 
-    await expect(dialog.locator('.el-form-item__error').first()).toBeVisible()
+    await expect(dialog.locator('.arco-form-item-message').first()).toBeVisible()
     await expect(dialog).toBeVisible()
     expect(calls.user.create).toBe(0)
   })
@@ -211,12 +211,12 @@ test.describe('sys-user', () => {
 
     // Too short: rejected before anything reaches the network
     await dialog.getByPlaceholder('请输入新密码').fill('123')
-    await dialog.getByRole('button', { name: '确 定' }).click()
-    await expect(dialog.locator('.el-form-item__error')).toBeVisible()
+    await dialog.getByRole('button', { name: '重置密码' }).click()
+    await expect(dialog.locator('.arco-form-item-message')).toBeVisible()
     expect(calls.extra.passwordReset).toBe(0)
 
     await dialog.getByPlaceholder('请输入新密码').fill('Secret@123')
-    await dialog.getByRole('button', { name: '确 定' }).click()
+    await dialog.getByRole('button', { name: '重置密码' }).click()
 
     await expect.poll(() => calls.extra.passwordReset).toBe(1)
     await expect(dialog).toBeHidden()
@@ -274,32 +274,32 @@ test.describe('sys-user', () => {
   test('the selection is dropped after a bulk delete', async({ page }) => {
     const { calls } = await installApiMocks(page)
     await page.goto('/#/admin/sys-user')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await page.locator('.el-table__header .el-checkbox').click()
+    await page.locator('.arco-table thead .arco-checkbox').click()
     const bulk = page.locator('.pro-table__toolbar').getByRole('button', { name: '删除' })
     await expect(bulk).toBeEnabled()
 
     await bulk.click()
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '删除' }).click()
     await expect.poll(() => calls.user.remove).toBe(1)
 
     // Otherwise a second click deletes ids the server no longer has
     await expect(bulk).toBeDisabled()
-    await expect(page.locator('.el-table__row .el-checkbox.is-checked')).toHaveCount(0)
+    await expect(page.locator('.arco-table tbody tr .arco-checkbox-checked')).toHaveCount(0)
   })
 
   test('reset unticks the checkboxes it disables the buttons for', async({ page }) => {
     await installApiMocks(page)
     await page.goto('/#/admin/sys-user')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
-    await page.locator('.el-table__row .el-checkbox').first().click()
-    await expect(page.locator('.el-table__row .el-checkbox.is-checked')).toHaveCount(1)
+    await page.locator('.arco-table tbody tr .arco-checkbox').first().click()
+    await expect(page.locator('.arco-table tbody tr .arco-checkbox-checked')).toHaveCount(1)
 
     await page.locator('.pro-table__search').getByRole('button', { name: '重置' }).click()
 
-    await expect(page.locator('.el-table__row .el-checkbox.is-checked')).toHaveCount(0)
+    await expect(page.locator('.arco-table tbody tr .arco-checkbox-checked')).toHaveCount(0)
     await expect(page.locator('.pro-table__toolbar')
       .getByRole('button', { name: '删除' })).toBeDisabled()
   })
@@ -310,7 +310,7 @@ test.describe('sys-user', () => {
     await page.goto('/#/admin/sys-user')
     await page.getByRole('row', { name: /tester/ }).getByRole('button', { name: '删除' }).click()
 
-    const confirm = page.locator('.el-message-box')
+    const confirm = page.locator('.arco-modal-simple')
     await expect(confirm).toBeVisible()
     await confirm.getByRole('button', { name: '取消' }).click()
 
@@ -322,11 +322,11 @@ test.describe('sys-user', () => {
     const { calls } = await installApiMocks(page)
 
     await page.goto('/#/admin/sys-user')
-    await expect(page.locator('.el-table__row')).toHaveCount(2)
+    await expect(page.locator('.arco-table tbody tr')).toHaveCount(2)
     const before = calls.user.list
 
     await page.getByRole('row', { name: /tester/ }).getByRole('button', { name: '删除' }).click()
-    await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
+    await page.locator('.arco-modal-simple').getByRole('button', { name: '删除' }).click()
 
     await expect.poll(() => calls.user.remove).toBe(1)
     await expect.poll(() => calls.user.list).toBeGreaterThan(before)

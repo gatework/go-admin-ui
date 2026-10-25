@@ -2,149 +2,152 @@
   <PageContainer>
     <ProTable :table="table" selection row-key="id" :actions-width="120">
       <template #search>
-        <el-form-item :label="$t('admin.dict.type.dictName')">
-          <el-input
+        <a-form-item :label="$t('admin.dict.type.dictName')">
+          <a-input
             v-model="table.query.dictName"
             :placeholder="$t('admin.dict.type.dictNamePlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.dict.type.dictType')">
-          <el-input
+        </a-form-item>
+        <a-form-item :label="$t('admin.dict.type.dictType')">
+          <a-input
             v-model="table.query.dictType"
             :placeholder="$t('admin.dict.type.dictTypePlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.dict.type.status')">
-          <el-select
+        </a-form-item>
+        <a-form-item :label="$t('admin.dict.type.status')">
+          <a-select
             v-model="table.query.status"
             :placeholder="$t('admin.dict.type.statusPlaceholder')"
-            clearable
+            allow-clear
           >
-            <el-option
+            <a-option
               v-for="item in sys_normal_disable"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
-        </el-form-item>
+          </a-select>
+        </a-form-item>
       </template>
 
       <template #toolbar>
-        <el-button v-permisaction="['admin:sysDictType:add']" type="primary" @click="form.openCreate()">
+        <a-button v-permisaction="['admin:sysDictType:add']" type="primary" @click="form.openCreate()">
           {{ $t('common.add') }}
-        </el-button>
-        <el-button
+        </a-button>
+        <a-button
           v-permisaction="['admin:sysDictType:remove']"
-          type="danger"
-          plain
+          status="danger"
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >{{ $t('common.delete') }}</el-button>
-        <el-button v-permisaction="['admin:sysDictType:export']" :loading="exporting" @click="handleExport">
+        >{{ $t('common.delete') }}</a-button>
+        <a-button v-permisaction="['admin:sysDictType:export']" :loading="exporting" @click="handleExport">
           {{ $t('common.export') }}
-        </el-button>
+        </a-button>
       </template>
 
-      <el-table-column :label="$t('admin.dict.type.dictId')" prop="id" width="80" />
-      <el-table-column
-        :label="$t('admin.dict.type.dictName')"
-        prop="dictName"
-        min-width="140"
-        show-overflow-tooltip
+      <a-table-column :title="$t('admin.dict.type.dictId')" data-index="id" :width="80" />
+      <a-table-column
+        :title="$t('admin.dict.type.dictName')"
+        data-index="dictName"
+        :width="140"
+        ellipsis
+        tooltip
       />
-      <el-table-column
-        :label="$t('admin.dict.type.dictType')"
-        prop="dictType"
-        min-width="160"
-        show-overflow-tooltip
+      <a-table-column
+        :title="$t('admin.dict.type.dictType')"
+        data-index="dictType"
+        :width="160"
+        ellipsis
+        tooltip
       >
-        <template #default="{ row }">
+        <template #cell="{ record: row }">
           <!-- The entries live on their own page, keyed by this record's id -->
           <router-link :to="{ name: 'SysDictDataManage', params: { dictId: row.id }}" class="link-type">
             {{ row.dictType }}
           </router-link>
         </template>
-      </el-table-column>
-      <el-table-column :label="$t('admin.dict.type.status')" prop="status" width="90">
-        <template #default="{ row }">
-          <el-tag :type="Number(row.status) === 2 ? 'success' : 'danger'" disable-transitions>
+      </a-table-column>
+      <a-table-column :title="$t('admin.dict.type.status')" data-index="status" :width="90">
+        <template #cell="{ record: row }">
+          <a-tag :color="Number(row.status) === 2 ? 'green' : 'red'">
             {{ dictLabel(sys_normal_disable, row.status) }}
-          </el-tag>
+          </a-tag>
         </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('admin.dict.type.remark')"
-        prop="remark"
-        min-width="160"
-        show-overflow-tooltip
+      </a-table-column>
+      <a-table-column
+        :title="$t('admin.dict.type.remark')"
+        data-index="remark"
+        :width="160"
+        ellipsis
+        tooltip
       />
       <!--
         Not sortable: SysDictTypeOrder binds dictIdOrder and nothing else, so a
         header on this column would send createdAtOrder, which gin drops.
       -->
-      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110">
-        <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
-      </el-table-column>
+      <a-table-column :title="$t('common.createdAt')" data-index="createdAt" :width="110">
+        <template #cell="{ record: row }"><DateCell :value="row.createdAt" /></template>
+      </a-table-column>
 
       <template #actions="{ row }">
-        <el-button v-permisaction="['admin:sysDictType:edit']" link type="primary" @click="form.openEdit(row)">
+        <a-button v-permisaction="['admin:sysDictType:edit']" type="text" @click="form.openEdit(row)">
           {{ $t('common.edit') }}
-        </el-button>
-        <el-button v-permisaction="['admin:sysDictType:remove']" link type="danger" @click="remove(row.id)">
+        </a-button>
+        <a-button v-permisaction="['admin:sysDictType:remove']" status="danger" type="text" @click="remove(row.id)">
           {{ $t('common.delete') }}
-        </el-button>
+        </a-button>
       </template>
     </ProTable>
 
-    <el-dialog v-model="form.visible" :title="form.title" width="500px" :close-on-click-modal="false">
-      <el-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" label-width="auto">
-        <el-form-item :label="$t('admin.dict.type.dictName')" prop="dictName">
-          <el-input
+    <AppModal v-model:visible="form.visible" :title="form.title" width="500px" :mask-closable="false">
+      <a-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" layout="vertical">
+        <a-form-item :label="$t('admin.dict.type.dictName')" field="dictName">
+          <a-input
             v-model="form.model.dictName"
             :placeholder="$t('admin.dict.type.dictNamePlaceholder')"
             :disabled="form.isEdit"
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.dict.type.dictType')" prop="dictType">
-          <el-input
+        </a-form-item>
+        <a-form-item :label="$t('admin.dict.type.dictType')" field="dictType">
+          <a-input
             v-model="form.model.dictType"
             :placeholder="$t('admin.dict.type.dictTypePlaceholder')"
             :disabled="form.isEdit"
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.dict.type.status')" prop="status">
-          <el-radio-group v-model="form.model.status">
-            <el-radio v-for="item in sys_normal_disable" :key="item.value" :value="item.value">
+        </a-form-item>
+        <a-form-item :label="$t('admin.dict.type.status')" field="status">
+          <a-radio-group v-model="form.model.status">
+            <a-radio v-for="item in sys_normal_disable" :key="item.value" :value="item.value">
               {{ item.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item :label="$t('admin.dict.type.remark')" prop="remark">
-          <el-input
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item :label="$t('admin.dict.type.remark')" field="remark">
+          <a-textarea
             v-model="form.model.remark"
-            type="textarea"
+
             :placeholder="$t('admin.dict.type.remarkPlaceholder')"
           />
-        </el-form-item>
-      </el-form>
+        </a-form-item>
+      </a-form>
       <template #footer>
-        <el-button @click="form.close()">{{ $t('common.dialogCancel') }}</el-button>
-        <el-button type="primary" :loading="form.submitting" @click="form.submit()">
+        <a-button @click="form.close()">{{ $t('common.dialogCancel') }}</a-button>
+        <a-button type="primary" :loading="form.submitting" @click="form.submit()">
           {{ $t('common.dialogConfirm') }}
-        </el-button>
+        </a-button>
       </template>
-    </el-dialog>
+    </AppModal>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormRules } from 'element-plus'
+import type { FormRules } from '@/types/ui'
 
+import AppModal from '@/components/AppModal/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
@@ -176,8 +179,8 @@ const table = useTable<SysDictType, SysDictTypeQuery>({
  * unchanged.
  */
 const rules = computed<FormRules>(() => ({
-  dictName: [{ required: true, message: t('admin.dict.type.rules.dictName'), trigger: 'blur' }],
-  dictType: [{ required: true, message: t('admin.dict.type.rules.dictType'), trigger: 'blur' }]
+  dictName: [{ required: true, message: t('admin.dict.type.rules.dictName') }],
+  dictType: [{ required: true, message: t('admin.dict.type.rules.dictType') }]
 }))
 
 const form = useForm<SysDictType, number>({

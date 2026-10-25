@@ -2,7 +2,7 @@
  * The API page: the routes the Go side registers, which this page can only
  * retitle.
  *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD
+ * UI copy is maintained with the corresponding English pack.
  * R5). Handle and Method stay English in both packs -- they are English on the
  * Chinese screen too, and are the names of the fields themselves.
  *
@@ -31,8 +31,8 @@ export default {
   actionPlaceholder: '请选择方式',
 
   rules: {
-    handle: 'handle 不能为空',
-    title: '标题不能为空',
-    type: '类型不能为空'
+    handle: '请填写 Handle',
+    title: '请填写标题',
+    type: '请选择类型'
   }
 }

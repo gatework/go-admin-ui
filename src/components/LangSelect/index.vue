@@ -1,24 +1,24 @@
 <template>
-  <el-dropdown v-if="!fixed" trigger="click" @command="choose">
-    <div class="lang-select" :title="$t('layout.language')">
-      <i class="ri-translate-2" />
-    </div>
-    <template #dropdown>
-      <el-dropdown-menu>
-        <el-dropdown-item
-          v-for="option in LOCALES"
-          :key="option.value"
-          :command="option.value"
-          :disabled="option.value === locale"
-        >
-          {{ option.label }}
-        </el-dropdown-item>
-      </el-dropdown-menu>
+  <AppDropdown v-if="!fixed" trigger="click" @select="choose">
+    <HeaderIconButton v-bind="$attrs" type="button" class="lang-select" :title="$t('layout.language')" :aria-label="$t('layout.language')">
+      <icon-language />
+    </HeaderIconButton>
+    <template #content>
+      <a-doption
+        v-for="option in LOCALES"
+        :key="option.value"
+        :value="option.value"
+        :disabled="option.value === locale"
+      >
+        {{ option.label }}
+      </a-doption>
     </template>
-  </el-dropdown>
+  </AppDropdown>
 </template>
 
 <script setup lang="ts">
+import HeaderIconButton from '@/components/header-icon-button/index.vue'
+import AppDropdown from '@/components/AppDropdown/index.vue'
 import { useI18n } from 'vue-i18n'
 import { LOCALES, fixedLocale, setLocale, type Locale } from '@/lang'
 import { msgError } from '@/utils/message'
@@ -42,6 +42,7 @@ import { msgError } from '@/utils/message'
  * neither host is left holding an empty slot: the navbar's flex row closes up,
  * and nothing is positioned into the login page's corner.
  */
+defineOptions({ name: 'LangSelect', inheritAttrs: false })
 const { locale, t } = useI18n()
 
 /** Build-time, so this never changes while the page is open. */
@@ -57,9 +58,10 @@ const fixed = fixedLocale()
  * The message is rendered in the language still in effect -- the switch did not
  * happen -- which is the one the reader can already read.
  */
-const choose = async(value: Locale) => {
+const choose = async(value: unknown) => {
+  if (!LOCALES.some(option => option.value === value)) return
   try {
-    await setLocale(value)
+    await setLocale(value as Locale)
   } catch(error) {
     console.error(`could not load the language pack for ${value}`, error)
     msgError(t('layout.languageFailed'))
@@ -69,6 +71,11 @@ const choose = async(value: Locale) => {
 
 <style lang="scss" scoped>
 .lang-select {
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  min-width: 24px;
   display: flex;
   align-items: center;
   justify-content: center;

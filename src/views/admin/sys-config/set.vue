@@ -8,7 +8,7 @@
         <div class="config-sidebar">
           <div class="sidebar-header">
             <div class="sidebar-icon-box">
-              <el-icon :size="18" class="accent-icon"><Setting /></el-icon>
+              <icon-settings :size="18" class="accent-icon" />
             </div>
             <div>
               <p class="sidebar-header__title">{{ $t('admin.sysConfig.set.sidebarTitle') }}</p>
@@ -24,7 +24,7 @@
             @click="activeSection = idx"
           >
             <div class="nav-item__icon-wrap">
-              <el-icon :size="15"><component :is="item.icon" /></el-icon>
+              <component :is="item.icon" :size="15" />
             </div>
             <div class="nav-item__text">
               <span class="nav-item__label">{{ item.label }}</span>
@@ -37,11 +37,11 @@
         <div class="config-main">
 
           <!-- Basic information -->
-          <transition name="fade-slide" mode="out-in">
-            <div v-if="activeSection === 0" key="basic" class="config-section">
+          <div>
+            <div v-show="activeSection === 0" key="basic" class="config-section">
               <div class="section-head">
                 <div class="section-head__icon-wrap">
-                  <el-icon :size="16" class="accent-icon"><OfficeBuilding /></el-icon>
+                  <icon-apps :size="16" class="accent-icon" />
                 </div>
                 <div>
                   <p class="section-head__title">{{ $t('admin.sysConfig.set.basicTitle') }}</p>
@@ -55,64 +55,63 @@
                   <div class="logo-preview">
                     <img v-if="form.sys_app_logo" :src="form.sys_app_logo" alt="logo" class="logo-img">
                     <div v-else class="logo-empty">
-                      <el-icon :size="24"><Picture /></el-icon>
+                      <icon-image :size="24" />
                       <span>{{ $t('admin.sysConfig.set.logoEmpty') }}</span>
                     </div>
                   </div>
                   <div class="logo-meta">
                     <p class="logo-meta__name">{{ $t('admin.sysConfig.set.logoName') }}</p>
                     <p class="logo-meta__hint">{{ $t('admin.sysConfig.set.logoHint') }}</p>
-                    <el-upload
+                    <a-upload
                       :headers="uploadHeaders"
                       :action="uploadAction"
-                      :before-upload="beforeLogoUpload"
+                      :on-before-upload="beforeLogoUpload"
                       :show-file-list="false"
-                      :on-success="onLogoUploaded"
+                      @success="onLogoUploaded"
                     >
-                      <el-button size="small" plain type="primary">
-                        <el-icon style="margin-right:4px"><Upload /></el-icon>{{ $t('admin.sysConfig.set.upload') }}
-                      </el-button>
-                    </el-upload>
+                      <a-button size="small" type="primary">
+                        <icon-upload style="margin-right:4px" />{{ $t('admin.sysConfig.set.upload') }}
+                      </a-button>
+                    </a-upload>
                   </div>
                 </div>
 
-                <el-divider style="margin: 16px 0" />
+                <a-divider style="margin: 16px 0" />
 
-                <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
-                  <el-row :gutter="20">
-                    <el-col :span="12">
-                      <el-form-item :label="$t('admin.sysConfig.set.appName')" prop="sys_app_name">
-                        <el-input
+                <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
+                  <a-row :gutter="20">
+                    <a-col :xs="24" :sm="12">
+                      <a-form-item :label="$t('admin.sysConfig.set.appName')" field="sys_app_name">
+                        <a-input
                           v-model="form.sys_app_name"
                           :placeholder="$t('admin.sysConfig.set.appNamePlaceholder')"
-                          clearable
+                          allow-clear
                         >
-                          <template #prefix><el-icon><OfficeBuilding /></el-icon></template>
-                        </el-input>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                      <el-form-item :label="$t('admin.sysConfig.set.initPassword')" prop="sys_user_initPassword">
-                        <el-input
+                          <template #prefix><icon-apps /></template>
+                        </a-input>
+                      </a-form-item>
+                    </a-col>
+                    <a-col :xs="24" :sm="12">
+                      <a-form-item :label="$t('admin.sysConfig.set.initPassword')" field="sys_user_initPassword">
+                        <a-input-password
                           v-model="form.sys_user_initPassword"
                           :placeholder="$t('admin.sysConfig.set.initPasswordPlaceholder')"
-                          clearable
-                          show-password
+                          allow-clear
                         >
-                          <template #prefix><el-icon><Lock /></el-icon></template>
-                        </el-input>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </el-form>
+                          <template #prefix><icon-lock /></template>
+                        </a-input-password>
+                      </a-form-item>
+                    </a-col>
+                  </a-row>
+                </a-form>
               </div>
             </div>
 
             <!-- Appearance -->
-            <div v-else-if="activeSection === 1" key="theme" class="config-section">
+            <div v-show="activeSection === 1" key="theme" class="config-section">
               <div class="section-head">
                 <div class="section-head__icon-wrap">
-                  <el-icon :size="16" class="accent-icon"><Brush /></el-icon>
+                  <icon-brush :size="16" class="accent-icon" />
                 </div>
                 <div>
                   <p class="section-head__title">{{ $t('admin.sysConfig.set.appearance') }}</p>
@@ -121,32 +120,32 @@
               </div>
 
               <div class="section-body">
-                <el-form label-position="top">
-                  <el-row :gutter="20">
-                    <el-col :span="12">
-                      <el-form-item :label="$t('admin.sysConfig.set.skin')">
-                        <el-select
+                <a-form :model="form" layout="vertical">
+                  <a-row :gutter="20">
+                    <a-col :xs="24" :sm="12">
+                      <a-form-item :label="$t('admin.sysConfig.set.skin')">
+                        <a-select
                           v-model="form.sys_index_skinName"
                           :placeholder="$t('admin.sysConfig.set.skinPlaceholder')"
                           style="width:100%"
                         >
-                          <el-option v-for="(item, i) in skinOptions" :key="i" :label="item.label" :value="item.value" />
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                      <el-form-item :label="$t('admin.sysConfig.set.sideTheme')">
-                        <el-select
+                          <a-option v-for="(item, i) in skinOptions" :key="i" :label="item.label" :value="item.value" />
+                        </a-select>
+                      </a-form-item>
+                    </a-col>
+                    <a-col :xs="24" :sm="12">
+                      <a-form-item :label="$t('admin.sysConfig.set.sideTheme')">
+                        <a-select
                           v-model="form.sys_index_sideTheme"
                           :placeholder="$t('admin.sysConfig.set.sideThemePlaceholder')"
                           style="width:100%"
                         >
-                          <el-option v-for="(item, i) in sideThemeOptions" :key="i" :label="item.label" :value="item.value" />
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </el-form>
+                          <a-option v-for="(item, i) in sideThemeOptions" :key="i" :label="item.label" :value="item.value" />
+                        </a-select>
+                      </a-form-item>
+                    </a-col>
+                  </a-row>
+                </a-form>
 
                 <p class="theme-label">{{ $t('admin.sysConfig.set.themeHint') }}</p>
                 <div class="theme-row">
@@ -164,7 +163,7 @@
                     </div>
                     <div class="tc-label">
                       <span>{{ $t('admin.sysConfig.set.themeDark') }}</span>
-                      <el-icon v-if="form.sys_index_sideTheme === 'theme-dark'" class="accent-icon"><Check /></el-icon>
+                      <icon-check v-if="form.sys_index_sideTheme === 'theme-dark'" class="accent-icon" />
                     </div>
                   </div>
                   <div
@@ -181,20 +180,20 @@
                     </div>
                     <div class="tc-label">
                       <span>{{ $t('admin.sysConfig.set.themeLight') }}</span>
-                      <el-icon v-if="form.sys_index_sideTheme === 'theme-light'" class="accent-icon"><Check /></el-icon>
+                      <icon-check v-if="form.sys_index_sideTheme === 'theme-light'" class="accent-icon" />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </transition>
+          </div>
 
           <!-- Footer -->
           <div class="config-footer">
-            <el-button :loading="loading" @click="load">{{ $t('common.reset') }}</el-button>
-            <el-button type="primary" :loading="saving" @click="submit">
+            <a-button :loading="loading" @click="load">{{ $t('common.reset') }}</a-button>
+            <a-button type="primary" :loading="saving" @click="submit">
               {{ $t('admin.sysConfig.set.save') }}
-            </el-button>
+            </a-button>
           </div>
 
         </div>
@@ -205,17 +204,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { useFormLocale } from '@/composables/useFormLocale'
+
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormInstance, FormRules, UploadProps } from 'element-plus'
-import { ElMessage } from 'element-plus'
-import { OfficeBuilding, Lock, Picture, Upload, Brush, Check, Setting } from '@element-plus/icons-vue'
+import type { FormInstance, FileItem } from '@arco-design/web-vue'
+import type { FormRules } from '@/types/ui'
+
+import { IconApps, IconBrush } from '@arco-design/web-vue/es/icon'
 
 import PageContainer from '@/components/PageContainer/index.vue'
 import { getSetConfig, updateSetConfig } from '@/api/admin/sys-config'
 import { getToken } from '@/utils/auth'
 import { useSystemStore } from '@/stores/system'
-import { msgSuccess } from '@/utils/message'
+import { msgSuccess, msgError } from '@/utils/message'
 
 // Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'SysConfigSet' })
@@ -243,6 +245,7 @@ type ConfigForm = ReturnType<typeof defaults>
 
 const form = ref<ConfigForm>(defaults())
 const formRef = ref<FormInstance>()
+useFormLocale(formRef)
 const loading = ref(false)
 const saving = ref(false)
 const activeSection = ref(0)
@@ -252,13 +255,13 @@ const activeSection = ref(0)
  *
  * A plain object is evaluated once, when the page is set up, and this page is
  * kept alive -- so a message already rendered under a field would keep the
- * language it was built in. el-form revalidates when its rules change, which is
+ * language it was built in. a-form revalidates when its rules change, which is
  * what repaints one that is already on screen.
  */
 const rules = computed<FormRules>(() => ({
-  sys_app_name: [{ required: true, message: t('admin.sysConfig.set.rules.appName'), trigger: 'blur' }],
+  sys_app_name: [{ required: true, message: t('admin.sysConfig.set.rules.appName') }],
   sys_user_initPassword: [
-    { required: true, message: t('admin.sysConfig.set.rules.initPassword'), trigger: 'blur' }
+    { required: true, message: t('admin.sysConfig.set.rules.initPassword') }
   ]
 }))
 
@@ -275,12 +278,12 @@ const navItems = computed(() => [
   {
     label: t('admin.sysConfig.set.basic'),
     sub: t('admin.sysConfig.set.basicSub'),
-    icon: OfficeBuilding
+    icon: IconApps
   },
   {
     label: t('admin.sysConfig.set.appearance'),
     sub: t('admin.sysConfig.set.appearanceSub'),
-    icon: Brush
+    icon: IconBrush
   }
 ])
 
@@ -299,7 +302,7 @@ const sideThemeOptions = computed(() => [
  * Reset refetches rather than calling resetFields. Both put the saved values
  * back today, but resetFields restores what each item held when it mounted,
  * which is only the saved state because the request happens to land first --
- * and it covers only the two fields inside the el-form, leaving the theme
+ * and it covers only the two fields inside the a-form, leaving the theme
  * cards and the logo on whatever the user last clicked.
  */
 const load = async() => {
@@ -320,8 +323,12 @@ onMounted(load)
 
 const submit = async() => {
   if (saving.value) return
-  const valid = await formRef.value?.validate().catch(() => false)
-  if (!valid) return
+  // The basic form may be unmounted while the appearance tab is active.
+  if (!form.value.sys_app_name || !form.value.sys_user_initPassword) {
+    activeSection.value = 0
+    await nextTick()
+  }
+  if (!formRef.value || await formRef.value.validate()) return
 
   saving.value = true
   try {
@@ -350,14 +357,19 @@ const submit = async() => {
 const uploadHeaders = { Authorization: 'Bearer ' + getToken() }
 const uploadAction = process.env.VUE_APP_BASE_API + '/api/v1/public/uploadFile'
 
-const beforeLogoUpload: UploadProps['beforeUpload'] = file => {
+const beforeLogoUpload = (file: File) => {
   const withinLimit = file.size / 1024 / 1024 < 2
-  if (!withinLimit) ElMessage.error(t('admin.sysConfig.set.logoTooLarge'))
+  if (!withinLimit) msgError(t('admin.sysConfig.set.logoTooLarge'))
   return withinLimit
 }
 
-const onLogoUploaded: UploadProps['onSuccess'] = response => {
-  form.value.sys_app_logo = process.env.VUE_APP_BASE_API + response.data.full_path
+const onLogoUploaded = (file: FileItem) => {
+  const response = file.response
+  if (response?.code === 200 && response.data?.full_path) {
+    form.value.sys_app_logo = process.env.VUE_APP_BASE_API + response.data.full_path
+  } else {
+    msgError(response?.msg || t('common.networkError'))
+  }
 }
 </script>
 

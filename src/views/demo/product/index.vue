@@ -2,99 +2,98 @@
   <PageContainer>
     <ProTable :table="table" selection row-key="id">
       <!-- Search fields. No prop attributes needed: resetQuery rebuilds the
-           query from its factory rather than asking el-form to reset itself -->
+           query from its factory rather than asking a-form to reset itself -->
       <template #search>
-        <el-form-item :label="$t('demo.name')">
-          <el-input v-model="table.query.name" :placeholder="$t('demo.namePlaceholder')" clearable />
-        </el-form-item>
-        <el-form-item :label="$t('demo.status')">
-          <el-select v-model="table.query.status" :placeholder="$t('demo.statusPlaceholder')" clearable>
-            <el-option :label="$t('demo.normal')" value="1" />
-            <el-option :label="$t('demo.disabled')" value="2" />
-          </el-select>
-        </el-form-item>
+        <a-form-item :label="$t('demo.name')">
+          <a-input v-model="table.query.name" :placeholder="$t('demo.namePlaceholder')" allow-clear />
+        </a-form-item>
+        <a-form-item :label="$t('demo.status')">
+          <a-select v-model="table.query.status" :placeholder="$t('demo.statusPlaceholder')" allow-clear>
+            <a-option :label="$t('demo.normal')" value="1" />
+            <a-option :label="$t('demo.disabled')" value="2" />
+          </a-select>
+        </a-form-item>
       </template>
 
       <!-- Permission codes are 模块:资源:操作 and must match sys_menu -->
       <template #toolbar>
-        <el-button v-permisaction="['demo:product:add']" type="primary" @click="form.openCreate()">
+        <a-button v-permisaction="['demo:product:add']" type="primary" @click="form.openCreate()">
           {{ $t('common.add') }}
-        </el-button>
+        </a-button>
         <!-- Plain while it needs a selection; see AGENTS.md -->
-        <el-button
+        <a-button
           v-permisaction="['demo:product:delete']"
-          type="danger"
-          plain
+          status="danger"
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
         >
           {{ $t('common.delete') }}
-        </el-button>
+        </a-button>
       </template>
 
       <!-- min-width, not width: see AGENTS.md -->
-      <el-table-column :label="$t('demo.name')" prop="name" min-width="120" show-overflow-tooltip />
-      <el-table-column :label="$t('demo.code')" prop="code" min-width="100" />
-      <el-table-column :label="$t('demo.price')" prop="price" min-width="90" align="right" />
-      <el-table-column :label="$t('demo.status')" prop="status" min-width="90">
-        <template #default="{ row }">
-          <el-tag :type="row.status === '1' ? 'success' : 'info'">
+      <a-table-column :title="$t('demo.name')" data-index="name" :width="120" ellipsis tooltip />
+      <a-table-column :title="$t('demo.code')" data-index="code" :width="100" />
+      <a-table-column :title="$t('demo.price')" data-index="price" :width="90" align="right" />
+      <a-table-column :title="$t('demo.status')" data-index="status" :width="90">
+        <template #cell="{ record: row }">
+          <a-tag :color="row.status === '1' ? 'green' : 'gray'">
             {{ row.status === '1' ? $t('demo.normal') : $t('demo.disabled') }}
-          </el-tag>
+          </a-tag>
         </template>
-      </el-table-column>
-      <el-table-column :label="$t('common.createdAt')" min-width="110">
-        <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
-      </el-table-column>
+      </a-table-column>
+      <a-table-column :title="$t('common.createdAt')" :width="110">
+        <template #cell="{ record: row }"><DateCell :value="row.createdAt" /></template>
+      </a-table-column>
       <template #actions="{ row }">
-        <el-button v-permisaction="['demo:product:edit']" link type="primary" @click="form.openEdit(row)">
+        <a-button v-permisaction="['demo:product:edit']" type="text" @click="form.openEdit(row)">
           {{ $t('common.edit') }}
-        </el-button>
-        <el-button v-permisaction="['demo:product:delete']" link type="danger" @click="remove(row.id)">
+        </a-button>
+        <a-button v-permisaction="['demo:product:delete']" type="text" status="danger" @click="remove(row.id)">
           {{ $t('common.delete') }}
-        </el-button>
+        </a-button>
       </template>
     </ProTable>
 
     <!-- One dialog for both modes; useForm tells them apart by the primary key -->
-    <el-dialog
-      v-model="form.visible"
+    <AppModal
+      v-model:visible="form.visible"
       :title="form.title"
       width="500px"
-      :close-on-click-modal="false"
-      @closed="form.reset"
+      :mask-closable="false"
+      @close="form.reset"
     >
-      <el-form
+      <a-form
         :ref="form.bindFormRef"
-        v-loading="form.loading"
         :model="form.model"
         :rules="form.rules"
-        label-width="auto"
+        layout="vertical"
+        :disabled="form.loading"
       >
-        <el-form-item :label="$t('demo.name')" prop="name">
-          <el-input v-model="form.model.name" :placeholder="$t('demo.namePlaceholder')" />
-        </el-form-item>
-        <el-form-item :label="$t('demo.code')" prop="code">
-          <el-input v-model="form.model.code" :placeholder="$t('demo.codePlaceholder')" />
-        </el-form-item>
-        <el-form-item :label="$t('demo.price')" prop="price">
-          <el-input-number v-model="form.model.price" :min="0" :precision="2" />
-        </el-form-item>
-        <el-form-item :label="$t('demo.status')" prop="status">
-          <el-radio-group v-model="form.model.status">
-            <el-radio value="1">{{ $t('demo.normal') }}</el-radio>
-            <el-radio value="2">{{ $t('demo.disabled') }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item :label="$t('demo.remark')" prop="remark">
-          <el-input v-model="form.model.remark" type="textarea" :placeholder="$t('demo.remarkPlaceholder')" />
-        </el-form-item>
-      </el-form>
+        <a-form-item :label="$t('demo.name')" field="name">
+          <a-input v-model="form.model.name" :placeholder="$t('demo.namePlaceholder')" />
+        </a-form-item>
+        <a-form-item :label="$t('demo.code')" field="code">
+          <a-input v-model="form.model.code" :placeholder="$t('demo.codePlaceholder')" />
+        </a-form-item>
+        <a-form-item :label="$t('demo.price')" field="price">
+          <a-input-number v-model="form.model.price" :min="0" :precision="2" />
+        </a-form-item>
+        <a-form-item :label="$t('demo.status')" field="status">
+          <a-radio-group v-model="form.model.status">
+            <a-radio value="1">{{ $t('demo.normal') }}</a-radio>
+            <a-radio value="2">{{ $t('demo.disabled') }}</a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item :label="$t('demo.remark')" field="remark">
+          <a-textarea v-model="form.model.remark" :placeholder="$t('demo.remarkPlaceholder')" />
+        </a-form-item>
+      </a-form>
       <template #footer>
-        <el-button @click="form.close">{{ $t('common.dialogCancel') }}</el-button>
-        <el-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</el-button>
+        <a-button @click="form.close">{{ $t('common.dialogCancel') }}</a-button>
+        <a-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</a-button>
       </template>
-    </el-dialog>
+    </AppModal>
   </PageContainer>
 </template>
 
@@ -109,8 +108,9 @@
  */
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormRules } from 'element-plus'
+import type { FormRules } from '@/types/ui'
 
+import AppModal from '@/components/AppModal/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
@@ -136,8 +136,8 @@ const { t } = useI18n()
 // from t() there would keep the language the module loaded in -- including one
 // already displayed under a field. useForm accepts a MaybeRef.
 const rules = computed<FormRules>(() => ({
-  name: [{ required: true, message: t('demo.rules.name'), trigger: 'blur' }],
-  code: [{ required: true, message: t('demo.rules.code'), trigger: 'blur' }]
+  name: [{ required: true, message: t('demo.rules.name') }],
+  code: [{ required: true, message: t('demo.rules.code') }]
 }))
 
 const form = useForm<Product, number>({

@@ -1,46 +1,34 @@
 <template>
-  <div id="tags-view-container" class="tags-view-container">
-    <el-tabs
-      v-model="editableTabsValue"
-      type="card"
-      @tab-remove="closeSelectedTag"
-    >
-      <el-tab-pane
-        v-for="item in visitedViews"
-        :key="item.path"
-        :closable="item.fullPath === '/dashboard' ? false : true"
-        :name="item.fullPath"
-      >
-        <template #label>
-          <router-link
-            ref="tag"
-            v-slot="{ navigate, href }"
-            class="tags-view-item"
-            :style="{ color: item.fullPath === $route.fullPath ? theme : '' }"
-            :to="{ path: item.path, query: item.query, fullPath: item.fullPath }"
-            custom
-          >
-            <span
-              :href="href"
-              @click="navigate"
-              @contextmenu.prevent="openMenu(item,$event)"
-            >
-              {{ routeTitle(item) }}
-            </span>
-          </router-link>
+  <div id="tags-view-container" class="tags-view-container" :class="`tabs-${preferences.tabStyle}`" @wheel="wheelTabs">
+    <AppTabs :active-key="$route.fullPath" :type="preferences.tabStyle === 'plain' ? 'line' : preferences.tabStyle === 'card' ? 'card-gutter' : 'card'" size="small" editable hide-content @change="selectTab" @delete="closeSelectedTag">
+      <a-tab-pane v-for="item in visitedViews" :key="item.fullPath" :closable="!isAffix(item)">
+        <template #title>
+          <AppDropdown trigger="contextMenu" @select="tagAction($event, item)">
+            <span class="tags-view-item" :draggable="preferences.tabDraggable" @dragstart="dragged = item.fullPath" @dragover.prevent @drop.prevent="moveTab(item)" @auxclick="middleClose($event, item)"><MenuIcon v-if="preferences.tabShowIcon && item.meta?.icon" :name="item.meta.icon" />{{ routeTitle(item) }}</span>
+            <template #content>
+              <a-doption value="refresh">{{ $t('layout.tagsView.refresh') }}</a-doption>
+              <a-doption v-if="!isAffix(item)" value="close">{{ $t('layout.tagsView.close') }}</a-doption>
+              <a-doption value="others">{{ $t('layout.tagsView.closeOthers') }}</a-doption>
+              <a-doption value="all">{{ $t('layout.tagsView.closeAll') }}</a-doption>
+            </template>
+          </AppDropdown>
         </template>
-      </el-tab-pane>
-    </el-tabs>
-    <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
-      <li class="tags-item" @click="refreshSelectedTag(selectedTag)" @mouseover="handleTagsOver(1)" @mouseleave="handleTagsLeave(1)">{{ $t('layout.tagsView.refresh') }}</li>
-      <li v-if="!isAffix(selectedTag)" class="tags-item" @click="closeSelectedTag(selectedTag)" @mouseover="handleTagsOver(2)" @mouseleave="handleTagsLeave(2)">{{ $t('layout.tagsView.close') }}</li>
-      <li class="tags-item" @click="closeOthersTags" @mouseover="handleTagsOver(3)" @mouseleave="handleTagsLeave(3)">{{ $t('layout.tagsView.closeOthers') }}</li>
-      <li class="tags-item" @click="closeAllTags(selectedTag)" @mouseover="handleTagsOver(4)" @mouseleave="handleTagsLeave(4)">{{ $t('layout.tagsView.closeAll') }}</li>
-    </ul>
+      </a-tab-pane>
+    </AppTabs>
+    <AppDropdown v-if="preferences.tabShowMore" trigger="click" @select="tagAction($event, $route)">
+      <HeaderIconButton :tooltip="$t('settings.layout.tabs.more')"><icon-more /></HeaderIconButton>
+      <template #content><a-doption value="refresh">{{ $t('layout.tagsView.refresh') }}</a-doption><a-doption value="others">{{ $t('layout.tagsView.closeOthers') }}</a-doption><a-doption value="all">{{ $t('layout.tagsView.closeAll') }}</a-doption></template>
+    </AppDropdown>
+    <HeaderIconButton v-if="preferences.tabShowMaximize" :tooltip="$t('settings.layout.tabs.maximize')" @click="$emit('maximize')"><icon-fullscreen /></HeaderIconButton>
   </div>
 </template>
 
 <script>
+import MenuIcon from '@/components/MenuIcon/index.vue'
+import { usePreferencesStore } from '@/stores/preferences'
+import HeaderIconButton from '@/components/header-icon-button/index.vue'
+import AppDropdown from '@/components/AppDropdown/index.vue'
+import AppTabs from '@/components/AppTabs/index.vue'
 import { mapState } from 'pinia'
 import path from 'path'
 import { useSettingsStore } from '@/stores/settings'
@@ -49,14 +37,15 @@ import { usePermissionStore } from '@/stores/permission'
 import { routeTitle } from '@/lang/backend'
 
 export default {
+  components: { MenuIcon, AppDropdown, AppTabs, HeaderIconButton },
+  emits: ['maximize'],
+  setup() { return { preferences: usePreferencesStore() } },
   data() {
     return {
       editableTabsValue: '/',
-      top: 0,
-      left: 0,
+      dragged: '',
       selectedTag: {},
-      affixTags: [],
-      visible: false
+      affixTags: []
     }
   },
   computed: {
@@ -65,22 +54,20 @@ export default {
     ...mapState(useSettingsStore, ['theme'])
   },
   watch: {
-    $route() {
-      this.addTags()
-    },
-    visible(value) {
-      if (value) {
-        document.body.addEventListener('click', this.closeMenu)
-      } else {
-        document.body.removeEventListener('click', this.closeMenu)
-      }
-    }
+    $route() { this.addTags() },
+    'preferences.tabMaxCount'() { this.trimTabs() },
+    'preferences.tabPersist'() { this.saveViews() }
+
   },
   mounted() {
+    this.beforeUnload()
     this.initTags()
     this.addTags()
     this.isActive()
-    this.beforeUnload()
+  },
+  beforeUnmount() {
+    this.saveViews()
+    window.removeEventListener('beforeunload', this.saveViews)
   },
   methods: {
     // The store copies `title` into each visited view when the tab is opened,
@@ -89,45 +76,51 @@ export default {
     // both of which the copy preserves -- so open tabs follow a switch too.
     routeTitle,
     // 刷新前缓存tab
+    saveViews() {
+      if (!this.preferences.tabPersist) { try { sessionStorage.removeItem('tabViews') } catch { /* Storage unavailable. */ } return }
+      const views = this.visitedViews.map(({ fullPath, hash, meta, name, params, path, query, title }) => ({ fullPath, hash, meta: { ...meta }, name, params: { ...params }, path, query: { ...query }, title }))
+      try { sessionStorage.setItem('tabViews', JSON.stringify(views)) } catch { /* Storage unavailable. */ }
+    },
     beforeUnload() {
-      // 监听页面刷新
-      window.addEventListener('beforeunload', () => {
-        const tabViews = this.visitedViews.map(item => {
-          return {
-            fullPath: item.fullPath,
-            hash: item.hash,
-            meta: { ...item.meta },
-            name: item.name,
-            params: { ...item.params },
-            path: item.path,
-            query: { ...item.query },
-            title: item.title
-          }
-        })
-        sessionStorage.setItem('tabViews', JSON.stringify(tabViews))
-      })
-      // 页面初始化加载判断缓存中是否有数据
-      const oldViews = JSON.parse(sessionStorage.getItem('tabViews')) || []
-      if (oldViews.length > 0) {
-        useTagsViewStore().setVisitedViews(oldViews)
-      }
+      window.addEventListener('beforeunload', this.saveViews)
+      const store = useTagsViewStore()
+      if (store.restored) return
+      store.restored = true
+      try {
+        const views = this.preferences.tabPersist ? JSON.parse(sessionStorage.getItem('tabViews') || '[]') : []
+        if (Array.isArray(views)) useTagsViewStore().setVisitedViews(views.filter(view => typeof view?.fullPath === 'string' && view.fullPath.startsWith('/') && !view.fullPath.startsWith('//') && this.$router.resolve(view.fullPath).matched.length))
+      } catch { /* Damaged or unavailable storage starts with current routes. */ }
     },
-    handleTagsOver(index) {
-      const tags = document.querySelectorAll('.tags-item')
-      const item = tags[index - 1]
-      item.style.cssText = `color:${this.theme};background:${
-        this.theme.colorRgb()
-      }`
+    wheelTabs(event) {
+      if (!this.preferences.tabWheelable) return
+      const scroller = this.$el.querySelector('.arco-tabs-nav-tab')
+      if (scroller && scroller.scrollWidth > scroller.clientWidth) { event.preventDefault(); scroller.scrollLeft += event.deltaY || event.deltaX }
     },
-    handleTagsLeave(index) {
-      const tags = document.querySelectorAll('.tags-item')
-      const item = tags[index - 1]
-      item.style.cssText = `color:var(--ga-text-2)`
+    moveTab(item) {
+      if (!this.preferences.tabDraggable || !this.dragged) return
+      const views = [...this.visitedViews]
+      const from = views.findIndex(view => view.fullPath === this.dragged)
+      const to = views.findIndex(view => view.fullPath === item.fullPath)
+      if (from < 0 || to < 0 || from === to) return
+      views.splice(to, 0, views.splice(from, 1)[0])
+      useTagsViewStore().setVisitedViews(views)
+      this.saveViews()
+    },
+    middleClose(event, item) {
+      if (event.button === 1 && this.preferences.tabMiddleClickClose && !this.isAffix(item)) { event.preventDefault(); this.closeSelectedTag(item) }
+    },
+    selectTab(key) { this.$router.push(key) },
+    tagAction(action, item) {
+      this.selectedTag = item
+      if (action === 'refresh') this.refreshSelectedTag(item)
+      if (action === 'close') this.closeSelectedTag(item)
+      if (action === 'others') this.closeOthersTags()
+      if (action === 'all') this.closeAllTags(item)
     },
     isActive() {
       const index = this.visitedViews.findIndex(item => item.fullPath === this.$route.fullPath)
       const pathIndex = index > -1 ? index : 0
-      this.editableTabsValue = this.visitedViews[pathIndex].fullPath
+      this.editableTabsValue = this.visitedViews[pathIndex]?.fullPath || this.$route.fullPath
     },
     isAffix(tag) {
       return tag.meta && tag.meta.affix
@@ -165,25 +158,18 @@ export default {
     addTags() {
       const { name } = this.$route
       if (name) {
-        useTagsViewStore().addView(this.$route)
+        const store = useTagsViewStore()
+        store.addView(this.$route)
+        this.trimTabs()
         this.isActive()
       }
       return false
     },
-    moveToCurrentTag() {
-      const tags = this.$refs.tag
-      this.$nextTick(() => {
-        for (const tag of tags) {
-          if (tag.to.path === this.$route.path) {
-            // this.$refs.scrollPane.moveToTarget(tag)
-            // when query is different then update
-            if (tag.to.fullPath !== this.$route.fullPath) {
-              useTagsViewStore().updateVisitedView(this.$route)
-            }
-            break
-          }
-        }
-      })
+    trimTabs() {
+      const store = useTagsViewStore()
+      if (!this.preferences.tabMaxCount) return
+      const closable = store.visitedViews.filter(view => !view.meta?.affix && view.path !== this.$route.path)
+      while (store.visitedViews.length > this.preferences.tabMaxCount && closable.length) store.delView(closable.shift())
     },
     refreshSelectedTag(view) {
       useTagsViewStore().delCachedView(view)
@@ -197,7 +183,7 @@ export default {
     closeSelectedTag(view) {
       const routerPath = view.fullPath ? view.fullPath : view
       const index = this.visitedViews.findIndex(item => item.fullPath === routerPath)
-      if (index > -1) {
+      if (index > -1 && !this.isAffix(this.visitedViews[index])) {
         const path = this.visitedViews[index]
         const { visitedViews } = useTagsViewStore().delView(path)
         if (this.editableTabsValue === path.fullPath) {
@@ -206,9 +192,8 @@ export default {
       }
     },
     closeOthersTags() {
-      this.$router.push(this.selectedTag.path).catch(e => e)
+      this.$router.push(this.selectedTag.fullPath).catch(e => e)
       useTagsViewStore().delOthersViews(this.selectedTag)
-      this.moveToCurrentTag()
     },
     closeAllTags(view) {
       const { visitedViews } = useTagsViewStore().delAllViews()
@@ -231,218 +216,20 @@ export default {
           this.$router.push('/')
         }
       }
-    },
-    openMenu(tag, e) {
-      const menuMinWidth = 105
-      const offsetLeft = this.$el.getBoundingClientRect().left // container margin left
-      const offsetWidth = this.$el.offsetWidth // container width
-      const maxLeft = offsetWidth - menuMinWidth // left boundary
-      const left = e.clientX - offsetLeft + 15 // 15: margin right
-
-      if (left > maxLeft) {
-        this.left = maxLeft
-      } else {
-        this.left = left
-      }
-
-      this.top = e.clientY
-      this.visible = true
-      this.selectedTag = tag
-    },
-    closeMenu() {
-      this.visible = false
     }
+
   }
 }
 
-// eslint-disable-next-line no-extend-native
-String.prototype.colorRgb = function() {
-  let sColor = this.toLowerCase()
-  const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/
-  if (sColor && reg.test(sColor)) {
-    if (sColor.length === 4) {
-      let sColorNew = '#'
-      for (let i = 1; i < 4; i += 1) {
-        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1))
-      }
-      sColor = sColorNew
-    }
-    const sColorChange = []
-    for (let i = 1; i < 7; i += 2) {
-      sColorChange.push(parseInt('0x' + sColor.slice(i, i + 2)))
-    }
-    return 'rgba(' + sColorChange.join(',') + ',0.2)'
-  } else {
-    return sColor
-  }
-}
 </script>
-
-<style lang="scss">
+<style scoped lang="scss">
 .tags-view-container {
-  height: 40px;
-  width: 100%;
-  background: var(--ga-bg-container);
-  border-bottom: 1px solid var(--ga-border-light);
-  box-shadow: var(--ga-shadow-sm);
-  padding: 0 8px;
-  box-sizing: border-box;
-  display: flex;
-  align-items: flex-end;
-  // A tab is 32px plus a 1px border top and bottom, so it needs 34px of room.
-  // The strip is 40px including its own bottom border, which leaves 39px --
-  // enough, provided nothing above the tabs eats into it. It used to: the row
-  // was sized by `height: 100%` against a flex line that had already been
-  // shortened, so the tabs sat one pixel proud of it and this overflow rule
-  // cut their top border off. Tabs are cards; without the top edge they read
-  // as open-topped boxes.
-  //
-  // The clip stays -- a tab must not climb into the navbar's border either --
-  // but the row below now reserves the height rather than relying on it.
+  display: flex; align-items: center; gap: 4px; width: 100%; height: 40px; padding: 6px 12px 0;
+  background: var(--ga-bg-container); border-bottom: 1px solid var(--ga-border-light);
   overflow: hidden;
-
-  // el-tabs 整体铺满容器
-  .el-tabs {
-    flex: 1;
-    overflow: hidden;
-  }
-
-  // 去掉 el-tabs 自带上边距和底部 border
-  .el-tabs__header {
-    margin: 0;
-    border-bottom: none !important;
-    // Sized to the tab it holds -- 32px of content plus its two 1px borders --
-    // rather than to the strip. `height: 100%` measured against a flex line
-    // that had already lost a pixel to the strip's own border, so the row came
-    // out at 31px and the 34px tab overflowed it upward into the clip.
-    height: 34px;
-    display: flex;
-    align-items: flex-end;
-  }
-
-  // Sized to the tab, for the same reason the header above is: Element Plus
-  // gives this wrapper 31px, one short of the 32px tab it holds, and it clips.
-  //
-  // The pixel it cut was the tab's top border. Every tab therefore rendered as
-  // an open-topped box while the border stayed declared, computed, and reported
-  // as present by anything reading getComputedStyle -- which is what the test
-  // covering this was doing.
-  //
-  // The scroller inside clips as well and needs the same height; fixing only
-  // the wrapper moves the cut one element down.
-  .el-tabs__nav-wrap,
-  .el-tabs__nav-scroll {
-    height: 32px;
-  }
-
-  .el-tabs__nav-wrap {
-    margin-bottom: 0;
-    &::after { display: none; }
-  }
-
-  .el-tabs__nav {
-    border: none !important;
-  }
-
-  .el-tabs__item {
-    // Element Plus lifts a card tab by a pixel so that neighbours share one
-    // edge. These tabs are spaced 3px apart and share nothing, so the only
-    // thing the offset did was push the top border out of the wrapper above.
-    margin-top: 0 !important;
-    height: 32px;
-    line-height: 32px;
-    font-size: 12px;
-    color: var(--ga-text-2);
-    border: 1px solid var(--ga-border) !important;
-    border-radius: 3px 3px 0 0;
-    margin-right: 3px;
-    padding: 0 10px !important;
-    background: var(--ga-bg-subtle);
-    transition: color 0.2s, background 0.2s;
-
-    &:first-child { margin-left: 4px; }
-
-    &.is-active {
-      color: var(--ga-brand);
-      background: var(--ga-bg-container);
-      border-color: var(--el-color-primary-light-5) !important;
-      border-bottom-color: var(--ga-bg-container) !important;
-      font-weight: 500;
-    }
-
-    &:not(.is-active):hover {
-      color: var(--ga-brand);
-      background: var(--el-color-primary-light-9);
-    }
-
-    .is-icon-close {
-      margin-left: 4px;
-      width: 14px;
-      height: 14px;
-      line-height: 14px;
-      border-radius: 50%;
-      &:hover {
-        background-color: var(--ga-text-3);
-        color: #fff;
-      }
-    }
-  }
-
-  // 右键菜单
-  .contextmenu {
-    margin: 0;
-    background: var(--ga-bg-container);
-    z-index: 3000;
-    position: fixed;
-    list-style-type: none;
-    padding: 4px 0;
-    border-radius: 4px;
-    font-size: 12px;
-    color: var(--ga-text-1);
-    box-shadow: var(--ga-shadow-lg);
-    border: 1px solid var(--ga-border);
-    user-select: none;
-
-    li {
-      list-style: none;
-      line-height: 34px;
-      padding: 0 16px;
-      margin: 0;
-      font-size: 13px;
-      color: var(--ga-text-2);
-      cursor: pointer;
-
-      &:hover {
-        background: var(--el-color-primary-light-9);
-        color: var(--ga-brand);
-      }
-    }
-  }
-}
-</style>
-
-<style lang="scss">
-//reset element css of el-icon-close
-.tags-view-wrapper {
-  .tags-view-item {
-    .el-icon-close {
-      width: 16px;
-      height: 16px;
-      vertical-align: 2px;
-      border-radius: 50%;
-      text-align: center;
-      transition: all .3s cubic-bezier(.645, .045, .355, 1);
-      transform-origin: 100% 50%;
-      &:before {
-        transform: scale(.6);
-        display: inline-block;
-        vertical-align: -3px;
-      }
-      &:hover {
-        background-color: var(--ga-text-3);
-        color: #fff;
-      }
-    }
-  }
+  :deep(.arco-tabs) { flex: 1; min-width: 0; }
+  :deep(.arco-tabs-nav-tab-list) { overflow-x: auto; scrollbar-width: none; }
+  .tags-view-item { display: inline-flex; align-items: center; gap: 6px; }
+  :deep(.arco-tabs-nav::before) { display: none; }
 }
 </style>

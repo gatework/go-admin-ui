@@ -1,4 +1,4 @@
-import { ElMessage } from 'element-plus'
+import { Message } from '@arco-design/web-vue'
 
 /**
  * Global message helpers.
@@ -27,9 +27,9 @@ import { ElMessage } from 'element-plus'
  * carries a reason the frontend has no copy for.
  */
 export const msgSuccess = (msg: string) =>
-  ElMessage({ showClose: true, message: msg, type: 'success' })
+  Message.success({ closable: true, content: msg })
 
 export const msgError = (msg: string) =>
-  ElMessage({ showClose: true, message: msg, type: 'error' })
+  Message.error({ closable: true, content: msg })
 
-export const msgInfo = (msg: string) => ElMessage.info(msg)
+export const msgInfo = (msg: string) => Message.info(msg)

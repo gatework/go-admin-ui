@@ -1,0 +1,34 @@
+/* Application surfaces consume Arco's semantic colours, including teleported
+   popups under body. Arco owns the palette and component appearance. */
+body {
+  --ga-brand: rgb(var(--primary-6));
+  --ga-text-link: rgb(var(--link-6));
+  --ga-success: rgb(var(--success-6));
+  --ga-warning: rgb(var(--warning-6));
+  --ga-danger: rgb(var(--danger-6));
+  --ga-info: var(--color-text-3);
+  --ga-bg-body: #f2f3f5;
+  --ga-bg-container: var(--color-bg-2);
+  --ga-bg-elevated: var(--color-bg-3);
+  --ga-bg-subtle: var(--color-fill-1);
+  --ga-bg-hover: var(--color-fill-2);
+  --ga-text-1: var(--color-text-1);
+  --ga-text-2: var(--color-text-2);
+  --ga-text-3: var(--color-text-3);
+  --ga-text-disabled: var(--color-text-4);
+  --ga-border: var(--color-border-2);
+  --ga-border-light: var(--color-border-1);
+  --ga-radius-sm: var(--border-radius-small);
+  --ga-radius: var(--border-radius-medium);
+}
+
+.arco-modal, .arco-drawer {
+  max-width: 100vw;
+}
+
+.arco-message-wrapper { z-index: 10010; }
+
+.rail-light { --rail-bg: var(--color-menu-light-bg); --rail-title: var(--color-text-1); }
+.rail-dark { --rail-bg: var(--color-menu-dark-bg); --rail-title: rgba(255, 255, 255, .9); }
+
+body[arco-theme="dark"] { --ga-bg-body: var(--color-bg-1); }

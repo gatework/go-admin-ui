@@ -80,7 +80,7 @@ const serveNestedMenu = (page: import('@playwright/test').Page) =>
 
 /** The two log pages have no column label in common, so the header names which one is on screen. */
 const columnHeaders = (page: import('@playwright/test').Page) =>
-  page.locator('.app-main .el-table th .cell')
+  page.locator('.app-main .arco-table th .arco-table-cell')
 
 test.describe('a menu nested two levels deep', () => {
   test.beforeEach(async({ context }) => {
@@ -149,7 +149,7 @@ test.describe('a menu nested two levels deep', () => {
 
     await page.goto('/#/admin/sys-user')
     await expect(columnHeaders(page)).toContainText(['登录名'])
-    await expect(page.locator('.app-main .el-table')).toHaveCount(1)
+    await expect(page.locator('.app-main .arco-table')).toHaveCount(1)
     await expect(columnHeaders(page)).not.toContainText(['操作人员'])
 
     // And it keeps working: back in, and out again.
@@ -157,7 +157,7 @@ test.describe('a menu nested two levels deep', () => {
     await expect(columnHeaders(page)).toContainText(['ip 地址'])
     await page.goto('/#/admin/sys-user')
     await expect(columnHeaders(page)).toContainText(['登录名'])
-    await expect(page.locator('.app-main .el-table')).toHaveCount(1)
+    await expect(page.locator('.app-main .arco-table')).toHaveCount(1)
   })
 
   /** The same exit through the sidebar, the way #309 reported it. */
@@ -171,7 +171,7 @@ test.describe('a menu nested two levels deep', () => {
     await page.locator('.sidebar-container').getByText('用户管理', { exact: true }).click()
     await expect(page).toHaveURL(/#\/admin\/sys-user/)
     await expect(columnHeaders(page)).toContainText(['登录名'])
-    await expect(page.locator('.app-main .el-table')).toHaveCount(1)
+    await expect(page.locator('.app-main .arco-table')).toHaveCount(1)
   })
 
   /**
@@ -180,12 +180,13 @@ test.describe('a menu nested two levels deep', () => {
    * them, since the breadcrumb reads route.matched.
    */
   test('the breadcrumb on a nested leaf names both directories', async({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('motor-admin-ui-preferences', JSON.stringify({ tabBar: false, breadcrumbEnabled: true })))
     await installApiMocks(page)
     await serveNestedMenu(page)
 
     await page.goto('/#/admin/sys-oper-log')
     await expect(columnHeaders(page)).toContainText(['操作人员'])
-    await expect(page.locator('.app-breadcrumb .el-breadcrumb__item')).toContainText(['系统管理', '日志管理', '操作日志'])
+    await expect(page.locator('.app-breadcrumb .arco-breadcrumb-item')).toContainText(['系统管理', '日志管理', '操作日志'])
   })
 
   /** Entering the section from outside it was never broken; it is here so a fix that trades one for the other is caught. */

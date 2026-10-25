@@ -30,7 +30,7 @@ test.describe('the page header', () => {
     await installApiMocks(page)
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/#/admin/sys-oper-log')
-    await page.waitForSelector('.el-tabs__item')
+    await page.waitForSelector('.arco-tabs-tab')
     await page.waitForTimeout(600)
   })
 
@@ -66,7 +66,7 @@ test.describe('the page header', () => {
    * 28x28 the entire time it was invisible.
    */
   test('the logo is still on screen once the rail collapses', async({ page }) => {
-    await page.locator('.hamburger-container').first().click()
+    await page.locator('#hamburger-container').first().click()
     await page.waitForTimeout(700)
 
     const state = await page.evaluate(() => {

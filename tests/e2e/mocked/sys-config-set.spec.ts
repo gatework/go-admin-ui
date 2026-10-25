@@ -10,6 +10,21 @@ test.describe('sys-config set', () => {
     await authenticate(context)
   })
 
+  test('an oversized logo is rejected before any upload request', async({ page }) => {
+    await installApiMocks(page)
+    let uploads = 0
+    await page.route('**/api/v1/public/uploadFile', async route => {
+      uploads++
+      await route.fulfill({ json: { code: 200, data: { full_path: '/static/logo.png' }}})
+    })
+    await page.goto('/#/admin/sys-config/set')
+    await page.locator('input[type=file]').setInputFiles({
+      name: 'large.png', mimeType: 'image/png', buffer: Buffer.alloc(2 * 1024 * 1024)
+    })
+    await expect(page.locator('.arco-message-error')).toContainText('文件大小超过 2MB')
+    expect(uploads).toBe(0)
+  })
+
   test('loads the saved settings', async({ page }) => {
     await installApiMocks(page)
 
@@ -32,12 +47,12 @@ test.describe('sys-config set', () => {
     await page.locator('.nav-item').filter({ hasText: '外观设置' }).click()
     await expect(page.locator('.theme-card')).toHaveCount(2)
 
-    const sideTheme = page.locator('.el-form-item').filter({ hasText: '侧栏主题' })
-      .locator('.el-select__wrapper')
+    const sideTheme = page.locator('.arco-form-item').filter({ hasText: '侧栏主题' })
+      .locator('.arco-select-view')
     await expect(sideTheme).toBeVisible()
     // The wrapper shows its placeholder: nothing is selected, because the
     // response never carried the key -- but the control is still there
-    await expect(sideTheme).toHaveText('请选择侧栏主题')
+    await expect(sideTheme.getByPlaceholder('请选择侧栏主题')).toBeVisible()
   })
 
   // Reset refetches. resetFields would also restore these two fields, but only

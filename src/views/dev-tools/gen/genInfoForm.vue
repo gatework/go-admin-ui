@@ -1,116 +1,119 @@
 <template>
-  <el-form ref="formRef" :model="model" :rules="rules" label-width="150px">
-    <el-row>
-      <el-col :span="12">
-        <el-form-item prop="tplCategory">
+  <a-form ref="formRef" :model="model" :rules="rules" layout="vertical">
+    <a-row>
+      <a-col :xs="24" :sm="12">
+        <a-form-item field="tplCategory">
           <template #label>{{ $t('devTools.genInfoForm.tplCategory') }}</template>
-          <el-select v-model="model.tplCategory">
-            <el-option :label="$t('devTools.genInfoForm.tplCrud')" value="crud" />
-            <!-- <el-option label="关系表（增删改查）" value="mcrud" />
-            <el-option label="树表（增删改查）" value="tree" /> -->
-          </el-select>
-        </el-form-item>
-      </el-col>
+          <a-select v-model="model.tplCategory">
+            <a-option :label="$t('devTools.genInfoForm.tplCrud')" value="crud" />
+            <!-- <a-option label="关系表（增删改查）" value="mcrud" />
+            <a-option label="树表（增删改查）" value="tree" /> -->
+          </a-select>
+        </a-form-item>
+      </a-col>
 
-      <el-col :span="12">
-        <el-form-item prop="packageName">
+      <a-col :xs="24" :sm="12">
+        <a-form-item field="packageName">
           <template #label>{{ $t('devTools.genInfoForm.packageName') }}
-            <el-tooltip :content="$t('devTools.genInfoForm.packageNameTip')" placement="top">
+            <a-tooltip :content="$t('devTools.genInfoForm.packageNameTip')" position="top">
               <i class="ri-question-line" />
-            </el-tooltip></template>
-          <el-input v-model="model.packageName" />
-        </el-form-item>
-      </el-col>
+            </a-tooltip></template>
+          <a-input v-model="model.packageName" />
+        </a-form-item>
+      </a-col>
 
-      <!-- <el-col :span="12">
-        <el-form-item prop="moduleFrontName">
+      <!-- <a-col :xs="24" :sm="12">
+        <a-form-item field="moduleFrontName">
           <template #label>前端文件名
-            <el-tooltip content="前端项目文件名，例如 sys-user.js " placement="top">
+            <a-tooltip content="前端项目文件名，例如 sys-user.js " position="top">
               <i class="ri-question-line" />
-            </el-tooltip></template>
-          <el-input v-model="model.moduleFrontName" />
-        </el-form-item>
-      </el-col> -->
+            </a-tooltip></template>
+          <a-input v-model="model.moduleFrontName" />
+        </a-form-item>
+      </a-col> -->
 
-      <el-col :span="12">
-        <el-form-item prop="businessName">
+      <a-col :xs="24" :sm="12">
+        <a-form-item field="businessName">
           <template #label>{{ $t('devTools.genInfoForm.businessName') }}
-            <el-tooltip :content="$t('devTools.genInfoForm.businessNameTip')" placement="top">
+            <a-tooltip :content="$t('devTools.genInfoForm.businessNameTip')" position="top">
               <i class="ri-question-line" />
-            </el-tooltip></template>
-          <el-input v-model="model.businessName" />
-        </el-form-item>
-      </el-col>
+            </a-tooltip></template>
+          <a-input v-model="model.businessName" />
+        </a-form-item>
+      </a-col>
 
-      <el-col :span="12">
-        <el-form-item prop="functionName">
+      <a-col :xs="24" :sm="12">
+        <a-form-item field="functionName">
           <template #label>{{ $t('devTools.genInfoForm.functionName') }}
-            <el-tooltip :content="$t('devTools.genInfoForm.functionNameTip')" placement="top">
+            <a-tooltip :content="$t('devTools.genInfoForm.functionNameTip')" position="top">
               <i class="ri-question-line" />
-            </el-tooltip></template>
-          <el-input v-model="model.functionName" />
-        </el-form-item>
-      </el-col>
-      <el-col :span="12">
-        <el-form-item prop="moduleName">
+            </a-tooltip></template>
+          <a-input v-model="model.functionName" />
+        </a-form-item>
+      </a-col>
+      <a-col :xs="24" :sm="12">
+        <a-form-item field="moduleName">
           <template #label>{{ $t('devTools.genInfoForm.moduleName') }}
-            <el-tooltip :content="$t('devTools.genInfoForm.moduleNameTip')" placement="top">
+            <a-tooltip :content="$t('devTools.genInfoForm.moduleNameTip')" position="top">
               <i class="ri-question-line" />
-            </el-tooltip></template>
-          <el-input v-model="model.moduleName">
+            </a-tooltip></template>
+          <a-input v-model="model.moduleName">
             <template #prepend>api/{version}/</template>
             <template #append>...</template>
-          </el-input>
-        </el-form-item>
-        <!-- <el-alert
+          </a-input>
+        </a-form-item>
+        <!-- <a-alert
           title="接口地址示例"
           description="[get]api/{version}/{接口路径} \r\n [post]"
           type="success"
           show-icon
         /> -->
-      </el-col>
-      <!-- <el-col :span="12">
-        <el-form-item prop="isDataScope">
+      </a-col>
+      <!-- <a-col :xs="24" :sm="12">
+        <a-form-item field="isDataScope">
           <template #label>是否认证
-            <el-tooltip content="是指是否使用用户和角色验证中间件" placement="top">
+            <a-tooltip content="是指是否使用用户和角色验证中间件" position="top">
               <i class="ri-question-line" />
-            </el-tooltip></template>
-          <el-select v-model="model.isAuth">
-            <el-option label="true" value="1" />
-            <el-option label="false" value="2" />
-          </el-select>
-        </el-form-item>
-      </el-col> -->
-      <!-- <el-col :span="12">
-        <el-form-item prop="isDataScope">
+            </a-tooltip></template>
+          <a-select v-model="model.isAuth">
+            <a-option label="true" value="1" />
+            <a-option label="false" value="2" />
+          </a-select>
+        </a-form-item>
+      </a-col> -->
+      <!-- <a-col :xs="24" :sm="12">
+        <a-form-item field="isDataScope">
           <template #label>数据权限
-            <el-tooltip content="暂不支持" placement="top">
+            <a-tooltip content="暂不支持" position="top">
               <i class="ri-question-line" />
-            </el-tooltip></template>
-          <el-select v-model="model.isDataScope" disabled>
-            <el-option label="true" value="1" />
-            <el-option label="false" value="2" />
-          </el-select>
-        </el-form-item>
-      </el-col> -->
-      <!-- <el-col :span="12">
-        <el-form-item prop="isActions">
+            </a-tooltip></template>
+          <a-select v-model="model.isDataScope" disabled>
+            <a-option label="true" value="1" />
+            <a-option label="false" value="2" />
+          </a-select>
+        </a-form-item>
+      </a-col> -->
+      <!-- <a-col :xs="24" :sm="12">
+        <a-form-item field="isActions">
           <template #label>是否actions
-            <el-tooltip content="系统通用增删改查中间件方法" placement="top">
+            <a-tooltip content="系统通用增删改查中间件方法" position="top">
               <i class="ri-question-line" />
-            </el-tooltip></template>
-          <el-select v-model="model.isActions" disabled>
-            <el-option label="false" value="2" />
-          </el-select>
-        </el-form-item>
-      </el-col> -->
-    </el-row>
-  </el-form>
+            </a-tooltip></template>
+          <a-select v-model="model.isActions" disabled>
+            <a-option label="false" value="2" />
+          </a-select>
+        </a-form-item>
+      </a-col> -->
+    </a-row>
+  </a-form>
 </template>
 <script setup lang="ts">
+import { useFormLocale } from '@/composables/useFormLocale'
+
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormInstance } from '@arco-design/web-vue'
+import type { FormRules } from '@/types/ui'
 import type { GenTable } from '@/api/tools/gen'
 
 /**
@@ -124,39 +127,37 @@ const { t } = useI18n()
 const model = defineModel<GenTable>({ required: true })
 
 const formRef = ref<FormInstance>()
+useFormLocale(formRef)
 
 const rules = computed<FormRules>(() => ({
   tplCategory: [
-    { required: true, message: t('devTools.genInfoForm.rules.tplCategory'), trigger: 'change' }
+    { required: true, message: t('devTools.genInfoForm.rules.tplCategory') }
   ],
   packageName: [
-    { required: true, message: t('devTools.genInfoForm.rules.packageName'), trigger: 'blur' },
+    { required: true, message: t('devTools.genInfoForm.rules.packageName') },
     {
-      pattern: /^[a-z]*$/,
-      trigger: 'blur',
+      match: /^[a-z]*$/,
       message: t('devTools.genInfoForm.rules.packageNamePattern')
     }
   ],
   moduleName: [
-    { required: true, message: t('devTools.genInfoForm.rules.moduleName'), trigger: 'blur' },
+    { required: true, message: t('devTools.genInfoForm.rules.moduleName') },
     {
-      pattern: /^[a-z-]*[a-z]$/,
-      trigger: 'blur',
+      match: /^[a-z-]*[a-z]$/,
       message: t('devTools.genInfoForm.rules.moduleNamePattern')
     }
   ],
   businessName: [
-    { required: true, message: t('devTools.genInfoForm.rules.businessName'), trigger: 'blur' },
+    { required: true, message: t('devTools.genInfoForm.rules.businessName') },
     {
-      pattern: /^[a-z][A-Za-z]+$/,
-      trigger: 'blur',
+      match: /^[a-z][A-Za-z]+$/,
       message: t('devTools.genInfoForm.rules.businessNamePattern')
     }
   ],
   functionName: [
-    { required: true, message: t('devTools.genInfoForm.rules.functionName'), trigger: 'blur' }
+    { required: true, message: t('devTools.genInfoForm.rules.functionName') }
   ]
 }))
 
-defineExpose({ validate: () => formRef.value?.validate().catch(() => false) })
+defineExpose({ validate: async() => Boolean(formRef.value) && !(await formRef.value?.validate()) })
 </script>

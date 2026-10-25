@@ -63,11 +63,11 @@
         <span class="description">Posted 4 photos - 2 days ago</span>
       </div>
       <div class="user-images">
-        <el-carousel :interval="6000" type="card" height="220px">
-          <el-carousel-item v-for="item in carouselImages" :key="item">
+        <a-carousel :auto-play="{ interval: 6000 }" animation-name="card" :style="{ height: '220px' }">
+          <a-carousel-item v-for="item in carouselImages" :key="item">
             <img :src="item+carouselPrefix" class="image">
-          </el-carousel-item>
-        </el-carousel>
+          </a-carousel-item>
+        </a-carousel>
       </div>
       <ul class="list-inline">
         <li><span class="link-black text-sm"><i class="ri-share-line" /> Share</span></li>

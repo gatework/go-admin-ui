@@ -59,7 +59,7 @@ test.describe('analytics', () => {
     // The path is what tells the login page apart, not the title: the /login
     // route declares no meta.title, so getPageTitle falls back to the site name
     // and reports the same string every untitled route does.
-    expect(hit.page_title).toBe('go-admin 后台管理系统')
+    expect(hit.page_title).toBe('motor')
   })
 
   test('a page the guard turned away is not reported as visited', async({ page }) => {
@@ -88,7 +88,7 @@ test.describe('analytics', () => {
     // one navigation and starts another over the same route, so anything
     // counting navigations rather than completed ones doubles this page.
     await page.goto('/#/admin/sys-post')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await expect.poll(pageViews).toHaveLength(1)
     const [hit] = await pageViews()
@@ -101,13 +101,13 @@ test.describe('analytics', () => {
     await installApiMocks(page)
 
     await page.goto('/#/admin/sys-post')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await expect.poll(pageViews).toHaveLength(1)
 
     // A tag on its own sees one page load and nothing after it; the whole
     // reason page views are sent from the router is this second navigation.
     await page.goto('/#/admin/sys-dept')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     await expect.poll(pageViews).toHaveLength(2)
     expect((await pageViews()).map(hit => new URL(hit.page_location).pathname))
@@ -120,14 +120,14 @@ test.describe('analytics', () => {
     await installApiMocks(page)
 
     await page.goto('/#/demo/product')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await expect.poll(pageViews).toHaveLength(1)
 
     // vue-router answers a navigation to the current route with a duplicated
     // navigation failure. Nothing moves on screen, so nothing was visited --
     // but this is an easy click to make repeatedly, and counted it would put
     // whichever page a user sits on at the top of every report.
-    await page.locator('.el-menu-item', { hasText: 'Product' }).click()
+    await page.locator('.arco-menu-item', { hasText: 'Product' }).click()
     await page.waitForTimeout(500)
 
     expect(await pageViews()).toHaveLength(1)
@@ -143,9 +143,9 @@ test.describe('analytics', () => {
     page.on('pageerror', error => errors.push(error.message))
 
     await page.goto('/#/admin/sys-post')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await page.goto('/#/admin/sys-dept')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
 
     // Spelled out rather than `window.gtag`: the declaration that adds it to
     // Window lives in src/utils/analytics.ts, which nothing here imports.

@@ -13,7 +13,7 @@ const hasPaint = (canvas: Locator) =>
 
 /** The chart in whichever tab pane is currently open. */
 const openPaneChart = (page: Page) =>
-  page.locator('.el-tab-pane:not([style*="display: none"]) canvas').first()
+  page.locator('.arco-tabs-content-item-active canvas').first()
 
 /**
  * The landing page everyone sees after signing in.

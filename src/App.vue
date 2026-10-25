@@ -1,34 +1,23 @@
 <template>
-  <!-- Element Plus reads its own locale from an injected config, so its date
-       picker, pagination and empty states only follow a language change when
-       the app is wrapped like this. Passing `locale` to app.use(ElementPlus)
-       fixes it at boot instead. -->
-  <el-config-provider :locale="elementLocale">
-    <div id="app">
-      <router-view />
-    </div>
-  </el-config-provider>
+  <a-config-provider :locale="arcoLocale" :size="preferences.componentSize">
+    <div class="app-root" :inert="lock.locked && user.token ? true : undefined"><router-view /></div>
+    <LockScreen v-if="user.token" />
+  </a-config-provider>
 </template>
-
-<script>
-import { elementLocale } from '@/lang'
-
-export default {
-  name: 'App',
-  setup() {
-    return { elementLocale }
-  },
-  mounted() {
-    // 声明: 百度统计统计相关下载使用量无别的用途
-    // 可自行删除
-    var _hmt = _hmt || []
-    ;(function() {
-      var hm = document.createElement('script')
-      hm.src = 'https://hm.baidu.com/hm.js?1d2d61263f13e4b288c8da19ad3ff56d'
-      var s = document.getElementsByTagName('script')[0]
-      s.parentNode.insertBefore(hm, s)
-    })()
-  }
-}
+<script setup lang="ts">
+import { defineAsyncComponent, watch } from 'vue'
+import { arcoLocale } from '@/lang'
+import { usePreferencesStore } from '@/stores/preferences'
+import { useLockScreenStore } from '@/stores/lock-screen'
+import { useUserStore } from '@/stores/user'
+const LockScreen = defineAsyncComponent(() => import('@/components/lock-screen/index.vue'))
+const preferences = usePreferencesStore()
+const lock = useLockScreenStore()
+const user = useUserStore()
+preferences.hydratePreferences()
+lock.hydrate()
+watch(() => user.token, token => { if (!token) lock.clear() })
 </script>
-
+<style scoped>
+.app-root { height: 100%; }
+</style>

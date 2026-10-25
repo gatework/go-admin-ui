@@ -1,18 +1,19 @@
 <template>
-  <el-form>
-    <el-form-item label="Name">
-      <el-input v-model.trim="userForm.name" />
-    </el-form-item>
-    <el-form-item label="Email">
-      <el-input v-model.trim="userForm.email" />
-    </el-form-item>
-    <el-form-item>
-      <el-button type="primary" @click="submit">Update</el-button>
-    </el-form-item>
-  </el-form>
+  <a-form :model="userForm">
+    <a-form-item label="Name">
+      <a-input v-model.trim="userForm.name" />
+    </a-form-item>
+    <a-form-item label="Email">
+      <a-input v-model.trim="userForm.email" />
+    </a-form-item>
+    <a-form-item>
+      <a-button type="primary" @click="submit">Update</a-button>
+    </a-form-item>
+  </a-form>
 </template>
 
 <script>
+import { Message } from '@arco-design/web-vue'
 export default {
   name: 'UserAccount',
   props: {
@@ -33,9 +34,8 @@ export default {
   },
   methods: {
     submit() {
-      this.$message({
-        message: 'User information has been updated successfully',
-        type: 'success',
+      Message.success({
+        content: 'User information has been updated successfully',
         duration: 5 * 1000
       })
     }

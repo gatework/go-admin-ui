@@ -1,3 +1,8 @@
+import errorPage from './error-page'
+import motorAccount from './motor-account'
+import motorLogin from './motor-login'
+import motorNavbar from './motor-navbar'
+import motorSettings from './motor-settings'
 import common from './common'
 import layout from './layout'
 import profile from './profile'
@@ -25,4 +30,4 @@ import gen from './gen'
  * `gen` is not one file but a whole directory the code generator writes into
  * at runtime -- see gen/index.ts.
  */
-export default { common, schedule, devTools, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables, gen }
+export default { errorPage, ...motorSettings, ...motorNavbar, ...motorLogin, ...motorAccount, common, schedule, devTools, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables, gen }

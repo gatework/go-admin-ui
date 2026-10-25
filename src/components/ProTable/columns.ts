@@ -14,7 +14,7 @@ export interface CardColumn {
 /**
  * Reads the columns out of ProTable's default slot.
  *
- * Columns stay as <el-table-column> in the slot rather than moving into a
+ * Columns stay as <a-table-column> in the slot rather than moving into a
  * `columns` array -- see the component's own note for why. The card layout
  * still needs to know what the columns are, so it reads them back off the
  * vnodes instead of asking pages to declare them a second time. Declaring them
@@ -41,7 +41,7 @@ export function readCardColumns(slot: Slot | undefined): CardColumn[] {
       const type = node.props.type
       if (type === 'selection' || type === 'index' || type === 'expand') continue
 
-      const label = node.props.label
+      const label = node.props.title
       if (typeof label !== 'string' || !label) continue
 
       // Vue keeps attribute names as authored, so both spellings reach us
@@ -49,12 +49,12 @@ export function readCardColumns(slot: Slot | undefined): CardColumn[] {
       const role = (node.props['card-role'] ?? node.props.cardRole) as CardRole | undefined
       if (role === 'hidden') continue
 
-      const children = node.children as { default?: Slot } | null
+      const children = node.children as { cell?: Slot } | null
       found.push({
         label,
-        prop: node.props.prop,
+        prop: node.props['data-index'] ?? node.props.dataIndex,
         role,
-        render: typeof children?.default === 'function' ? children.default : undefined
+        render: typeof children?.cell === 'function' ? children.cell : undefined
       })
     }
   }
@@ -150,7 +150,7 @@ function guessBadge(columns: CardColumn[], title: CardColumn | undefined) {
   )
 }
 
-/** Reads `a.b.c` off a row, the way el-table-column resolves a nested prop. */
+/** Reads `a.b.c` off a row, the way a-table-column resolves a nested prop. */
 export function readProp(row: Record<string, unknown>, prop?: string): unknown {
   if (!prop) return undefined
   if (!prop.includes('.')) return row[prop]

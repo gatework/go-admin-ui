@@ -1,24 +1,28 @@
 <template>
-  <el-breadcrumb class="app-breadcrumb" separator="/">
-    <transition-group name="breadcrumb">
-      <el-breadcrumb-item v-for="(item,index) in levelList" :key="item.path">
-        <span v-if="item.redirect==='noRedirect'||index==levelList.length-1" class="no-redirect">{{ routeTitle(item) }}</span>
-        <a v-else @click.prevent="handleLink(item)">{{ routeTitle(item) }}</a>
-      </el-breadcrumb-item>
-    </transition-group>
-  </el-breadcrumb>
+  <a-breadcrumb v-if="!preferences.breadcrumbHideOnlyOne || visibleLevels.length > 1" class="app-breadcrumb" :class="{ 'breadcrumb-background': preferences.breadcrumbStyle === 'background' }" separator="/">
+    <a-breadcrumb-item v-for="(item,index) in visibleLevels" :key="item.path">
+      <MenuIcon v-if="preferences.breadcrumbShowIcon && item.meta?.icon" :name="item.meta.icon" />
+      <span v-if="item.redirect==='noRedirect'||index==visibleLevels.length-1" class="no-redirect">{{ routeTitle(item) }}</span>
+      <a v-else :href="$router.resolve(item.redirect || pathCompile(item.path)).href" @click.prevent="handleLink(item)">{{ routeTitle(item) }}</a>
+    </a-breadcrumb-item>
+  </a-breadcrumb>
 </template>
 
 <script>
+import MenuIcon from '@/components/MenuIcon/index.vue'
+import { usePreferencesStore } from '@/stores/preferences'
 import { compile } from 'path-to-regexp'
 import { routeTitle } from '@/lang/backend'
 
 export default {
+  components: { MenuIcon },
+  setup() { return { preferences: usePreferencesStore() } },
   data() {
     return {
       levelList: null
     }
   },
+  computed: { visibleLevels() { return (this.levelList || []).filter(item => this.preferences.breadcrumbShowHome || !['/index', '/dashboard'].includes(item.path)) } },
   watch: {
     $route(route) {
       // if you go to the redirect page, do not update the breadcrumbs
@@ -74,15 +78,38 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.app-breadcrumb.el-breadcrumb {
-  display: inline-block;
+.app-breadcrumb {
+  display: flex;
+  align-items: center;
+  height: 100%;
   font-size: 14px;
-  line-height: 50px;
+  line-height: 1.4;
   margin-left: 8px;
 
   .no-redirect {
-    color: #97a8be;
+    color: var(--ga-text-2);
     cursor: text;
   }
+
+  :deep(.arco-breadcrumb-item) {
+    float: none;
+    flex-shrink: 0;
+  }
+
+  :deep(.arco-breadcrumb-item:last-child) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
+
+@media (max-width: 991px) {
+  .app-breadcrumb :deep(.arco-breadcrumb-item:not(:last-child)),
+  .app-breadcrumb :deep(.arco-breadcrumb-item-separator) { display: none; }
+}
+</style>
+
+<style scoped>
+.breadcrumb-background :deep(.arco-breadcrumb-item) { background: var(--motor-surface-hover); padding: 4px 8px; border-radius: var(--motor-radius-xs); }
 </style>

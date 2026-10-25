@@ -29,11 +29,11 @@ const surfaces = [
       return !!last && getComputedStyle(last).opacity === '1'
     }
   },
-  { name: 'list-page', path: '/#/demo/product', wait: '.el-table' },
-  { name: 'dialog', path: '/#/demo/product', wait: '.el-table', open: '新增' },
+  { name: 'list-page', path: '/#/demo/product', wait: '.arco-table' },
+  { name: 'dialog', path: '/#/demo/product', wait: '.arco-table', open: '新增' },
   // The densest surface: department tree, search bar, toolbar, sortable table
-  { name: 'sys-user', path: '/#/admin/sys-user', wait: '.el-table' },
-  { name: 'sys-user-dialog', path: '/#/admin/sys-user', wait: '.el-table', open: '新增' }
+  { name: 'sys-user', path: '/#/admin/sys-user', wait: '.arco-table' },
+  { name: 'sys-user-dialog', path: '/#/admin/sys-user', wait: '.arco-table', open: '新增' }
 ]
 
 for (const theme of ['light', 'dark'] as const) {
@@ -44,16 +44,18 @@ for (const theme of ['light', 'dark'] as const) {
         await installApiMocks(page)
 
         await page.goto(surface.path)
-        // Element Plus keys its dark theme off a class on <html>
+        // Arco uses the body attribute; application tokens also use the root class.
         await page.evaluate(t => {
           document.documentElement.classList.toggle('dark', t === 'dark')
+          if (t === 'dark') document.body.setAttribute('arco-theme', 'dark')
+          else document.body.removeAttribute('arco-theme')
         }, theme)
 
         await page.waitForSelector(surface.wait, { timeout: 15_000 })
 
         if (surface.open) {
           await page.getByRole('button', { name: surface.open }).click()
-          await page.waitForSelector('.el-dialog', { state: 'visible' })
+          await page.waitForSelector('.arco-modal', { state: 'visible' })
         }
 
         // Let transitions settle so shots are stable between runs

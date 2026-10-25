@@ -27,7 +27,7 @@ $sidebarLightTitle: var(--ga-sidebar-light-title);
 
 // Active states, shared by both
 $menuActiveText: var(--ga-brand);
-$subMenuActiveText: var(--el-color-primary-light-3);
+$subMenuActiveText: rgb(var(--primary-5));
 
 // Layout metric, not a colour -- a real value, since it is used in calc()
 $sideBarWidth: 210px;

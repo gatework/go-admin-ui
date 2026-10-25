@@ -88,9 +88,9 @@ export const useUserStore = defineStore('user', {
 
     /** Relative paths are resolved against the API base url; absolute ones pass through. */
     setAvatar(avatar: string) {
-      this.avatar = avatar && avatar.indexOf('http') !== -1
+      this.avatar = !avatar ? '' : /^(https?:|data:|blob:)/.test(avatar)
         ? avatar
-        : process.env.VUE_APP_BASE_API + avatar
+        : `${String(process.env.VUE_APP_BASE_API || '').replace(/\/$/, '')}/${avatar.replace(/^\//, '')}`
     },
 
     async LogOut() {
@@ -99,7 +99,10 @@ export const useUserStore = defineStore('user', {
       this.roles = []
       this.permisaction = []
       removeToken()
+      const preferenceKeys = ['motor-admin-ui-preferences', 'motor-admin-login-appearance', 'color-scheme', 'theme-color', 'locale']
+      const savedPreferences = preferenceKeys.map(key => [key, storage.get(key)] as const)
       storage.clear()
+      for (const [key, value] of savedPreferences) if (value != null) storage.set(key, value)
     },
 
     /**

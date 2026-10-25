@@ -4,6 +4,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { preferenceTime } from '@/utils/preference-time'
+import { usePreferencesStore } from '@/stores/preferences'
+const preferences = usePreferencesStore()
 import { parseTime } from '@/utils/costum'
 
 /**
@@ -30,6 +33,6 @@ const props = withDefaults(defineProps<{
   pattern: '{y}-{m}-{d}'
 })
 
-const short = computed(() => parseTime(props.value, props.pattern) ?? '')
-const full = computed(() => parseTime(props.value) ?? '')
+const short = computed(() => preferenceTime(props.value, preferences.timeZone, props.pattern) ?? parseTime(props.value, props.pattern) ?? '')
+const full = computed(() => preferenceTime(props.value, preferences.timeZone) ?? parseTime(props.value) ?? '')
 </script>

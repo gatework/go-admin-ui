@@ -1,56 +1,58 @@
 <template>
   <div v-if="errorLogs.length>0">
-    <el-badge :is-dot="true" style="line-height: 25px;margin-top: -5px;" @click="dialogTableVisible=true">
-      <el-button style="padding: 8px 10px;" size="small" type="danger">
+    <a-badge dot style="line-height: 25px;margin-top: -5px;" @click="dialogTableVisible=true">
+      <a-button style="padding: 8px 10px;" size="small" status="danger">
         <svg-icon icon-class="bug" />
-      </el-button>
-    </el-badge>
+      </a-button>
+    </a-badge>
 
-    <el-dialog v-model="showDialog" width="80%" append-to-body>
-      <template #header>
+    <AppModal v-model:visible="dialogTableVisible" width="80%">
+      <template #title>
         <span style="padding-right: 10px;">Error Log</span>
-        <el-button size="mini" type="primary" @click="clearAll"><i class="ri-delete-bin-line" style="margin-right:4px;" />Clear All</el-button>
+        <a-button size="small" type="primary" @click="clearAll"><i class="ri-delete-bin-line" style="margin-right:4px;" />Clear All</a-button>
       </template>
-      <el-table :data="errorLogs" border>
-        <el-table-column label="Message">
-          <template #default="{row}">
+      <a-table :data="errorLogs" :pagination="false"><template #columns>
+        <a-table-column title="Message">
+          <template #cell="{record: row}">
             <div>
               <span class="message-title">Msg:</span>
-              <el-tag type="danger">
+              <a-tag color="red">
                 {{ row.err.message }}
-              </el-tag>
+              </a-tag>
             </div>
             <br>
             <div>
               <span class="message-title" style="padding-right: 10px;">Info: </span>
-              <el-tag type="warning">
-                {{ row.vm.$vnode.tag }} error in {{ row.info }}
-              </el-tag>
+              <a-tag color="orange">
+                {{ row.vm?.$options?.name }} error in {{ row.info }}
+              </a-tag>
             </div>
             <br>
             <div>
               <span class="message-title" style="padding-right: 16px;">Url: </span>
-              <el-tag type="success">
+              <a-tag color="green">
                 {{ row.url }}
-              </el-tag>
+              </a-tag>
             </div>
           </template>
-        </el-table-column>
-        <el-table-column label="Stack">
-          <template #default="scope">
-            {{ scope.row.err.stack }}
+        </a-table-column>
+        <a-table-column title="Stack">
+          <template #cell="scope">
+            {{ scope.record.err.stack }}
           </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
+        </a-table-column>
+      </template></a-table>
+    </AppModal>
   </div>
 </template>
 
 <script>
+import AppModal from '@/components/AppModal/index.vue'
 import { mapState, mapActions } from 'pinia'
 import { useErrorLogStore } from '@/stores/errorLog'
 
 export default {
+  components: { AppModal },
   name: 'ErrorLog',
   data() {
     return {

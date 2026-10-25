@@ -5,7 +5,7 @@ import type { ApiResponse } from '@/types/api'
 /**
  * The tree behind a parent picker, kept separate from the list on screen.
  *
- * Both the menu and the department page hand an el-tree-select the whole
+ * Both the menu and the department page hand an a-tree-select the whole
  * hierarchy under a synthetic root, so a top-level record can be created. Both
  * had built it from `table.rows` -- which holds the *search results*. A record's
  * parent is routinely a branch the search filtered out, so opening the dialog on
@@ -38,9 +38,9 @@ import type { ApiResponse } from '@/types/api'
 export interface UseTreePickerOptions<TRow> {
   /** Fetches the whole tree. Must send no filters. */
   api: () => Promise<ApiResponse<TRow[]>>
-  /** Field el-tree-select uses as node-key. */
+  /** Field a-tree-select maps as its key. */
   idKey: string
-  /** Field el-tree-select shows as the label. */
+  /** Field a-tree-select shows as the label. */
   labelKey: string
   /**
    * Label of the synthetic root, e.g. 主类目.
@@ -61,14 +61,14 @@ export interface UseTreePickerOptions<TRow> {
  *
  * The rule is what the call site does with it. This one is reached by property
  * access (`parent.options`, `parent.ensure()`), and property access on a plain
- * object hands the template the ComputedRef itself: el-tree-select then got an
+ * object hands the template the ComputedRef itself: a-tree-select then got an
  * object where its `data` prop declares an array and logged `Invalid prop: type
  * check failed for prop "data"` on every render. useRemove, useExport and
  * useDict return bare objects holding refs on purpose -- those are destructured,
  * and destructuring a reactive object would snapshot the values instead.
  */
 export interface UseTreePickerReturn<TRow> {
-  /** Bind to el-tree-select's `data`. The synthetic root wraps the tree. */
+  /** Bind to a-tree-select's `data`. The synthetic root wraps the tree. */
   options: TRow[]
   /** Loads the tree unless it is already current. Safe to call on every open. */
   ensure: () => Promise<void>

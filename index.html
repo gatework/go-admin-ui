@@ -10,7 +10,7 @@
   <meta name="renderer" content="webkit">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link rel="icon" href="/favicon.ico">
-  <title>go-admin</title>
+  <title>motor</title>
   <!-- ============ 配色方案 ============
        在解析任何 CSS 之前决定明暗，否则存了 dark 偏好的用户会先看到一帧亮色。
        只能写在这里：模块脚本一律是 defer 的，跑起来时首屏已经画完了。
@@ -26,9 +26,9 @@
       } catch (e) { /* 隐私模式下 localStorage 会抛，主题不值得为此让页面挂掉 */ }
     })()
   </script>
-  <meta name="keywords" content="go-admin,gin,权限管理系统,gin-admin,gin-vue-admin,go">
+  <meta name="keywords" content="motor,网络运维管理">
   <meta name="description"
-    content="基于Gin + Vue + Element UI的前后端分离权限管理系统，初始化极度简单，只需要配置文件中，修改数据库连接，系统启动后会自动初始化数据库信息以及必须的基础数据">
+    content="motor 网络运维管理平台。">
   <style>
     /* 这两个值必须与 styles/tokens.css 的 --ga-bg-body 一致。写在这里是因为
        首屏在样式表加载之前就要有底色；改 token 时要一起改。
@@ -39,13 +39,13 @@
       height: 100%;
       margin: 0px;
       padding: 0px;
-      background: #f5f5f5;
+      background: var(--ga-bg-body, #f2f3f5);
     }
 
     html.dark,
     html.dark body,
     html.dark #app {
-      background: #0a0a0a;
+      background: var(--ga-bg-body, #17171a);
     }
 
     /* ============ 首屏加载 ============
@@ -146,10 +146,11 @@
 </head>
 
 <body>
+  <script>if (document.documentElement.classList.contains('dark')) document.body.setAttribute('arco-theme', 'dark')</script>
   <div id="app"></div>
   <!-- 置于 #app 之外，避免 Vue 挂载时被直接替换掉，从而能播放淡出过渡 -->
   <div id="loader-wrapper">
-    <div class="brand">go<em>-</em>admin</div>
+    <div class="brand">motor</div>
     <div class="bar"></div>
     <div class="tip">正在加载系统资源</div>
   </div>

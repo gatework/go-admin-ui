@@ -37,7 +37,7 @@ test.describe('the theme colour', () => {
     })
 
     await page.goto('/#/admin/sys-user')
-    const button = page.locator('.el-button--primary').first()
+    const button = page.locator('.arco-btn-primary').first()
     await expect(button).toBeVisible({ timeout: 15000 })
 
     const before = await button.evaluate(el => getComputedStyle(el).backgroundColor)
@@ -56,15 +56,15 @@ test.describe('the theme colour', () => {
     // Tints mix toward the ground, and the dark theme's ground is not white. A
     // colour computed for light and left alone reads washed out on dark.
     await page.goto('/#/admin/sys-user')
-    await expect(page.locator('.el-table').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('.arco-table').first()).toBeVisible({ timeout: 15000 })
 
     await apply(page, '#000000')
     const light = await page.evaluate(() =>
-      document.documentElement.style.getPropertyValue('--el-color-primary-light-5'))
+      document.body.style.getPropertyValue('--primary-5'))
 
     await page.evaluate(() => document.documentElement.classList.add('dark'))
     await expect.poll(async() => page.evaluate(() =>
-      document.documentElement.style.getPropertyValue('--el-color-primary-light-5'))
+      document.body.style.getPropertyValue('--primary-5'))
     ).not.toBe(light)
   })
 })

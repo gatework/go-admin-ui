@@ -1,12 +1,13 @@
 /**
  * The menu page.
  *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD
+ * UI copy is maintained with the corresponding English pack.
  * R5). The seven FieldLabel tips are the longest prose in the admin section,
  * and they are interface copy rather than comments -- they are what the
  * question mark next to each label reveals.
  */
 export default {
+  sections: { 'basic': '基本信息', 'basicHint': '选择菜单类型、上级位置及显示顺序。', 'routing': '路由与展示', 'routingHint': '设置图标、页面地址与导航显示方式。', 'access': '权限', 'accessHint': '设置权限标识并选择允许访问的 API。' },
   // ── Search ──────────────────────────────────────────────────────
   menuName: '菜单名称',
   menuNamePlaceholder: '请输入菜单名称',
@@ -68,7 +69,7 @@ export default {
   removeConfirm: '确认删除该菜单？其下级菜单也会一并删除。',
 
   rules: {
-    title: '菜单标题不能为空',
-    sort: '菜单顺序不能为空'
+    title: '请填写菜单标题',
+    sort: '请填写菜单顺序'
   }
 }

@@ -1,89 +1,78 @@
 <template>
-  <el-form ref="form" :model="userForm" :rules="rules" label-width="auto">
-    <el-form-item :label="$t('profile.info.nickName')" prop="nickName">
-      <el-input v-model="userForm.nickName" />
-    </el-form-item>
-    <el-form-item :label="$t('profile.info.phone')" prop="phone">
-      <el-input v-model="userForm.phone" maxlength="11" />
-    </el-form-item>
-    <el-form-item :label="$t('profile.info.email')" prop="email">
-      <el-input v-model="userForm.email" maxlength="50" />
-    </el-form-item>
-    <el-form-item :label="$t('profile.info.sex')">
-      <el-radio-group v-model="userForm.sex">
-        <el-radio label="0">{{ $t('profile.info.male') }}</el-radio>
-        <el-radio label="1">{{ $t('profile.info.female') }}</el-radio>
-      </el-radio-group>
-    </el-form-item>
-    <el-form-item>
-      <el-button type="primary" size="mini" @click="submit">{{ $t('profile.save') }}</el-button>
-      <el-button type="danger" size="mini" @click="close">{{ $t('profile.close') }}</el-button>
-    </el-form-item>
-  </el-form>
+  <a-form ref="formRef" :model="userForm" :rules="rules" :disabled="saving" layout="vertical">
+    <a-form-item :label="$t('profile.info.nickName')" field="nickName">
+      <a-input v-model="userForm.nickName" />
+    </a-form-item>
+    <a-form-item :label="$t('profile.info.phone')" field="phone" :extra="$t('profile.info.phoneHint')">
+      <a-input v-model="userForm.phone" maxlength="11" />
+    </a-form-item>
+    <a-form-item :label="$t('profile.info.email')" field="email">
+      <a-input v-model="userForm.email" maxlength="50" />
+    </a-form-item>
+    <a-form-item :label="$t('profile.info.sex')">
+      <a-radio-group v-model="userForm.sex">
+        <a-radio value="0">{{ $t('profile.info.male') }}</a-radio>
+        <a-radio value="1">{{ $t('profile.info.female') }}</a-radio>
+      </a-radio-group>
+    </a-form-item>
+    <a-form-item>
+      <a-space wrap>
+        <a-button type="primary" :loading="saving" @click="submit">{{ $t('profile.save') }}</a-button>
+        <a-button @click="close">{{ $t('profile.close') }}</a-button>
+      </a-space>
+    </a-form-item>
+  </a-form>
 </template>
 
-<script>
-import { useTagsViewStore } from '@/stores/tagsView'
-import { updateUser } from '@/api/admin/sys-user'
+<script setup lang="ts">
+import { useFormLocale } from '@/composables/useFormLocale'
 
-export default {
-  props: {
-    // eslint-disable-next-line vue/require-default-prop
-    user: { type: Object }
-  },
-  data() {
-    return {
-      userForm: { ...this.user }
-    }
-  },
-  computed: {
-    /**
-     * Rebuilt per render rather than held in data(), which runs once: a message
-     * built from t() there keeps whichever language the page was opened in,
-     * including one already displayed under a field.
-     */
-    rules() {
-      return {
-        nickName: [
-          { required: true, message: this.$t('profile.info.rules.nickName'), trigger: 'blur' }
-        ],
-        email: [
-          { required: true, message: this.$t('profile.info.rules.emailRequired'), trigger: 'blur' },
-          {
-            type: 'email',
-            message: this.$t('profile.info.rules.emailFormat'),
-            trigger: ['blur', 'change']
-          }
-        ],
-        phone: [
-          { required: true, message: this.$t('profile.info.rules.phoneRequired'), trigger: 'blur' },
-          {
-            pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
-            message: this.$t('profile.info.rules.phoneFormat'),
-            trigger: 'blur'
-          }
-        ]
-      }
-    }
-  },
-  methods: {
-    submit() {
-      this.$refs['form'].validate(valid => {
-        if (valid) {
-          updateUser(this.userForm).then(response => {
-            if (response.code === 200) {
-              this.msgSuccess(response.msg)
-            } else {
-              this.msgError(response.msg)
-            }
-          })
-        }
-      })
-    },
-    close() {
-      useTagsViewStore().delView(this.$route)
-      this.$router.push({ path: '/index' })
-    }
+import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
+import type { FormInstance } from '@arco-design/web-vue'
+import type { FormRules } from '@/types/ui'
+import { useTagsViewStore } from '@/stores/tagsView'
+import { msgSuccess } from '@/utils/message'
+const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
+const formRef = ref<FormInstance>()
+useFormLocale(formRef)
+const saving = ref(false)
+const close = () => {
+  useTagsViewStore().delView(route)
+  void router.push('/dashboard')
+}
+import { updateUser } from '@/api/admin/sys-user'
+import type { SysUser } from '@/types/admin'
+const emit = defineEmits<{ saved: [user: SysUser] }>()
+const props = defineProps<{ user: SysUser }>()
+const userForm = ref({ ...props.user })
+watch(() => props.user.avatar, avatar => { userForm.value.avatar = avatar })
+const rules = computed<FormRules>(() => ({
+  nickName: [{ required: true, message: t('profile.info.rules.nickName') }],
+  email: [
+    { required: true, message: t('profile.info.rules.emailRequired') },
+    { type: 'email', message: t('profile.info.rules.emailFormat') }
+  ],
+  phone: [
+    { required: true, message: t('profile.info.rules.phoneRequired') },
+    { match: /^1[3-9]\d{9}$/, message: t('profile.info.rules.phoneFormat') }
+  ]
+}))
+const save = () => updateUser(userForm.value)
+const submit = async() => {
+  if (saving.value || !formRef.value || await formRef.value.validate()) return
+  saving.value = true
+  try {
+    const response = await save()
+    emit('saved', { ...userForm.value })
+    msgSuccess(response.msg)
+  } catch {
+    // The request interceptor already reports failures.
+  } finally {
+    saving.value = false
   }
 }
 </script>

@@ -5,184 +5,185 @@
       selection
       row-key="id"
       :actions-width="120"
-      :default-sort="{ prop: 'createdAt', order: 'descending' }"
     >
       <template #search>
-        <el-form-item :label="$t('admin.sysConfig.name')">
-          <el-input
+        <a-form-item :label="$t('admin.sysConfig.name')">
+          <a-input
             v-model="table.query.configName"
             :placeholder="$t('admin.sysConfig.namePlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysConfig.key')">
-          <el-input
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysConfig.key')">
+          <a-input
             v-model="table.query.configKey"
             :placeholder="$t('admin.sysConfig.keyPlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysConfig.builtIn')">
-          <el-select
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysConfig.builtIn')">
+          <a-select
             v-model="table.query.configType"
             :placeholder="$t('admin.sysConfig.builtInPlaceholder')"
-            clearable
+            allow-clear
           >
-            <el-option
+            <a-option
               v-for="item in sys_yes_no"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
-        </el-form-item>
+          </a-select>
+        </a-form-item>
       </template>
 
       <template #toolbar>
-        <el-button v-permisaction="['admin:sysConfig:add']" type="primary" @click="form.openCreate()">
+        <a-button v-permisaction="['admin:sysConfig:add']" type="primary" @click="form.openCreate()">
           {{ $t('common.add') }}
-        </el-button>
-        <el-button
+        </a-button>
+        <a-button
           v-permisaction="['admin:sysConfig:edit']"
           :disabled="table.single"
           @click="form.openEdit(table.selection[0])"
-        >{{ $t('common.edit') }}</el-button>
-        <el-button
+        >{{ $t('common.edit') }}</a-button>
+        <a-button
           v-permisaction="['admin:sysConfig:remove']"
-          type="danger"
-          plain
+          status="danger"
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >{{ $t('common.delete') }}</el-button>
-        <el-button :loading="exporting" @click="handleExport">{{ $t('common.export') }}</el-button>
+        >{{ $t('common.delete') }}</a-button>
+        <a-button :loading="exporting" @click="handleExport">{{ $t('common.export') }}</a-button>
       </template>
 
-      <el-table-column :label="$t('admin.sysConfig.configId')" prop="id" min-width="80" sortable="custom" />
-      <el-table-column
-        :label="$t('admin.sysConfig.name')"
-        prop="configName"
-        min-width="140"
-        sortable="custom"
-        show-overflow-tooltip
+      <a-table-column :title="$t('admin.sysConfig.configId')" data-index="id" :width="80" :sortable="{ sortDirections: ['ascend', 'descend'] }" />
+      <a-table-column
+        :title="$t('admin.sysConfig.name')"
+        data-index="configName"
+        :width="140"
+        :sortable="{ sortDirections: ['ascend', 'descend'] }"
+        ellipsis
+        tooltip
       />
-      <el-table-column :label="$t('admin.sysConfig.key')" prop="configKey" min-width="160" sortable="custom">
-        <template #default="{ row }">
-          <el-popover trigger="hover" placement="top" :width="280">
+      <a-table-column :title="$t('admin.sysConfig.key')" data-index="configKey" :width="160" :sortable="{ sortDirections: ['ascend', 'descend'] }">
+        <template #cell="{ record: row }">
+          <a-popover trigger="hover" position="top" :content-style="{ maxWidth: '280px' }"><span class="config-key">{{ row.configKey }}</span><template #content>
             <p class="peek-line">{{ $t('admin.sysConfig.peekValue', { value: row.configValue }) }}</p>
             <p class="peek-line">
               {{ $t('admin.sysConfig.peekFrontend') }}
-              <el-tag v-if="row.isFrontend === '1'" type="success" disable-transitions>{{ $t('admin.sysConfig.yes') }}</el-tag>
-              <el-tag v-else disable-transitions>{{ $t('admin.sysConfig.no') }}</el-tag>
+              <a-tag v-if="row.isFrontend === '1'" color="green">{{ $t('admin.sysConfig.yes') }}</a-tag>
+              <a-tag v-else>{{ $t('admin.sysConfig.no') }}</a-tag>
             </p>
-            <template #reference><span class="config-key">{{ row.configKey }}</span></template>
-          </el-popover>
+
+          </template></a-popover>
         </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('admin.sysConfig.builtIn')"
-        prop="configType"
+      </a-table-column>
+      <a-table-column
+        :title="$t('admin.sysConfig.builtIn')"
+        data-index="configType"
         card-role="badge"
-        min-width="90"
-        sortable="custom"
+        :width="90"
+        :sortable="{ sortDirections: ['ascend', 'descend'] }"
       >
-        <template #default="{ row }">{{ dictLabel(sys_yes_no, row.configType) }}</template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('admin.sysConfig.remark')"
-        prop="remark"
-        min-width="140"
-        show-overflow-tooltip
+        <template #cell="{ record: row }">{{ dictLabel(sys_yes_no, row.configType) }}</template>
+      </a-table-column>
+      <a-table-column
+        :title="$t('admin.sysConfig.remark')"
+        data-index="remark"
+        :width="140"
+        ellipsis
+        tooltip
       />
-      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110" sortable="custom">
-        <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
-      </el-table-column>
+      <a-table-column :title="$t('common.createdAt')" data-index="createdAt" :width="110" :sortable="{ sortDirections: ['ascend', 'descend'], defaultSortOrder: 'descend' }">
+        <template #cell="{ record: row }"><DateCell :value="row.createdAt" /></template>
+      </a-table-column>
 
       <template #actions="{ row }">
-        <el-button v-permisaction="['admin:sysConfig:edit']" link type="primary" @click="form.openEdit(row)">
+        <a-button v-permisaction="['admin:sysConfig:edit']" type="text" @click="form.openEdit(row)">
           {{ $t('common.edit') }}
-        </el-button>
-        <el-button v-permisaction="['admin:sysConfig:remove']" link type="danger" @click="remove(row.id)">
+        </a-button>
+        <a-button v-permisaction="['admin:sysConfig:remove']" status="danger" type="text" @click="remove(row.id)">
           {{ $t('common.delete') }}
-        </el-button>
+        </a-button>
       </template>
     </ProTable>
 
-    <el-dialog
-      v-model="form.visible"
+    <AppModal
+      v-model:visible="form.visible"
       :title="form.title"
       width="500px"
-      :close-on-click-modal="false"
-      @closed="form.reset"
+      :mask-closable="false"
+      @close="form.reset"
     >
-      <el-form
+      <a-form
         :ref="form.bindFormRef"
-        v-loading="form.loading"
+        :disabled="form.loading"
         :model="form.model"
         :rules="form.rules"
-        label-width="auto"
+        layout="vertical"
       >
         <!-- Name and key identify the setting that code looks up, so they are
              fixed once created -->
-        <el-form-item :label="$t('admin.sysConfig.configName')" prop="configName">
-          <el-input
+        <a-form-item :label="$t('admin.sysConfig.configName')" field="configName">
+          <a-input
             v-model="form.model.configName"
             :placeholder="$t('admin.sysConfig.namePlaceholder')"
             :disabled="form.isEdit"
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysConfig.configKey')" prop="configKey">
-          <el-input
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysConfig.configKey')" field="configKey">
+          <a-input
             v-model="form.model.configKey"
             :placeholder="$t('admin.sysConfig.keyPlaceholder')"
             :disabled="form.isEdit"
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysConfig.configValue')" prop="configValue">
-          <el-input
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysConfig.configValue')" field="configValue">
+          <a-input
             v-model="form.model.configValue"
             :placeholder="$t('admin.sysConfig.configValuePlaceholder')"
           />
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysConfig.configType')" prop="configType">
-          <el-radio-group v-model="form.model.configType">
-            <el-radio
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysConfig.configType')" field="configType">
+          <a-radio-group v-model="form.model.configType">
+            <a-radio
               v-for="item in sys_yes_no"
               :key="item.value"
               :value="item.value"
-            >{{ item.label }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysConfig.isFrontend')" prop="isFrontend">
-          <el-select
+            >{{ item.label }}</a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysConfig.isFrontend')" field="isFrontend">
+          <a-select
             v-model="form.model.isFrontend"
             :placeholder="$t('admin.sysConfig.isFrontendPlaceholder')"
             style="width: 100%"
           >
-            <el-option :label="$t('admin.sysConfig.yes')" value="1" />
-            <el-option :label="$t('admin.sysConfig.no')" value="2" />
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('admin.sysConfig.remark')" prop="remark">
-          <el-input
+            <a-option :label="$t('admin.sysConfig.yes')" value="1" />
+            <a-option :label="$t('admin.sysConfig.no')" value="2" />
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="$t('admin.sysConfig.remark')" field="remark">
+          <a-textarea
             v-model="form.model.remark"
-            type="textarea"
+
             :placeholder="$t('admin.sysConfig.remarkPlaceholder')"
           />
-        </el-form-item>
-      </el-form>
+        </a-form-item>
+      </a-form>
       <template #footer>
-        <el-button @click="form.close">{{ $t('common.dialogCancel') }}</el-button>
-        <el-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</el-button>
+        <a-button @click="form.close">{{ $t('common.dialogCancel') }}</a-button>
+        <a-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</a-button>
       </template>
-    </el-dialog>
+    </AppModal>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormRules } from 'element-plus'
+import type { FormRules } from '@/types/ui'
 
+import AppModal from '@/components/AppModal/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
@@ -217,10 +218,10 @@ const table = useTable<ConfigRow, SysConfigQuery>({
  * unchanged.
  */
 const rules = computed<FormRules>(() => ({
-  configName: [{ required: true, message: t('admin.sysConfig.rules.configName'), trigger: 'blur' }],
-  configKey: [{ required: true, message: t('admin.sysConfig.rules.configKey'), trigger: 'blur' }],
-  configValue: [{ required: true, message: t('admin.sysConfig.rules.configValue'), trigger: 'blur' }],
-  isFrontend: [{ required: true, message: t('admin.sysConfig.rules.isFrontend'), trigger: 'change' }]
+  configName: [{ required: true, message: t('admin.sysConfig.rules.configName') }],
+  configKey: [{ required: true, message: t('admin.sysConfig.rules.configKey') }],
+  configValue: [{ required: true, message: t('admin.sysConfig.rules.configValue') }],
+  isFrontend: [{ required: true, message: t('admin.sysConfig.rules.isFrontend') }]
 }))
 
 const form = useForm<ConfigRow, number>({

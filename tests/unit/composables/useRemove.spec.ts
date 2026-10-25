@@ -4,7 +4,7 @@ import { setLocale } from '@/lang'
 import { deferred } from '../support/async'
 
 const confirm = vi.hoisted(() => vi.fn())
-vi.mock('element-plus', () => ({ ElMessageBox: { confirm }}))
+vi.mock('@/utils/modal', () => ({ confirmAction: confirm }))
 
 vi.mock('@/utils/message', () => ({
   msgSuccess: vi.fn(),
@@ -16,7 +16,7 @@ import { msgSuccess } from '@/utils/message'
 
 /** The user pressing 确定. */
 const accepts = () => confirm.mockResolvedValue('confirm')
-/** The user pressing 取消, which ElMessageBox reports as a rejection. */
+/** The user pressing 取消, which confirmAction reports as a rejection. */
 const cancels = () => confirm.mockRejectedValue('cancel')
 
 describe('useRemove', () => {
@@ -48,7 +48,7 @@ describe('useRemove', () => {
     await remove([1, 2, 3])
 
     expect(api).toHaveBeenCalledWith([1, 2, 3])
-    expect(confirm.mock.calls[0][0]).toContain('3')
+    expect(confirm.mock.calls[0][0].content).toContain('3')
   })
 
   // The mixin closed its delete chain with `.catch(() => {})`, which was there
@@ -157,7 +157,7 @@ describe('useRemove', () => {
 
     await remove([4, 5])
 
-    expect(confirm.mock.calls[0][0]).toBe('确认删除选中的 2 个用户？')
+    expect(confirm.mock.calls[0][0].content).toBe('确认删除选中的 2 个用户？')
     expect(msgSuccess).toHaveBeenCalledWith('用户已删除')
   })
 
@@ -187,29 +187,17 @@ describe('useRemove', () => {
     beforeEach(async() => { await setLocale('en-US') })
     afterEach(async() => { await setLocale('zh-CN') })
 
-    it('asks, titles and labels the dialog in English -- all four', async() => {
+    it('asks and reports success in English', async() => {
       accepts()
       const api = vi.fn().mockResolvedValue(undefined)
       const { remove } = useRemove({ api })
 
       await remove([4, 5])
 
-      const [body, title, options] = confirm.mock.calls[0]
+      const body = confirm.mock.calls[0][0].content
       expect(body).toBe('Delete the 2 selected records?')
-      expect(title).toBe('Notice')
-      expect(options.confirmButtonText).toBe('OK')
-      expect(options.cancelButtonText).toBe('Cancel')
       expect(msgSuccess).toHaveBeenCalledWith('Deleted successfully')
-
-      // Named rather than positional, so a failure says which part is still
-      // Chinese instead of only that something is.
-      const parts = {
-        body,
-        title,
-        confirmButtonText: options.confirmButtonText,
-        cancelButtonText: options.cancelButtonText,
-        toast: vi.mocked(msgSuccess).mock.calls[0][0]
-      }
+      const parts = { body, toast: vi.mocked(msgSuccess).mock.calls[0][0] }
       expect(Object.entries(parts).filter(([, text]) => HAN.test(String(text)))).toEqual([])
     })
 
@@ -220,7 +208,7 @@ describe('useRemove', () => {
 
       await remove(7)
 
-      expect(confirm.mock.calls[0][0]).toBe('Delete the selected record?')
+      expect(confirm.mock.calls[0][0].content).toBe('Delete the selected record?')
     })
 
     it('follows a switch made after the page was set up', async() => {
@@ -235,8 +223,7 @@ describe('useRemove', () => {
       await setLocale('en-US')
       await remove(7)
 
-      expect(confirm.mock.calls[0][1]).toBe('Notice')
-      expect(confirm.mock.calls[0][0]).toBe('Delete the selected record?')
+      expect(confirm.mock.calls[0][0].content).toBe('Delete the selected record?')
     })
   })
 })

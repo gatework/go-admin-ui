@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { ElMessageBox, ElMessage } from 'element-plus'
+import { Message } from '@arco-design/web-vue'
+import { confirmAction } from '@/utils/modal'
 import { useUserStore } from '@/stores/user'
 import { getToken } from '@/utils/auth'
 // No component instance here, so the global composer is the way in; it is a
@@ -68,17 +69,13 @@ service.interceptors.request.use(
 /** Offers the user a way back to the login page, then reloads. */
 const promptRelogin = () => {
   useUserStore().resetToken()
-  ElMessageBox.confirm(
-    i18n.global.t('common.sessionExpiredPrompt'),
-    i18n.global.t('common.systemNotice'),
-    {
-      confirmButtonText: i18n.global.t('common.relogin'),
-      cancelButtonText: i18n.global.t('common.cancel'),
-      type: 'warning'
-    }
-  ).then(() => {
+  confirmAction({
+    content: i18n.global.t('common.sessionExpiredPrompt'),
+    title: i18n.global.t('common.systemNotice'),
+    okText: i18n.global.t('common.relogin')
+  }).then(() => {
     location.reload() // 为了重新实例化vue-router对象 避免bug
-  })
+  }).catch(() => { /* The session is already cleared; dismissal stays on this page. */ })
 }
 
 service.interceptors.response.use(
@@ -101,13 +98,13 @@ service.interceptors.response.use(
     }
 
     if (code !== 200) {
-      ElMessage({
-        message: msg,
-        type: 'error',
+      const message = msg?.trim() || i18n.global.t('common.unknownError')
+      Message.error({
+        content: message,
         // 400/403 carry a message worth reading twice as long
         duration: code === 400 || code === 403 ? 5 * 1000 : 3 * 1000
       })
-      return Promise.reject(reported(new Error(msg || 'error')))
+      return Promise.reject(reported(new Error(message)))
     }
 
     // The one place the axios contract is deliberately bent: callers receive the
@@ -119,13 +116,15 @@ service.interceptors.response.use(
   (error: AxiosError) => {
     const message = error.message === 'Network Error'
       ? i18n.global.t('common.networkError')
-      : error.message
+      : error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT'
+        ? i18n.global.t('common.requestTimeout')
+        : i18n.global.t('common.unknownError')
 
     if (error.message !== 'Network Error') {
       console.log('err' + error) // for debug
     }
 
-    ElMessage({ message, type: 'error', duration: 5 * 1000 })
+    Message.error({ content: message, duration: 5 * 1000 })
     return Promise.reject(reported(error))
   }
 )

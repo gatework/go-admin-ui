@@ -1,12 +1,14 @@
+import { vi } from 'vitest'
+vi.mock('vue-router', () => ({ useRouter: () => ({ push: vi.fn() }) }))
 import { mount } from '@vue/test-utils'
 import SidebarItem from '@/layout/components/Sidebar/SidebarItem.vue'
 
 // el-menu 开启了 :router，index 会被直接交给 router.push。外链地址不在路由表
-// 中，若外链菜单也渲染成 el-menu-item，点击必然导航失败（#242）。这里断言外链
+// 中，若外链菜单也渲染成 a-menu-item，点击必然导航失败（#242）。这里断言外链
 // 由 a 标签承载、且带安全的 target/rel，普通菜单则不应被包进 a 标签。
 const stubs = {
-  'el-menu-item': { template: '<li class="el-menu-item"><slot /><slot name="title" /></li>' },
-  'el-sub-menu': { template: '<div class="el-sub-menu"><slot name="title" /><slot /></div>' },
+  'a-menu-item': { template: '<li class="a-menu-item"><slot /><slot name="title" /></li>' },
+  'a-sub-menu': { template: '<div class="a-sub-menu"><slot name="title" /><slot /></div>' },
   'svg-icon': { template: '<i class="svg-icon" />', props: ['iconClass'] }
 }
 
@@ -46,6 +48,6 @@ describe('Layout:SidebarItem 外链处理', () => {
       global: { stubs }
     })
     expect(wrapper.find('a.sidebar-external-link').exists()).toBe(false)
-    expect(wrapper.find('.el-menu-item').exists()).toBe(true)
+    expect(wrapper.find('.a-menu-item').exists()).toBe(true)
   })
 })

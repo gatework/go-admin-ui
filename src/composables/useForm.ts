@@ -1,8 +1,10 @@
-import { ref, reactive, computed, nextTick, unref } from 'vue'
+import { useFormLocale } from '@/composables/useFormLocale'
+import { ref, reactive, computed, nextTick, unref, watch, getCurrentScope, onScopeDispose } from 'vue'
 import type { MaybeRef, Ref } from 'vue'
 import { asReportedError } from '@/utils/request'
 import type { ReportedError } from '@/utils/request'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormInstance } from '@arco-design/web-vue'
+import type { FormRules } from '@/types/ui'
 import { msgSuccess } from '@/utils/message'
 import { i18n } from '@/lang'
 import type { ApiResponse } from '@/types/api'
@@ -33,7 +35,7 @@ export interface UseFormOptions<TModel extends object, TId = unknown> {
   defaultModel: () => TModel
 
   /**
-   * Element Plus validation rules.
+   * Arco validation rules.
    *
    * Accepts a computed as well as a plain object, and translated pages need
    * one: a plain `const rules = { ... }` is evaluated once, so a message built
@@ -98,7 +100,7 @@ export interface UseFormOptions<TModel extends object, TId = unknown> {
  */
 export interface UseFormReturn<TModel extends object, TId = unknown> {
   /**
-   * Attach the el-form with `:ref="form.bindFormRef"` -- bound, so it is a real
+   * Attach the a-form with `:ref="form.bindFormRef"` -- bound, so it is a real
    * expression.
    *
    * An unbound `ref="form.formRef"` looks up a setup binding named literally
@@ -109,7 +111,7 @@ export interface UseFormReturn<TModel extends object, TId = unknown> {
    * Vue needs to write into).
    */
   bindFormRef: (el: unknown) => void
-  /** The el-form instance, once mounted. Read-only; write via bindFormRef. */
+  /** The a-form instance, once mounted. Read-only; write via bindFormRef. */
   formRef: FormInstance | undefined
   model: TModel
   /**
@@ -160,6 +162,7 @@ export function useForm<TModel extends object, TId = unknown>(
   } = options
 
   const formRef = ref<FormInstance>()
+  useFormLocale(formRef)
 
   /**
    * Guards the whole submit interaction, validation included. `submitting`
@@ -169,11 +172,8 @@ export function useForm<TModel extends object, TId = unknown>(
   let pending = false
 
   /**
-   * Identifies the most recent openEdit. Clicking one row's edit button and
-   * then another fires two detail requests, and without this the slower one
-   * wins whichever row it belongs to -- so the dialog ends up showing the first
-   * record while the user believes they opened the second, and saving writes to
-   * the wrong one. Same token scheme as useTable.getList.
+   * Identifies the current form session, including create, close and reset.
+   * Both detail loading and validation must stop affecting a replaced session.
    */
   let loadToken = 0
 
@@ -184,6 +184,16 @@ export function useForm<TModel extends object, TId = unknown>(
   const submitting = ref(false)
   const loading = ref(false)
   const visible = ref(false)
+  let hasOpened = false
+  const invalidate = () => {
+    loadToken++
+    loading.value = false
+  }
+  watch(visible, value => {
+    if (value) hasOpened = true
+    else invalidate()
+  }, { flush: 'sync' })
+  if (getCurrentScope()) onScopeDispose(invalidate)
 
   // Which of openCreate/openEdit opened the form. A primary key the database
   // does not assign - a string code, say - is typed into the create form by
@@ -209,9 +219,10 @@ export function useForm<TModel extends object, TId = unknown>(
   )
 
   const reset = () => {
+    invalidate()
     model.value = defaultModel()
     openedAs.value = null
-    // clearValidate, not resetFields: resetFields restores the values el-form
+    // clearValidate, not resetFields: resetFields restores the values a-form
     // captured when it mounted, which for a reused dialog is whatever the
     // previously edited record happened to contain.
     void nextTick(() => formRef.value?.clearValidate())
@@ -275,19 +286,20 @@ export function useForm<TModel extends object, TId = unknown>(
     // `await form.validate()` window open: two Enter presses both got past it
     // and both submitted. Same shape of hole useRemove had around its confirm
     // dialog.
-    if (pending) return false
+    if (pending || (hasOpened && !visible.value)) return false
     pending = true
+    const token = loadToken
 
     try {
       const form = formRef.value
       if (form) {
-        // Element Plus rejects rather than resolving false when validation fails.
-        const valid = await form.validate().catch(() => false)
-        if (!valid) return false
+        // Arco resolves undefined on success and an error map on invalid fields.
+        const errors = await form.validate().catch(() => ({ validation: true }))
+        if (errors || token !== loadToken) return false
       } else if (rules) {
-        // Rules were declared but no el-form ever reached formRef, so every one
+        // Rules were declared but no a-form ever reached formRef, so every one
         // of them is being skipped rather than enforced.
-        console.warn('useForm: validation rules were given but no el-form is attached, so nothing is being validated. Bind it with :ref="form.bindFormRef".')
+        console.warn('useForm: validation rules were given but no a-form is attached, so nothing is being validated. Bind it with :ref="form.bindFormRef".')
       }
 
       const send = resolveSubmit()
@@ -297,21 +309,24 @@ export function useForm<TModel extends object, TId = unknown>(
       }
 
       const editing = isEdit.value
+      const submittedModel = model.value
       submitting.value = true
-      await send(model.value)
-      if (successMessage !== null) {
+      await send(submittedModel)
+      if (token === loadToken && successMessage !== null) {
         const text = typeof successMessage === 'function'
-          ? successMessage(model.value, editing)
+          ? successMessage(submittedModel, editing)
           : successMessage ?? (editing
             ? i18n.global.t('composables.form.editSuccess')
             : i18n.global.t('composables.form.addSuccess'))
         msgSuccess(text)
       }
-      visible.value = false
-      await onSuccess?.(model.value)
+      if (token === loadToken) visible.value = false
+      // A completed write still needs to refresh its owner, even if the user
+      // has already opened another draft. Never pass that new draft instead.
+      await onSuccess?.(submittedModel)
       return true
     } catch(error) {
-      onError?.(asReportedError(error))
+      if (token === loadToken) onError?.(asReportedError(error))
       return false
     } finally {
       pending = false

@@ -1,152 +1,43 @@
 <template>
-  <el-menu
-    :default-active="activeMenu"
-    mode="horizontal"
-    @select="handleSelect"
-  >
-    <el-menu-item
-      v-for="(item, index) in visibleMenus"
-      :key="index"
-      :index="item.path"
-    ><svg-icon :icon-class="item.meta.icon" />
-      {{ routeTitle(item) }}</el-menu-item>
-
-    <!-- 顶部菜单超出数量折叠 -->
-    <el-sub-menu v-show="hiddenMenus.length > 0" index="more">
-      <template #title>{{ $t('layout.topNav.more') }}</template>
-      <el-menu-item
-        v-for="(item, index) in hiddenMenus"
-        :key="'h' + index"
-        :index="item.path"
-      ><svg-icon :icon-class="item.meta.icon" />
-        {{ routeTitle(item) }}</el-menu-item>
-    </el-sub-menu>
-  </el-menu>
+  <a-menu mode="horizontal" :selected-keys="[selectedSection]" @menu-item-click="select">
+    <a-menu-item v-for="item in menus" :key="item.path">
+      <template v-if="item.meta?.icon" #icon><MenuIcon :name="String(item.meta.icon)" /></template>
+      {{ routeTitle(item) }}
+    </a-menu-item>
+  </a-menu>
 </template>
 
-<script>
-import { mapState } from 'pinia'
+<script setup lang="ts">
+import MenuIcon from '@/components/MenuIcon/index.vue'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import path from 'path'
 import { usePermissionStore } from '@/stores/permission'
-import { constantRoutes } from '@/router'
 import { routeTitle } from '@/lang/backend'
+import { isExternal } from '@/utils/validate'
 
-export default {
-  data() {
-    return {
-      // 顶部栏初始数
-      visibleNumber: 5,
-      // 是否为首次加载
-      isFrist: false
-    }
-  },
-  computed: {
-    // 顶部显示菜单
-    topMenus() {
-      return this.routers.map((menu) => ({
-        ...menu,
-        children: undefined
-      }))
-    },
-    visibleMenus() {
-      return this.topMenus.slice(0, this.visibleNumber)
-    },
-    hiddenMenus() {
-      return this.topMenus.slice(this.visibleNumber)
-    },
-    // 所有的路由信息
-    ...mapState(usePermissionStore, { routers: 'topbarRouters' }),
-    // 设置子路由
-    childrenMenus() {
-      var childrenMenus = []
-      this.routers.map((router) => {
-        for (var item in router.children) {
-          if (router.children[item].parentPath === undefined) {
-            router.children[item].parentPath = router.path
-          }
-          childrenMenus.push(router.children[item])
-        }
-      })
-      return constantRoutes.concat(childrenMenus)
-    },
-    // 默认激活的菜单
-    activeMenu() {
-      if (!this.routers || this.routers.length === 0) return ''
-      const path = this.$route.path
-      let activePath = this.routers[0].path
-      if (path.lastIndexOf('/') > 0) {
-        const tmpPath = path.substring(1, path.length)
-        activePath = '/' + tmpPath.substring(0, tmpPath.indexOf('/'))
-      } else if (path === '/index' || path === '') {
-        if (!this.isFrist) {
-          // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-          this.isFrist = true
-        } else {
-          activePath = 'index'
-        }
-      }
-      this.activeRoutes(activePath)
-      return activePath
-    }
-  },
-  mounted() {
-    this.setVisibleNumber()
-  },
-  methods: {
-    routeTitle,
-    // 根据宽度计算设置显示栏数
-    setVisibleNumber() {
-      const width = document.body.getBoundingClientRect().width - 200
-      const elWidth = this.$el.getBoundingClientRect().width
-      const menuItemNodes = this.$el.children
-      const menuWidth = Array.from(menuItemNodes).map(
-        (i) => i.getBoundingClientRect().width
-      )
-      this.visibleNumber = (
-        parseInt(width - elWidth) / parseInt(menuWidth)
-      ).toFixed(0)
-    },
-    // 菜单选择事件
-    handleSelect(key, keyPath) {
-      if (key.indexOf('http://') !== -1 || key.indexOf('https://') !== -1) {
-        // http(s):// 路径新窗口打开
-        window.open(key, '_blank')
-      } else {
-        this.activeRoutes(key)
-      }
-    },
-    // 当前激活的路由
-    activeRoutes(key) {
-      var routes = []
-      if (this.childrenMenus && this.childrenMenus.length > 0) {
-        this.childrenMenus.map((item) => {
-          if (key === item.parentPath || (key === 'index' && item.path === '')) {
-            routes.push(item)
-          }
-        })
-      }
-      // 有匹配结果才更新，避免空数组覆盖掉初始 sidebarRouters
-      if (routes.length > 0) {
-        usePermissionStore().setSidebarRouters(routes)
-      }
-    }
+const route = useRoute()
+const router = useRouter()
+const permission = usePermissionStore()
+const menus = computed(() => permission.topbarRouters.filter(item => !(item as { hidden?: boolean }).hidden))
+const activeMenu = computed(() => menus.value.find(item => route.path === item.path || route.path.startsWith(item.path + '/'))?.path || menus.value[0]?.path || '')
+const selectedSection = ref('')
+const setSection = (key: string) => {
+  selectedSection.value = key
+  const section = menus.value.find(item => item.path === key)
+  if (!section) return
+  const children = (section.children || []).filter(item => !(item as { hidden?: boolean }).hidden)
+  if (children.length) {
+    permission.setSidebarRouters(children.map(item => ({ ...item, path: isExternal(item.path) ? item.path : path.resolve(section.path, item.path) })))
+  } else permission.setSidebarRouters([section])
+}
+const select = (key: string) => {
+  if (isExternal(key)) window.open(key, '_blank', 'noopener,noreferrer')
+  else {
+    setSection(key)
+    const section = menus.value.find(item => item.path === key)
+    if (!section?.children?.length) router.push(key)
   }
 }
+watch(activeMenu, setSection, { immediate: true })
 </script>
-
-<style lang="scss" scoped>
-.el-menu--horizontal > .el-menu-item {
-  float: left;
-  height: 50px;
-  line-height: 50px;
-  margin: 0;
-  border-bottom: 3px solid transparent;
-  color: #999093;
-  padding: 0 5px;
-  margin: 0 10px;
-}
-
-.el-menu--horizontal > .el-menu-item.is-active {
-  border-bottom: 3px solid #409eff;
-  color: #303133;
-}
-</style>

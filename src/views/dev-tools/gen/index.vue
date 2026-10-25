@@ -2,54 +2,56 @@
   <PageContainer>
     <ProTable :table="table" selection row-key="tableId" :actions-width="170">
       <template #search>
-        <el-form-item :label="$t('devTools.gen.tableName')">
-          <el-input
+        <a-form-item :label="$t('devTools.gen.tableName')">
+          <a-input
             v-model="table.query.tableName"
             :placeholder="$t('devTools.gen.tableNamePlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
-        <el-form-item :label="$t('devTools.gen.tableComment')">
-          <el-input
+        </a-form-item>
+        <a-form-item :label="$t('devTools.gen.tableComment')">
+          <a-input
             v-model="table.query.tableComment"
             :placeholder="$t('devTools.gen.tableCommentPlaceholder')"
-            clearable
+            allow-clear
           />
-        </el-form-item>
+        </a-form-item>
       </template>
 
       <template #toolbar>
-        <el-button type="primary" @click="importVisible = true">{{ $t('devTools.gen.import') }}</el-button>
-        <el-button
-          type="danger"
-          plain
+        <a-button type="primary" @click="importVisible = true">{{ $t('devTools.gen.import') }}</a-button>
+        <a-button
+          status="danger"
           :disabled="table.multiple"
           @click="remove(table.selectedIds)"
-        >{{ $t('common.delete') }}</el-button>
+        >{{ $t('common.delete') }}</a-button>
       </template>
 
-      <el-table-column :label="$t('devTools.gen.tableId')" prop="tableId" width="70" />
-      <el-table-column
-        :label="$t('devTools.gen.tableName')"
-        prop="tableName"
-        min-width="150"
-        show-overflow-tooltip
+      <a-table-column :title="$t('devTools.gen.tableId')" data-index="tableId" :width="70" />
+      <a-table-column
+        :title="$t('devTools.gen.tableName')"
+        data-index="tableName"
+        :width="150"
+        ellipsis
+        tooltip
       />
-      <el-table-column
-        :label="$t('devTools.gen.tableComment')"
-        prop="tableComment"
-        min-width="150"
-        show-overflow-tooltip
+      <a-table-column
+        :title="$t('devTools.gen.tableComment')"
+        data-index="tableComment"
+        :width="150"
+        ellipsis
+        tooltip
       />
-      <el-table-column
-        :label="$t('devTools.gen.className')"
-        prop="className"
-        min-width="150"
-        show-overflow-tooltip
+      <a-table-column
+        :title="$t('devTools.gen.className')"
+        data-index="className"
+        :width="150"
+        ellipsis
+        tooltip
       />
-      <el-table-column :label="$t('common.createdAt')" prop="createdAt" min-width="110">
-        <template #default="{ row }"><DateCell :value="row.createdAt" /></template>
-      </el-table-column>
+      <a-table-column :title="$t('common.createdAt')" data-index="createdAt" :width="110">
+        <template #cell="{ record: row }"><DateCell :value="row.createdAt" /></template>
+      </a-table-column>
 
       <!--
         Six actions is four more than a pinned column can carry: at 340px it was
@@ -58,21 +60,21 @@
         the rest behind a menu.
       -->
       <template #actions="{ row }">
-        <el-button link type="primary" @click="edit(row)">{{ $t('devTools.gen.edit') }}</el-button>
-        <el-button link type="primary" @click="preview(row)">{{ $t('devTools.gen.preview') }}</el-button>
-        <el-dropdown trigger="click" @command="(command: Command) => run(command, row)">
-          <el-button link type="primary" class="row-icon-action" :title="$t('devTools.gen.moreActions')">
-            <el-icon><MoreFilled /></el-icon>
-          </el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="project">{{ $t('devTools.gen.generateToProject') }}</el-dropdown-item>
-              <el-dropdown-item command="db">{{ $t('devTools.gen.generateConfig') }}</el-dropdown-item>
-              <el-dropdown-item command="api">{{ $t('devTools.gen.generateMigration') }}</el-dropdown-item>
-              <el-dropdown-item command="delete" divided>{{ $t('common.delete') }}</el-dropdown-item>
-            </el-dropdown-menu>
+        <a-button type="text" @click="edit(row)">{{ $t('devTools.gen.edit') }}</a-button>
+        <a-button type="text" @click="preview(row)">{{ $t('devTools.gen.preview') }}</a-button>
+        <AppDropdown trigger="click" @select="(command: unknown) => run(command as Command, row)">
+          <a-button class="row-icon-action" :title="$t('devTools.gen.moreActions')" type="text">
+            <icon-more />
+          </a-button>
+          <template #content>
+
+            <a-doption value="project">{{ $t('devTools.gen.generateToProject') }}</a-doption>
+            <a-doption value="db">{{ $t('devTools.gen.generateConfig') }}</a-doption>
+            <a-doption value="api">{{ $t('devTools.gen.generateMigration') }}</a-doption>
+            <a-doption value="delete">{{ $t('common.delete') }}</a-doption>
+
           </template>
-        </el-dropdown>
+        </AppDropdown>
       </template>
     </ProTable>
 
@@ -81,21 +83,21 @@
       ever declared, so Vue warned on every render and the dialog never appeared:
       clicking Preview fetched every template and showed none of them.
     -->
-    <el-dialog
-      v-model="previewOpen"
+    <AppModal
+      v-model:visible="previewOpen"
       :title="$t('devTools.gen.previewTitle')"
       fullscreen
-      :close-on-click-modal="false"
+      :mask-closable="false"
     >
       <div class="gen-preview">
         <div class="gen-preview__tabs">
-          <el-tag
+          <a-tag
             v-for="name in templateNames"
             :key="name"
-            :type="name === activeTemplate ? 'primary' : 'info'"
+            :color="name === activeTemplate ? 'arcoblue' : 'gray'"
             class="gen-preview__tab"
             @click="activeTemplate = name"
-          >{{ shortName(name) }}</el-tag>
+          >{{ shortName(name) }}</a-tag>
         </div>
         <Codemirror
           :model-value="templates[activeTemplate] ?? ''"
@@ -104,19 +106,20 @@
           :style="{ height: 'calc(100vh - 210px)' }"
         />
       </div>
-    </el-dialog>
+    </AppModal>
 
     <ImportTable v-model="importVisible" @imported="table.search()" />
   </PageContainer>
 </template>
 
 <script setup lang="ts">
+import AppDropdown from '@/components/AppDropdown/index.vue'
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { Codemirror } from 'vue-codemirror'
-import { MoreFilled } from '@element-plus/icons-vue'
 
+import AppModal from '@/components/AppModal/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'

@@ -19,7 +19,7 @@ test.describe('list page layout', () => {
     await installApiMocks(page)
     await page.setViewportSize({ width: 1280, height: 720 })
     await page.goto('/#/admin/sys-role')
-    await page.waitForSelector('.el-table__row')
+    await page.waitForSelector('.arco-table tbody tr')
     await page.waitForTimeout(600)
   })
 
@@ -43,11 +43,11 @@ test.describe('list page layout', () => {
   })
 
   test('the search buttons sit at the right edge, over the table', async({ page }) => {
-    const table = await page.locator('.el-table').boundingBox()
+    const table = await page.locator('.arco-table').boundingBox()
     const actions = page.locator('.pro-table__search-actions')
     // The last button, not the cell holding it: a cell in the right-hand column
     // ends at the right edge whichever way its contents are packed.
-    const lastButton = await actions.locator('.el-button').last().boundingBox()
+    const lastButton = await actions.locator('.arco-btn').last().boundingBox()
 
     const buttonsEnd = lastButton!.x + lastButton!.width
     const tableEnd = table!.x + table!.width
@@ -60,7 +60,7 @@ test.describe('list page layout', () => {
 
   test('the search form stays on the left', async({ page }) => {
     const search = await page.locator('.pro-table__search').boundingBox()
-    const firstField = await page.locator('.pro-table__search .el-form-item').first().boundingBox()
+    const firstField = await page.locator('.pro-table__search .arco-form-item').first().boundingBox()
 
     // Filters are read left to right like the labels they carry; only the
     // actions moved.
@@ -73,7 +73,7 @@ test.describe('list page layout', () => {
    * hidden and the toggle is what brings it back.
    */
   test('filters past the first row are collapsed, and the toggle opens them', async({ page }) => {
-    const fields = page.locator('.pro-table__search .el-form-item')
+    const fields = page.locator('.pro-table__search .arco-form-item')
     await expect(fields).toHaveCount(3)
     await expect(fields.nth(2), 'the third filter is collapsed away').toBeHidden()
 
@@ -106,10 +106,10 @@ test.describe('a filter that needs two columns', () => {
     await installApiMocks(page)
     await page.setViewportSize({ width: 1280, height: 720 })
     await page.goto('/#/admin/sys-oper-log')
-    await page.waitForSelector('.el-table')
+    await page.waitForSelector('.arco-table')
     await page.waitForTimeout(600)
 
-    const fields = page.locator('.pro-table__search > .el-form-item')
+    const fields = page.locator('.pro-table__search > .arco-form-item')
     await expect(fields).toHaveCount(3)
     await expect(fields.nth(0), 'the range is declared first, so it survives').toBeVisible()
     await expect(fields.nth(1), 'nothing else fits beside it').toBeHidden()
@@ -133,9 +133,9 @@ test.describe('a search panel with room for every filter', () => {
     await page.setViewportSize({ width: 1280, height: 720 })
     // sys-menu has two filters, which fit beside the buttons at this width.
     await page.goto('/#/admin/sys-menu')
-    await page.waitForSelector('.el-table__row')
+    await page.waitForSelector('.arco-table tbody tr')
 
-    await expect(page.locator('.pro-table__search .el-form-item')).toHaveCount(2)
+    await expect(page.locator('.pro-table__search .arco-form-item')).toHaveCount(2)
     await expect(searchToggle(page)).toHaveCount(0)
   })
 })

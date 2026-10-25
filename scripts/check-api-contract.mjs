@@ -254,7 +254,7 @@ const note = (where, kind, keys) => {
 /** Every field name a page reads off a row, in either API style. */
 const rowFieldsIn = text => new Set([
   ...[...text.matchAll(/\b(?:scope\.row|row)\??\.(\w+)/g)].map(m => m[1]),
-  ...[...text.matchAll(/<el-table-column[^>]*?\bprop="(\w+)"/gs)].map(m => m[1])
+  ...[...text.matchAll(/<a-table-column[^>]*?\bdata-index="(\w+)"/gs)].map(m => m[1])
 ])
 
 const fixtures = readFileSync(join(UI, 'tests/e2e/mocked/fixtures.ts'), 'utf8')

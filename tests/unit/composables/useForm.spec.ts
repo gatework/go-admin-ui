@@ -1,5 +1,5 @@
 import { computed, nextTick, ref } from 'vue'
-import type { FormRules } from 'element-plus'
+import type { FormRules } from '@/types/ui'
 import { useForm } from '@/composables/useForm'
 import { i18n, setLocale } from '@/lang'
 import type { ApiResponse } from '@/types/api'
@@ -22,8 +22,8 @@ interface User {
 /** Stands in for the el-form instance the template would provide. */
 const formStub = (valid: boolean) => ({
   validate: valid
-    ? () => Promise.resolve(true)
-    : () => Promise.reject(new Error('invalid')),
+    ? () => Promise.resolve(undefined)
+    : () => Promise.resolve({ username: { message: 'invalid' }}),
   clearValidate: vi.fn(),
   resetFields: vi.fn()
 })
@@ -31,6 +31,54 @@ const formStub = (valid: boolean) => ({
 const defaultUser = (): User => ({ userId: undefined, username: '', nickName: '' })
 
 describe('useForm', () => {
+  it('rejects another submit while a successfully saved dialog is closing', async() => {
+    const add = vi.fn().mockResolvedValue(undefined)
+    const form = useForm<User, number>({ defaultModel: defaultUser, api: { add }})
+    form.openCreate()
+    expect(await form.submit()).toBe(true)
+    expect(await form.submit()).toBe(false)
+    expect(add).toHaveBeenCalledTimes(1)
+  })
+  it.each(['create', 'close', 'reset'])('invalidates pending details on %s', async(action) => {
+    const pending = deferred<ApiResponse<User>>()
+    const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { get: () => pending.promise }})
+    const opening = form.openEdit(1)
+    if (action === 'create') form.openCreate({ username: 'draft' })
+    else if (action === 'close') form.close()
+    else form.reset()
+    pending.resolve({ code: 200, msg: '', data: { userId: 1, username: 'old' }})
+    await opening
+    expect(form.model.username).toBe(action === 'create' ? 'draft' : '')
+    expect(form.visible).toBe(action === 'create')
+    expect(form.loading).toBe(false)
+  })
+
+  it('does not submit a new session after an old validation completes', async() => {
+    const validation = deferred<undefined>()
+    const add = vi.fn()
+    const form = useForm<User, number>({ defaultModel: defaultUser, api: { add }})
+    form.openCreate({ username: 'old' })
+    form.formRef = { ...formStub(true), validate: () => validation.promise } as never
+    const sending = form.submit()
+    form.openCreate({ username: 'new' })
+    validation.resolve(undefined)
+    expect(await sending).toBe(false)
+    expect(add).not.toHaveBeenCalled()
+  })
+
+  it('does not close a new draft when an earlier save completes', async() => {
+    const saving = deferred<void>()
+    const onSuccess = vi.fn()
+    const form = useForm<User, number>({ defaultModel: defaultUser, api: { add: () => saving.promise }, onSuccess })
+    form.openCreate({ username: 'old' })
+    const sending = form.submit()
+    form.openCreate({ username: 'new' })
+    saving.resolve()
+    await sending
+    expect(form.visible).toBe(true)
+    expect(form.model.username).toBe('new')
+    expect(onSuccess).toHaveBeenCalledWith(expect.objectContaining({ username: 'old' }))
+  })
   beforeEach(() => {
     vi.mocked(msgSuccess).mockClear()
   })
@@ -200,7 +248,7 @@ describe('useForm', () => {
       // :rules="form.rules" and nothing else changes.
       const chinese = ref(true)
       const rules = computed<FormRules>(() => ({
-        username: [{ required: true, message: chinese.value ? '用户名称不能为空' : 'Username is required' }]
+        username: [{ required: true, message: chinese.value ? '请填写用户名称' : 'Username is required' }]
       }))
 
       const form = useForm<User, number>({
@@ -210,7 +258,7 @@ describe('useForm', () => {
       })
 
       const message = () => (form.rules?.username as Array<{ message: string }>)[0].message
-      expect(message()).toBe('用户名称不能为空')
+      expect(message()).toBe('请填写用户名称')
 
       chinese.value = false
       expect(message()).toBe('Username is required')
@@ -221,12 +269,12 @@ describe('useForm', () => {
       // working untouched.
       const form = useForm<User, number>({
         defaultModel: defaultUser,
-        rules: { username: [{ required: true, message: '用户名称不能为空' }] },
+        rules: { username: [{ required: true, message: '请填写用户名称' }] },
         submit: () => Promise.resolve()
       })
 
       expect((form.rules?.username as Array<{ message: string }>)[0].message)
-        .toBe('用户名称不能为空')
+        .toBe('请填写用户名称')
     })
   })
 
@@ -327,7 +375,7 @@ describe('useForm', () => {
     // The existing in-flight test cannot see it: with no form attached there is
     // no await before the flag is set.
     it('refuses a second submit while the first is still validating', async() => {
-      const gate = deferred<boolean>()
+      const gate = deferred<undefined>()
       const add = vi.fn().mockResolvedValue(undefined)
       const form = useForm<User, number>({ defaultModel: defaultUser, idKey: 'userId', api: { add }})
 
@@ -341,7 +389,7 @@ describe('useForm', () => {
       const first = form.submit()
       const second = form.submit()
 
-      gate.resolve(true)
+      gate.resolve(undefined)
 
       expect(await first).toBe(true)
       expect(await second).toBe(false)

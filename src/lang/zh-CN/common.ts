@@ -1,15 +1,4 @@
-/**
- * Words that appear on more than one page.
- *
- * Kept small on purpose: an entry here that only one page uses is harder to
- * find than one sitting next to that page's other text, and
- * scripts/check-i18n-usage.mjs reports it as dead. Add a word here when the
- * second page needs it, not in anticipation.
- *
- * Every Chinese value must be byte-for-byte what the interface renders today --
- * PRD R5. The 309 Chinese assertions in the e2e suite are the check, and they
- * are not being touched.
- */
+/** Shared interface labels and recovery messages. */
 export default {
   confirm: '确定',
   cancel: '取消',
@@ -29,15 +18,13 @@ export default {
   add: '新增',
   edit: '修改',
   delete: '删除',
+  enable: '启用',
+  disable: '停用',
   export: '导出',
   createdAt: '创建时间',
 
-  // The dialog footer's pair, which is NOT the same string as confirm/cancel
-  // above: Element Plus's own message box renders 确定/取消, while the footer of
-  // a two-character Chinese button is spaced by convention. The e2e suite
-  // matches on both spellings, so collapsing them would change what renders.
-  // English has no such convention, so both spellings translate to one word.
-  dialogConfirm: '确 定',
+  // Data-entry forms save; confirmations can name their own action.
+  dialogConfirm: '保存',
   dialogCancel: '取 消',
 
   // What utils/request.ts says when a request cannot be completed. They sit
@@ -47,24 +34,21 @@ export default {
   systemNotice: '系统提示',
   relogin: '重新登录',
   sessionExpired: '登录状态已过期',
-  sessionExpiredPrompt: '登录状态已过期，您可以继续留在该页面，或者重新登录',
-  networkError: '服务器连接异常，请检查服务器！',
+  sessionExpiredPrompt: '登录已过期，请重新登录后继续操作。取消后将留在当前页面。',
+  networkError: '无法连接服务器，请检查网络后重试；若仍失败，请联系管理员。',
 
   // What the router guard reports when the menu cannot be built -- stores/
   // permission.ts throws it, src/permission.js turns it into a toast. Same
   // reason as the block above: the guard runs before any page exists.
-  menuLoadFailed: '菜单数据加载异常',
+  menuLoadFailed: '菜单加载失败，请刷新页面重试；若仍失败，请联系管理员。',
 
   // Shown by components/AppNotInstalled when the menu names a component this
   // build does not contain. Same nature as menuLoadFailed above -- it belongs
   // to route resolution rather than to any one page, so there is no directory
   // under src/views for it to mirror.
-  appNotInstalled: '该功能所属的应用未安装',
+  appNotInstalled: '此功能暂不可用，请联系管理员检查应用安装和菜单配置。',
 
-  // The guard's last resort, for a throw that carried no message of its own.
-  // 'Has Error' is what renders today in both languages -- it is a placeholder
-  // left in the original code, not copy, and R5 keeps the Chinese value equal
-  // to what ships. Writing a real Chinese sentence here is a copy change, not a
-  // translation, so it is deliberately left alone.
-  unknownError: 'Has Error'
+  // Fallback when no more specific failure message is available.
+  unknownError: '操作未完成，请重试；若仍失败，请联系管理员。',
+  requestTimeout: '请求超时，请稍后重试。'
 }

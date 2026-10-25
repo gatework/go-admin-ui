@@ -1,6 +1,6 @@
 <template>
   <div class="app-not-installed">
-    <el-empty :image-size="80" :description="$t('common.appNotInstalled')" />
+    <a-empty  :description="$t('common.appNotInstalled')" />
   </div>
 </template>
 

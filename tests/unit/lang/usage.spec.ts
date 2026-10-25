@@ -55,8 +55,10 @@ const usedKeys = (): Map<string, string> => {
   return found
 }
 
+// Motor includes literal dotted keys with a value and child keys (theme + theme.description).
+// Match vue-i18n's exact-key lookup before traversing nested project messages.
 const resolve = (pack: unknown, key: string): unknown =>
-  key.split('.').reduce<unknown>(
+  (pack && typeof pack === 'object' && Object.hasOwn(pack, key) ? (pack as Record<string, unknown>)[key] : undefined) ?? key.split('.').reduce<unknown>(
     (node, part) =>
       typeof node === 'object' && node !== null
         ? (node as Record<string, unknown>)[part]
