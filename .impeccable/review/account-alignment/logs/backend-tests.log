@@ -1,0 +1,51 @@
+go test -race -cover ./...
+	go-admin		coverage: 0.0% of statements
+ok  	go-admin/app/admin/apis	1.120s	coverage: 1.5% of statements
+ok  	go-admin/app/admin/models	5.820s	coverage: 16.1% of statements
+	go-admin/app/admin/router		coverage: 0.0% of statements
+ok  	go-admin/app/admin/service	2.158s	coverage: 12.0% of statements
+ok  	go-admin/app/admin/service/dto	1.077s	coverage: 0.0% of statements
+	go-admin/app/demo/models		coverage: 0.0% of statements
+	go-admin/app/demo/router		coverage: 0.0% of statements
+ok  	go-admin/app/demo/service/dto	1.054s	coverage: 25.0% of statements
+ok  	go-admin/app/jobs	4.386s	coverage: 52.1% of statements
+	go-admin/app/jobs/apis		coverage: 0.0% of statements
+	go-admin/app/jobs/models		coverage: 0.0% of statements
+	go-admin/app/jobs/router		coverage: 0.0% of statements
+ok  	go-admin/app/jobs/service	2.084s	coverage: 24.5% of statements
+	go-admin/app/jobs/service/dto		coverage: 0.0% of statements
+ok  	go-admin/app/other/apis	1.058s	coverage: 4.1% of statements
+ok  	go-admin/app/other/apis/tools	1.188s	coverage: 36.1% of statements
+ok  	go-admin/app/other/models/tools	1.076s	coverage: 42.5% of statements
+ok  	go-admin/app/other/router	1.124s	coverage: 44.4% of statements
+?   	go-admin/app/other/service/dto	[no test files]
+	go-admin/cmd		coverage: 0.0% of statements
+ok  	go-admin/cmd/api	13.335s	coverage: 37.4% of statements
+	go-admin/cmd/app		coverage: 0.0% of statements
+	go-admin/cmd/config		coverage: 0.0% of statements
+ok  	go-admin/cmd/migrate	2.291s	coverage: 69.7% of statements
+ok  	go-admin/cmd/migrate/migration	1.075s	coverage: 87.1% of statements
+	go-admin/cmd/migrate/migration/models		coverage: 0.0% of statements
+ok  	go-admin/cmd/migrate/migration/version	2.068s	coverage: 49.6% of statements
+	go-admin/cmd/migrate/migration/version-local			go-admin/cmd/version		coverage: 0.0% of statements
+	go-admin/common		coverage: 0.0% of statements
+ok  	go-admin/common/account	8.420s	coverage: 63.9% of statements
+ok  	go-admin/common/actions	4.606s	coverage: 74.8% of statements
+	go-admin/common/apis		coverage: 0.0% of statements
+ok  	go-admin/common/database	1.067s	coverage: 61.5% of statements
+ok  	go-admin/common/dto	1.071s	coverage: 0.0% of statements
+ok  	go-admin/common/file_store	1.009s	coverage: 20.4% of statements
+	go-admin/common/global		coverage: 0.0% of statements
+ok  	go-admin/common/health	1.033s	coverage: 86.9% of statements
+ok  	go-admin/common/logincaptcha	1.848s	coverage: 88.9% of statements
+ok  	go-admin/common/middleware	1.121s	coverage: 58.0% of statements
+ok  	go-admin/common/middleware/handler	1.407s	coverage: 55.9% of statements
+?   	go-admin/common/models	[no test files]
+	go-admin/common/response		coverage: 0.0% of statements
+	go-admin/common/service		coverage: 0.0% of statements
+ok  	go-admin/common/storage	1.460s	coverage: 96.2% of statements
+ok  	go-admin/config	1.019s	coverage: 100.0% of statements
+	go-admin/docs/admin		coverage: 0.0% of statements
+ok  	go-admin/test	1.005s	coverage: [no statements]
+ok  	go-admin/test/loadtest	1.009s	coverage: [no statements]
+ok  	go-admin/tools/checksilent	1.497s	coverage: 88.7% of statements

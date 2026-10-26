@@ -1,0 +1,100 @@
+[
+  {
+    "theme": "light",
+    "preset": "default",
+    "normal": 9.25,
+    "hover": 8.7,
+    "active": 14.53
+  },
+  {
+    "theme": "light",
+    "preset": "violet",
+    "normal": 11.64,
+    "hover": 10.96,
+    "active": 14.53
+  },
+  {
+    "theme": "light",
+    "preset": "pink",
+    "normal": 7.92,
+    "hover": 7.46,
+    "active": 14.53
+  },
+  {
+    "theme": "light",
+    "preset": "yellow",
+    "normal": 12.75,
+    "hover": 12,
+    "active": 14.53
+  },
+  {
+    "theme": "light",
+    "preset": "sky",
+    "normal": 11.44,
+    "hover": 10.77,
+    "active": 14.53
+  },
+  {
+    "theme": "light",
+    "preset": "mint",
+    "normal": 9.79,
+    "hover": 9.21,
+    "active": 14.53
+  },
+  {
+    "theme": "light",
+    "preset": "zinc",
+    "normal": 10.74,
+    "hover": 10.11,
+    "active": 14.53
+  },
+  {
+    "theme": "dark",
+    "preset": "default",
+    "normal": 5.59,
+    "hover": 5.03,
+    "active": 11.32
+  },
+  {
+    "theme": "dark",
+    "preset": "violet",
+    "normal": 5.52,
+    "hover": 4.97,
+    "active": 11.32
+  },
+  {
+    "theme": "dark",
+    "preset": "pink",
+    "normal": 5.92,
+    "hover": 5.32,
+    "active": 11.32
+  },
+  {
+    "theme": "dark",
+    "preset": "yellow",
+    "normal": 11.4,
+    "hover": 10.25,
+    "active": 11.32
+  },
+  {
+    "theme": "dark",
+    "preset": "sky",
+    "normal": 5.66,
+    "hover": 5.09,
+    "active": 11.32
+  },
+  {
+    "theme": "dark",
+    "preset": "mint",
+    "normal": 8.97,
+    "hover": 8.06,
+    "active": 11.32
+  },
+  {
+    "theme": "dark",
+    "preset": "zinc",
+    "normal": 6.09,
+    "hover": 5.48,
+    "active": 11.32
+  }
+]

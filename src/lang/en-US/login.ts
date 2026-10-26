@@ -1,4 +1,5 @@
 export default {
+  skipToForm: 'Skip to account form',
   subtitle: 'Sign in to motor with your username and password.',
   // The field is 账号 in Chinese but binds to `username`, and Username is what
   // a browser password manager expects to see next to it.
@@ -11,7 +12,7 @@ export default {
   captchaRefresh: 'Refresh verification code',
   submit: 'Sign in',
   submitting: 'Signing in',
-  forgotPassword: 'Contact the system administrator to reset your password',
+  forgotPassword: 'Forgot password',
   terminalAlt: 'motor startup sequence',
   rules: {
     username: 'Username is required',

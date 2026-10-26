@@ -1,0 +1,213 @@
+
+> go-admin@3.4.0 lint /workspace/go-admin-ui
+> eslint src tests
+
+
+/workspace/go-admin-ui/src/components/AppDrawer/index.vue
+  25:60  warning  Prop 'title' requires default value to be set  vue/require-default-prop
+
+/workspace/go-admin-ui/src/components/AppNotInstalled/index.vue
+  3:13  warning  Multiple spaces found before ':'  vue/no-multi-spaces
+
+/workspace/go-admin-ui/src/components/Breadcrumb/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/components/Charts/Keyboard.vue
+  1:1  warning  Component name "Keyboard" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/components/ErrorLog/index.vue
+  56:3  warning  The "name" property should be above the "components" property on line 55  vue/order-in-components
+
+/workspace/go-admin-ui/src/components/GithubCorner/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/components/IconSelect/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/components/ImageCropper/index.vue
+    1:1   warning  Component name "index" should always be multi-word                                     vue/multi-word-component-names
+  413:20  warning  The "input" event has been triggered but not declared on `emits` option                vue/require-explicit-emits
+  414:20  warning  The "close" event has been triggered but not declared on `emits` option                vue/require-explicit-emits
+  752:18  warning  The "crop-success" event has been triggered but not declared on `emits` option         vue/require-explicit-emits
+  800:22  warning  The "crop-upload-success" event has been triggered but not declared on `emits` option  vue/require-explicit-emits
+  807:24  warning  The "crop-upload-fail" event has been triggered but not declared on `emits` option     vue/require-explicit-emits
+
+/workspace/go-admin-ui/src/components/MenuIcon/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/components/TopNav/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/components/Trend/index.vue
+  15:5  warning  Prop "rate" should be optional  vue/no-required-prop-with-default
+  20:5  warning  Prop "flag" should be optional  vue/no-required-prop-with-default
+
+/workspace/go-admin-ui/src/components/brand/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/components/footer/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/components/global-setting/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/components/layout.vue
+  11:9  warning  Component name "Layout" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/components/lock-screen/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/components/user-identity/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/components/watermark-overlay/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/layout/components/Navbar.vue
+  1:1   warning  Component name "Navbar" should always be multi-word  vue/multi-word-component-names
+  9:45  warning  Attribute "v-if" should go before "id"               vue/attributes-order
+
+/workspace/go-admin-ui/src/layout/components/Settings/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/layout/components/Sidebar/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/layout/components/TagsView/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/layout/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/main.js
+  68:15  warning  Component name "Pagination" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/views/admin/dict/index.vue
+  161:23  warning  Component name "Dict" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/views/dashboard/admin/components/TodoList/index.vue
+  1:1  warning  Component name "index" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/views/dashboard/index.vue
+  14:9  warning  Component name "Dashboard" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/views/dev-tools/build/index.vue
+  16:23  warning  Component name "Build" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/views/dev-tools/gen/index.vue
+  136:23  warning  Component name "Gen" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/views/dev-tools/swagger/index.vue
+  19:9  warning  Component name "Swagger" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/views/error-page/404.vue
+  25:9  warning  Component name "Page404" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/views/log/index.vue
+  22:23  warning  Component name "Log" should always be multi-word  vue/multi-word-component-names
+
+/workspace/go-admin-ui/src/views/profile/index.vue
+  62:23  warning  Component name "Profile" should always be multi-word  vue/multi-word-component-names
+
+✖ 40 problems (0 errors, 40 warnings)
+  0 errors and 3 warnings potentially fixable with the `--fix` option.
+
+
+> go-admin@3.4.0 type-check /workspace/go-admin-ui
+> vue-tsc --noEmit && tsc -p tsconfig.node.json
+
+
+> go-admin@3.4.0 test:unit /workspace/go-admin-ui
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/workspace/go-admin-ui[39m
+
+ [32m✓[39m tests/unit/scripts/sync-apps.spec.js [2m([22m[2m5 tests[22m[2m)[22m[32m 156[2mms[22m[39m
+ [32m✓[39m tests/unit/components/RightPanel.spec.js [2m([22m[2m2 tests[22m[2m)[22m[32m 168[2mms[22m[39m
+ [32m✓[39m tests/unit/composables/useRemove.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 157[2mms[22m[39m
+ [32m✓[39m tests/unit/composables/useTreePicker.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 429[2mms[22m[39m
+       [33m[2m✓[22m[39m follows the language when given the computed the pages pass [33m 414[2mms[22m[39m
+ [32m✓[39m tests/unit/composables/useForm.spec.ts [2m([22m[2m39 tests[22m[2m)[22m[32m 146[2mms[22m[39m
+ [32m✓[39m tests/unit/lang/coverage.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m tests/unit/views/form-builder-frame.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 456[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/modal.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+ [32m✓[39m tests/unit/store/permission.spec.js [2m([22m[2m24 tests[22m[2m)[22m[32m 108[2mms[22m[39m
+ [32m✓[39m tests/unit/lang/backend.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m tests/unit/composables/useTable.spec.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m tests/unit/store/preferences.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m tests/unit/components/SvgIcon.spec.js [2m([22m[2m2 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m tests/unit/lang/set-locale.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+[90mstderr[2m | tests/unit/components/LangSelect.spec.ts[2m > [22m[2mLangSelect[2m > [22m[2moffers every language when the visitor is the one deciding
+[22m[39m[Vue warn]: Failed to resolve component: icon-language
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <LangSelect ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: a-tooltip
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <HeaderIconButton type="button" class="lang-select" title="语言"  ... > 
+  at <Anonymous key=0 trigger="click" onSelect=fn<choose> > 
+  at <LangSelect ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+[90mstderr[2m | tests/unit/components/LangSelect.spec.ts[2m > [22m[2mLangSelect[2m > [22m[2mrenders nothing at all when the build is pinned
+[22m[39m[Vue warn]: Failed to resolve component: icon-language
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <LangSelect ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+ [32m✓[39m tests/unit/components/LangSelect.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m tests/unit/directive/permission.spec.js [2m([22m[2m3 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m tests/unit/directive/permisaction.spec.js [2m([22m[2m3 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m tests/unit/build/tailwind-prefix.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m tests/unit/composables/useDict.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m tests/unit/components/Hamburger.spec.js [2m([22m[2m2 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m tests/unit/views/auth-redirect.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m tests/unit/lang/gen-namespace.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+[90mstdout[2m | tests/unit/utils/request.spec.ts[2m > [22m[2mrequest response interceptor[2m > [22m[2mexplains a timeout without exposing the Axios timeout string
+[22m[39merr[object Object]
+
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+ [32m✓[39m tests/unit/utils/request.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/lang/parity.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/layout/keep-alive-cache.spec.js [2m([22m[2m4 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m tests/unit/store/tagsView.spec.js [2m([22m[2m12 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/store/errorLog.spec.js [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/layout/SidebarItem.spec.js [2m([22m[2m3 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/theme-color.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m tests/unit/components/Pagination.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m tests/unit/views/login-form.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 221[2mms[22m[39m
+ [32m✓[39m tests/unit/components/protable-mobile-state.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 241[2mms[22m[39m
+ [32m✓[39m tests/unit/lang/usage.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/views/account-access.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 431[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/preference-time.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m tests/unit/build/google-analytics.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m tests/unit/build/fixed-locale.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m tests/unit/lang/locales.spec.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/build/chunking.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/store/app.spec.js [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/components/protable-columns.spec.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/store/user.spec.js [2m([22m[2m12 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/costumParseTime.spec.js [2m([22m[2m8 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/analytics.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/store/settings.spec.js [2m([22m[2m4 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/store/system.spec.js [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m tests/unit/components/protable-search.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/workbook.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/arco-theme.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/login-appearance.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/validate.spec.js [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/formatTime.spec.js [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/app-meta.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/parseTime.spec.js [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/route.spec.js [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/api/gen.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m56 passed[39m[22m[90m (56)[39m
+[2m      Tests [22m [1m[32m400 passed[39m[22m[90m (400)[39m
+[2m   Start at [22m 03:22:23
+[2m   Duration [22m 6.74s[2m (transform 13.81s, setup 5.47s, import 19.74s, tests 3.43s, environment 24.39s)[22m
+

@@ -86,4 +86,13 @@ describe('trackPageView', () => {
 
     expect(gtag.mock.calls[0][2]).toMatchObject({ page_title: '用户管理 - go-admin' })
   })
+
+  it.each(['/register', '/forgot-password', '/reset-password', '/reset-password/'])('does not report secrets or email from %s', path => {
+    const gtag = vi.fn()
+    window.gtag = gtag
+    const query = '?email=member%40example.test&token=one-use-secret'
+    vi.stubGlobal('location', new URL(`https://demo.go-admin.dev/${query}#${path}${query}`))
+    trackPageView(`${path}${query}`)
+    expect(gtag).not.toHaveBeenCalled()
+  })
 })

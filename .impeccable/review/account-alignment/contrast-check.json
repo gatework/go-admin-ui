@@ -1,0 +1,156 @@
+[
+  {
+    "theme": "light",
+    "preset": "default",
+    "button": 6.22,
+    "subtitle": 7.1,
+    "placeholder": 6.4,
+    "link": 9.25,
+    "footer": 7.1,
+    "hover": 9.25,
+    "active": 13.26
+  },
+  {
+    "theme": "light",
+    "preset": "violet",
+    "button": 7.71,
+    "subtitle": 7.1,
+    "placeholder": 6.4,
+    "link": 11.64,
+    "footer": 7.1,
+    "hover": 11.64,
+    "active": 15.71
+  },
+  {
+    "theme": "light",
+    "preset": "pink",
+    "button": 5.39,
+    "subtitle": 7.1,
+    "placeholder": 6.4,
+    "link": 7.92,
+    "footer": 7.1,
+    "hover": 7.92,
+    "active": 11.45
+  },
+  {
+    "theme": "light",
+    "preset": "yellow",
+    "button": 7.66,
+    "subtitle": 7.1,
+    "placeholder": 6.4,
+    "link": 12.75,
+    "footer": 7.1,
+    "hover": 12.75,
+    "active": 12.75
+  },
+  {
+    "theme": "light",
+    "preset": "sky",
+    "button": 7.45,
+    "subtitle": 7.1,
+    "placeholder": 6.4,
+    "link": 11.44,
+    "footer": 7.1,
+    "hover": 11.44,
+    "active": 15.61
+  },
+  {
+    "theme": "light",
+    "preset": "mint",
+    "button": 6.44,
+    "subtitle": 7.1,
+    "placeholder": 6.4,
+    "link": 9.79,
+    "footer": 7.1,
+    "hover": 9.79,
+    "active": 9.79
+  },
+  {
+    "theme": "light",
+    "preset": "zinc",
+    "button": 7.73,
+    "subtitle": 7.1,
+    "placeholder": 6.4,
+    "link": 10.74,
+    "footer": 7.1,
+    "hover": 10.74,
+    "active": 14
+  },
+  {
+    "theme": "dark",
+    "preset": "default",
+    "button": 6.22,
+    "subtitle": 8.89,
+    "placeholder": 7.5,
+    "link": 5.59,
+    "footer": 8.89,
+    "hover": 9.25,
+    "active": 13.26
+  },
+  {
+    "theme": "dark",
+    "preset": "violet",
+    "button": 7.71,
+    "subtitle": 8.89,
+    "placeholder": 7.5,
+    "link": 5.52,
+    "footer": 8.89,
+    "hover": 11.64,
+    "active": 15.71
+  },
+  {
+    "theme": "dark",
+    "preset": "pink",
+    "button": 5.39,
+    "subtitle": 8.89,
+    "placeholder": 7.5,
+    "link": 5.92,
+    "footer": 8.89,
+    "hover": 7.92,
+    "active": 11.45
+  },
+  {
+    "theme": "dark",
+    "preset": "yellow",
+    "button": 7.66,
+    "subtitle": 8.89,
+    "placeholder": 7.5,
+    "link": 11.4,
+    "footer": 8.89,
+    "hover": 12.75,
+    "active": 12.75
+  },
+  {
+    "theme": "dark",
+    "preset": "sky",
+    "button": 7.45,
+    "subtitle": 8.89,
+    "placeholder": 7.5,
+    "link": 5.66,
+    "footer": 8.89,
+    "hover": 11.44,
+    "active": 15.61
+  },
+  {
+    "theme": "dark",
+    "preset": "mint",
+    "button": 6.44,
+    "subtitle": 8.89,
+    "placeholder": 7.5,
+    "link": 8.97,
+    "footer": 8.89,
+    "hover": 9.79,
+    "active": 9.79
+  },
+  {
+    "theme": "dark",
+    "preset": "zinc",
+    "button": 7.73,
+    "subtitle": 8.89,
+    "placeholder": 7.5,
+    "link": 6.09,
+    "footer": 8.89,
+    "hover": 10.74,
+    "active": 14
+  }
+]

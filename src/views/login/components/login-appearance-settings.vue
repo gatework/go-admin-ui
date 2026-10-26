@@ -1,269 +1,145 @@
 <template>
-  <div
-    class="login-color-picker"
-    role="group"
-    :aria-label="$t('login.appearance.color')"
-  >
-    <div class="login-color-picker__swatches">
-      <button
-        v-for="option in colorOptions"
-        :key="option.value"
-        type="button"
-        class="login-color-option"
-        :class="{
-          'login-color-option--active': appStore.themePreset === option.value,
-        }"
-        :style="{ '--login-color': option.color }"
-        :aria-label="$t(option.locale)"
-        :aria-pressed="appStore.themePreset === option.value"
-        @click="setColor(option.value)"
-      >
-        <icon-check v-if="appStore.themePreset === option.value" />
-      </button>
+  <div ref="region" class="login-appearance" :data-palette-open="paletteOpen" @pointerleave="scheduleClose">
+    <div class="login-tools" role="group" :aria-label="t('settings.title')">
+      <div v-if="paletteOpen" id="login-theme-colors" ref="palette" class="login-inline-palette" role="group" :aria-label="t('login.appearance.color')" @pointerenter="cancelClose" @keydown="navigatePalette">
+        <button v-for="option in colors" :key="option.value" type="button" :aria-label="t(option.locale)" :title="t(option.locale)" :aria-pressed="app.themePreset === option.value" @click="selectColor(option.value)">
+          <span :style="{ background: option.color, color: ['yellow', 'mint'].includes(option.value) ? '#1d2129' : '#fff' }"><icon-check v-if="app.themePreset === option.value" aria-hidden="true" /></span>
+        </button>
+      </div>
+      <a-button ref="paletteButton" type="text" shape="square" :title="t('login.appearance.color')" :aria-label="t('login.appearance.color')" :aria-expanded="paletteOpen" aria-controls="login-theme-colors" @click="togglePalette" @pointerenter="hoverPalette" @keydown.down.prevent="openPalette(true)"><icon-palette /></a-button>
+      <AppDropdown v-if="!compact" trigger="click" position="br" @select="selectPosition">
+        <a-button type="text" shape="square" :title="t('login.appearance.layout')" :aria-label="t('login.appearance.layout')" @click="closePalette()"><icon-layout /></a-button>
+        <template #content>
+          <a-doption v-for="value in positions" :key="value" :value="value">
+            <span class="login-layout-preview" :class="`is-${value}`" aria-hidden="true" />
+            <span>{{ t(`login.appearance.layout.${value}`) }}</span>
+            <icon-check v-if="position === value" aria-hidden="true" />
+          </a-doption>
+        </template>
+      </AppDropdown>
+      <LangSelect id="lang-select" @click="closePalette()" />
+      <a-button type="text" shape="square" :title="themeLabel" :aria-label="themeLabel" :aria-pressed="app.darkMode" @click="toggleTheme"><icon-sun v-if="app.darkMode" /><icon-moon v-else /></a-button>
     </div>
-    <HeaderIconButton :aria-label="$t('login.appearance.color')" motion="pulse">
-      <icon-palette />
-    </HeaderIconButton>
   </div>
-  <AppDropdown trigger="click" position="br">
-    <HeaderIconButton
-      :tooltip="$t('login.appearance.layout')"
-      :aria-label="$t('login.appearance.layout')"
-      motion="lift"
-    >
-      <icon-layout />
-    </HeaderIconButton>
-    <template #content>
-      <section class="login-appearance-menu login-appearance-menu--layout">
-        <p class="login-appearance-menu__label">
-          {{ $t('login.appearance.layout') }}
-        </p>
-        <div class="login-appearance-menu__layouts" role="group">
-          <button
-            v-for="option in layoutOptions"
-            :key="option.value"
-            type="button"
-            class="login-layout-option"
-            :class="{
-              'login-layout-option--active':
-                appearance.formPosition === option.value,
-            }"
-            :aria-label="$t(option.label)"
-            :aria-pressed="appearance.formPosition === option.value"
-            @click="setPosition(option.value)"
-          >
-            <span
-              class="login-layout-option__preview"
-              :class="`login-layout-option__preview--${option.value}`"
-              aria-hidden="true"
-            ><i /><b /></span>
-            <strong>{{ $t(option.label) }}</strong>
-          </button>
-        </div>
-      </section>
-    </template>
-  </AppDropdown>
 </template>
 
-<script lang="ts" setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { Button as AButton } from '@arco-design/web-vue'
 import AppDropdown from '@/components/AppDropdown/index.vue'
+import LangSelect from '@/components/LangSelect/index.vue'
 import { THEME_PRESETS, type ThemePreset } from '@/config/theme-presets'
-import HeaderIconButton from '@/components/header-icon-button/index.vue'
-import { usePreferencesStore as useAppStore } from '@/stores/preferences'
-import {
-  persistLoginAppearance,
-  readLoginAppearance,
-  type LoginFormPosition
-} from '@/utils/login-appearance'
+import { usePreferencesStore } from '@/stores/preferences'
+import type { LoginFormPosition } from '@/utils/login-appearance'
 
-const appStore = useAppStore()
-const appearance = ref(readLoginAppearance())
-const loginColorPresets: ThemePreset[] = [
-  'default',
-  'violet',
-  'pink',
-  'yellow',
-  'sky',
-  'mint',
-  'zinc'
-]
-const colorOptions = THEME_PRESETS.filter(
-  (option): option is (typeof THEME_PRESETS)[number] & { color: string } =>
-    loginColorPresets.includes(option.value) && Boolean(option.color)
-)
-const layoutOptions: Array<{
-  value: LoginFormPosition;
-  label: string;
-}> = [
-  { value: 'left', label: 'login.appearance.layout.left' },
-  { value: 'center', label: 'login.appearance.layout.center' },
-  { value: 'right', label: 'login.appearance.layout.right' }
-]
-
-const setPosition = (formPosition: LoginFormPosition) => {
-  appearance.value = { formPosition }
-  persistLoginAppearance(appearance.value)
-  window.dispatchEvent(
-    new CustomEvent<LoginFormPosition>('motor:login-form-position', {
-      detail: formPosition
-    })
-  )
+defineProps<{ position: LoginFormPosition }>()
+const emit = defineEmits<{ positionChange: [value: LoginFormPosition] }>()
+const { t } = useI18n()
+const app = usePreferencesStore()
+const region = ref<HTMLElement>()
+const palette = ref<HTMLElement>()
+const paletteButton = ref<InstanceType<typeof AButton>>()
+const paletteOpen = ref(false)
+const compact = ref(false)
+const colors = THEME_PRESETS.slice(0, 7)
+const positions: LoginFormPosition[] = ['left', 'center', 'right']
+const themeLabel = computed(() => t(app.darkMode ? 'settings.navbar.theme.toLight' : 'settings.navbar.theme.toDark'))
+let hovered = false
+let hoverBlockedUntil = 0
+let closeTimer: ReturnType<typeof setTimeout> | undefined
+let removeMedia: (() => void) | undefined
+const cancelClose = () => { clearTimeout(closeTimer); closeTimer = undefined }
+function closePalette(restoreFocus = false) {
+  cancelClose()
+  paletteOpen.value = false
+  hovered = false
+  if (restoreFocus) {
+    hoverBlockedUntil = performance.now() + 250
+    paletteButton.value?.$el.focus()
+  }
 }
-const setColor = (themePreset: ThemePreset) =>
-  appStore.updateSettings({ themePreset })
+async function openPalette(keyboard = false) {
+  cancelClose()
+  paletteOpen.value = true
+  if (keyboard) {
+    hovered = false
+    await nextTick()
+    const selected = palette.value?.querySelector<HTMLButtonElement>('button[aria-pressed="true"]') || palette.value?.querySelector<HTMLButtonElement>('button')
+    selected?.focus()
+  }
+}
+function togglePalette(event: MouseEvent) {
+  if (paletteOpen.value && !hovered) closePalette(true)
+  else { hovered = false; void openPalette(event.detail === 0) }
+}
+function hoverPalette(event: PointerEvent) {
+  if (event.pointerType !== 'mouse' || performance.now() < hoverBlockedUntil || !window.matchMedia('(hover: hover)').matches) return
+  cancelClose()
+  if (!paletteOpen.value) { hovered = true; void openPalette() }
+}
+function scheduleClose() {
+  if (paletteOpen.value && hovered) { cancelClose(); closeTimer = setTimeout(() => closePalette(), 180) }
+}
+function selectColor(themePreset: ThemePreset) {
+  app.updateSettings({ themePreset })
+  closePalette(true)
+}
+function selectPosition(value: unknown) {
+  if (positions.includes(value as LoginFormPosition)) emit('positionChange', value as LoginFormPosition)
+}
+function toggleTheme() { closePalette(); app.toggleTheme() }
+function outside(event: PointerEvent) {
+  if (event.target instanceof Node && !region.value?.contains(event.target)) closePalette()
+}
+function escape(event: KeyboardEvent) {
+  if (event.key === 'Escape' && paletteOpen.value) { event.preventDefault(); closePalette(true) }
+}
+function navigatePalette(event: KeyboardEvent) {
+  const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']
+  if (!keys.includes(event.key)) return
+  event.preventDefault()
+  cancelClose()
+  hovered = false
+  const buttons = Array.from(palette.value?.querySelectorAll<HTMLButtonElement>('button') || [])
+  const current = buttons.indexOf(document.activeElement as HTMLButtonElement)
+  const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (current + (['ArrowLeft', 'ArrowUp'].includes(event.key) ? -1 : 1) + buttons.length) % buttons.length
+  buttons[next]?.focus()
+}
+onMounted(() => {
+  const media = window.matchMedia('(max-width: 1120px)')
+  const update = () => { compact.value = media.matches; closePalette() }
+  update()
+  media.addEventListener('change', update)
+  removeMedia = () => media.removeEventListener('change', update)
+  document.addEventListener('pointerdown', outside)
+  document.addEventListener('keydown', escape)
+})
+onBeforeUnmount(() => {
+  cancelClose(); removeMedia?.()
+  document.removeEventListener('pointerdown', outside)
+  document.removeEventListener('keydown', escape)
+})
 </script>
 
-<style lang="scss" scoped>
-  .login-appearance-menu {
-    width: 278px;
-    padding: 16px;
-  }
-  .login-appearance-menu--layout {
-    width: 300px;
-  }
-  .login-appearance-menu__label {
-    margin: 0 0 10px;
-    color: var(--motor-text-3);
-    font-size: var(--motor-font-size-11);
-    font-weight: 650;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .login-appearance-menu__layouts {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 18px;
-  }
-  .login-layout-option {
-    display: grid;
-    gap: 7px;
-    justify-items: center;
-    padding: 8px 4px;
-    border: 1px solid var(--motor-border);
-    border-radius: var(--motor-radius-sm);
-    background: var(--motor-surface-soft);
-    color: var(--motor-text-2);
-    cursor: pointer;
-    font-size: var(--motor-font-size-11);
-    transition:
-      border-color 0.16s ease,
-      background-color 0.16s ease,
-      color 0.16s ease,
-      transform 0.16s ease;
-
-    &:hover,
-    &--active {
-      border-color: var(--motor-primary);
-      color: var(--motor-primary);
-    }
-    &--active {
-      background: var(--motor-primary-soft);
-    }
-    &:focus-visible {
-      outline: 2px solid var(--motor-primary);
-      outline-offset: 2px;
-    }
-    &:active {
-      transform: scale(0.97);
-    }
-  }
-  .login-layout-option__preview {
-    display: flex;
-    width: 48px;
-    height: 28px;
-    padding: 3px;
-    gap: 3px;
-    border: 1px solid currentcolor;
-    border-radius: 4px;
-    opacity: 0.82;
-
-    i,
-    b {
-      display: block;
-      border-radius: 1px;
-    }
-    i {
-      flex: 1;
-      background: color-mix(in srgb, currentcolor 20%, transparent);
-    }
-    b {
-      width: 14px;
-      background: currentcolor;
-    }
-    &--left {
-      flex-direction: row-reverse;
-    }
-    &--center {
-      justify-content: center;
-      i {
-        display: none;
-      }
-      b {
-        width: 21px;
-      }
-    }
-  }
-  .login-color-picker {
-    display: flex;
-    height: 32px;
-    align-items: center;
-    border-radius: 999px;
-
-    &:hover,
-    &:focus-within {
-      padding-left: 6px;
-    }
-
-    :deep(.header-action) {
-      flex: 0 0 32px;
-    }
-  }
-  .login-color-picker__swatches {
-    display: none;
-    align-items: center;
-    gap: 8px;
-    padding-right: 8px;
-
-    .login-color-picker:hover &,
-    .login-color-picker:focus-within & {
-      display: flex;
-    }
-  }
-  .login-color-option {
-    display: grid;
-    width: 22px;
-    height: 22px;
-    place-items: center;
-    border: 2px solid transparent;
-    border-radius: 50%;
-    background: var(--login-color);
-    color: #fff;
-    cursor: pointer;
-
-    &:hover {
-      transform: scale(1.12);
-    }
-    &--active {
-      border-color: var(--motor-surface);
-      box-shadow: 0 0 0 2px var(--login-color);
-    }
-    &:focus-visible {
-      outline: 2px solid var(--motor-primary);
-      outline-offset: 3px;
-    }
-    &:active {
-      transform: scale(0.92);
-    }
-  }
-  @media (width <= 520px) {
-    .login-appearance-menu {
-      width: min(300px, calc(100vw - 24px));
-    }
-    .login-color-option {
-      width: 22px;
-      height: 22px;
-    }
-  }
+<style scoped lang="scss">
+.login-appearance { --login-tool-color: var(--login-chrome-text, var(--motor-text-2)); display: flex; align-items: center; min-width: 0; }
+.login-tools { display: flex; align-items: center; justify-content: flex-end; gap: 4px; width: fit-content; max-width: 100%; min-width: 0; margin-left: auto; }
+.login-tools :deep(:is(.arco-btn, .header-action)) { flex: none; width: 36px; height: 36px; padding: 0; font-size: 18px; color: var(--login-tool-color); background: transparent; border: 0; border-radius: var(--motor-radius-sm); }
+.login-tools :deep(:is(.arco-btn, .header-action):hover) { color: var(--login-tool-color); background: var(--login-chrome-hover, var(--color-fill-2)); }
+.login-tools :deep(:is(.arco-btn, .header-action):focus-visible) { outline: 2px solid currentcolor; outline-offset: 2px; }
+.login-inline-palette { display: grid; grid-template-columns: repeat(7, 32px); gap: 4px; min-width: 0; max-width: 100%; padding: 2px; overflow-x: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.login-inline-palette button { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
+.login-inline-palette button > span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-size: var(--motor-font-size-12); }
+.login-inline-palette button:hover { background: var(--color-fill-2); }
+.login-inline-palette button:focus-visible { outline: 2px solid var(--login-tool-color); outline-offset: -2px; }
+.login-layout-preview { position: relative; display: inline-block; width: 16px; height: 14px; margin-right: 8px; vertical-align: middle; border: 1.5px solid currentcolor; border-radius: 2px; }
+.login-layout-preview::before { position: absolute; content: ''; inset: 2px auto 2px 2px; width: 4px; background: currentcolor; border-radius: 1px; }
+.login-layout-preview.is-center::before { left: 50%; transform: translateX(-50%); }
+.login-layout-preview.is-right::before { right: 2px; left: auto; }
+@media (width <= 520px), (pointer: coarse) {
+  .login-tools :deep(:is(.arco-btn, .header-action)) { width: 44px; height: 44px; }
+  .login-inline-palette { grid-template-columns: repeat(7, 44px); gap: 0; }
+  .login-inline-palette button { width: 44px; height: 44px; }
+}
 </style>

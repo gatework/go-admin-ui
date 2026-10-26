@@ -1,0 +1,5 @@
+go run ./tools/checksilent
+checksilent: 0 error(s), 0 warning(s)
+The menu-name-mismatch check was skipped: pass -ui-dir <go-admin-ui>/src to run it.
+The contract-import-boundary check covered common; core does not exist here and was not scanned.
+The contract-shim-alias check covered 23 type alias(es) into core's contract packages.

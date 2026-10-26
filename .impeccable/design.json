@@ -1,0 +1,362 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-26T03:08:10.264Z",
+  "title": "Design System: motor",
+  "extensions": {
+    "colorMeta": {
+      "primary-default": {
+        "role": "primary",
+        "displayName": "默认主题种子",
+        "tonalRamp": [
+          "#00164D",
+          "#032879",
+          "#073FA6",
+          "#0E59D2",
+          "#1677FF",
+          "#4096FF",
+          "#6AB2FF",
+          "#94CBFF",
+          "#BEE2FF",
+          "#E8F5FF"
+        ]
+      },
+      "surface-light": {
+        "role": "neutral",
+        "displayName": "亮色主表面",
+        "tonalRamp": [
+          "#111316",
+          "#191c20",
+          "#1f2227",
+          "#30343a",
+          "#4b5563",
+          "#c9cdd4",
+          "#f1f3f5",
+          "#ffffff"
+        ]
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "暗色主表面",
+        "tonalRamp": [
+          "#111316",
+          "#191c20",
+          "#1f2227",
+          "#30343a",
+          "#4b5563",
+          "#c9cdd4",
+          "#f1f3f5",
+          "#ffffff"
+        ]
+      },
+      "surface-soft-light": {
+        "role": "neutral",
+        "displayName": "亮色辅助表面",
+        "tonalRamp": [
+          "#111316",
+          "#191c20",
+          "#1f2227",
+          "#30343a",
+          "#4b5563",
+          "#c9cdd4",
+          "#f1f3f5",
+          "#ffffff"
+        ]
+      },
+      "surface-soft-dark": {
+        "role": "neutral",
+        "displayName": "暗色辅助表面",
+        "tonalRamp": [
+          "#111316",
+          "#191c20",
+          "#1f2227",
+          "#30343a",
+          "#4b5563",
+          "#c9cdd4",
+          "#f1f3f5",
+          "#ffffff"
+        ]
+      },
+      "text-primary-light": {
+        "role": "neutral",
+        "displayName": "亮色主要文字",
+        "tonalRamp": [
+          "#111316",
+          "#191c20",
+          "#1f2227",
+          "#30343a",
+          "#4b5563",
+          "#c9cdd4",
+          "#f1f3f5",
+          "#ffffff"
+        ]
+      },
+      "text-primary-dark": {
+        "role": "neutral",
+        "displayName": "暗色主要文字",
+        "tonalRamp": [
+          "#111316",
+          "#191c20",
+          "#1f2227",
+          "#30343a",
+          "#4b5563",
+          "#c9cdd4",
+          "#f1f3f5",
+          "#ffffff"
+        ]
+      },
+      "text-secondary-light": {
+        "role": "neutral",
+        "displayName": "亮色辅助文字",
+        "tonalRamp": [
+          "#111316",
+          "#191c20",
+          "#1f2227",
+          "#30343a",
+          "#4b5563",
+          "#c9cdd4",
+          "#f1f3f5",
+          "#ffffff"
+        ]
+      },
+      "text-secondary-dark": {
+        "role": "neutral",
+        "displayName": "暗色辅助文字",
+        "tonalRamp": [
+          "#111316",
+          "#191c20",
+          "#1f2227",
+          "#30343a",
+          "#4b5563",
+          "#c9cdd4",
+          "#f1f3f5",
+          "#ffffff"
+        ]
+      },
+      "border-light": {
+        "role": "neutral",
+        "displayName": "亮色边界",
+        "tonalRamp": [
+          "#111316",
+          "#191c20",
+          "#1f2227",
+          "#30343a",
+          "#4b5563",
+          "#c9cdd4",
+          "#f1f3f5",
+          "#ffffff"
+        ]
+      },
+      "border-dark": {
+        "role": "neutral",
+        "displayName": "暗色边界",
+        "tonalRamp": [
+          "#111316",
+          "#191c20",
+          "#1f2227",
+          "#30343a",
+          "#4b5563",
+          "#c9cdd4",
+          "#f1f3f5",
+          "#ffffff"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "body": {
+        "displayName": "现有应用文字",
+        "purpose": "本地系统字体栈；字号继续跟随现有偏好。"
+      },
+      "auth-title": {
+        "displayName": "认证任务标题",
+        "purpose": "认证表单 h1；不推广为其他业务标题规格。"
+      },
+      "auth-description": {
+        "displayName": "认证说明",
+        "purpose": "任务说明与当前下一步。"
+      },
+      "auth-support": {
+        "displayName": "认证辅助文字",
+        "purpose": "字段反馈、故事支持文字和页脚。"
+      },
+      "auth-story": {
+        "displayName": "现有认证故事标题",
+        "purpose": "仅记录参考页面的尺寸；继承系统字体不作为新展示字体规范。"
+      }
+    },
+    "shadows": [
+      {
+        "name": "motor-shadow-sm-light",
+        "value": "0 1px 2px rgb(16 24 40 / 3%), 0 4px 12px rgb(16 24 40 / 4%)",
+        "purpose": "现有全站小阴影，认证表单不使用。"
+      },
+      {
+        "name": "motor-shadow-md-light",
+        "value": "0 8px 24px rgb(16 24 40 / 10%)",
+        "purpose": "现有全站中阴影。"
+      },
+      {
+        "name": "motor-shadow-sm-dark",
+        "value": "0 1px 2px rgb(0 0 0 / 16%), 0 10px 28px rgb(0 0 0 / 12%)",
+        "purpose": "现有全站暗色小阴影。"
+      },
+      {
+        "name": "motor-shadow-md-dark",
+        "value": "0 18px 48px rgb(0 0 0 / 28%)",
+        "purpose": "现有全站暗色中阴影。"
+      },
+      {
+        "name": "auth-form",
+        "value": "none",
+        "purpose": "连续认证表面；不加悬浮卡片或品牌标记阴影。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "auth-form-arrival",
+        "value": "240ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "表单透明度淡入；减少动态效果时停用。"
+      },
+      {
+        "name": "auth-light-arrival",
+        "value": "1800ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "既有背景光场透明度进入。"
+      },
+      {
+        "name": "auth-atmosphere-pointer",
+        "value": "900ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "背景指针响应；表单/工具栏/页脚与表单焦点区域不参与。"
+      },
+      {
+        "name": "auth-light-pointer",
+        "value": "800ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "既有光场指针响应。"
+      },
+      {
+        "name": "auth-light-breathe",
+        "value": "8s / 10s / 12s ease-in-out infinite",
+        "purpose": "三个既有光场的透明度循环；仅在宽度至少1121px、精确指针、允许运动、页面可见且窗口聚焦时运行。"
+      },
+      {
+        "name": "native-control-state",
+        "value": "100ms cubic-bezier(0, 0, 1, 1)",
+        "purpose": "继承 Arco 状态过渡；认证按钮限制 transition-property，尺寸变化不动画。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "auth-story-heading-compact-upper",
+        "value": "1360px"
+      },
+      {
+        "name": "auth-single-column",
+        "value": "1120px"
+      },
+      {
+        "name": "auth-mobile-form",
+        "value": "520px"
+      },
+      {
+        "name": "auth-email-code-stack",
+        "value": "360px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "认证主操作",
+      "kind": "button",
+      "refersTo": "auth-button-primary",
+      "description": "认证表单主操作；保留原生大小、禁用语义及局部可读色阶。预览回退值来自默认主题的实际 Arco 色阶。",
+      "html": "<button class=\"ds-auth-primary\" type=\"button\">登录</button>",
+      "css": ".ds-auth-primary{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 19px;border:1px solid transparent;border-radius:var(--motor-radius-xs,4px);font-family:Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;font-size:var(--motor-base-font-size,14px);font-weight:400;line-height:1.5715;cursor:pointer;transition:color .1s cubic-bezier(0,0,1,1),background-color .1s cubic-bezier(0,0,1,1),border-color .1s cubic-bezier(0,0,1,1);width:100%;color:#fff;background:var(--login-button-bg,#0E59D2);}.ds-auth-primary:hover:not(:disabled){background:var(--login-button-hover-bg,#073FA6);}.ds-auth-primary:focus-visible{outline:2px solid var(--login-link-color,#073FA6);outline-offset:3px;}.ds-auth-primary:active:not(:disabled){background:var(--login-button-active-bg,#032879);transition:none;}.ds-auth-primary:disabled{color:var(--color-white,#fff);background:var(--color-primary-light-3,#94CBFF);cursor:not-allowed;}@media(width <= 520px),(pointer:coarse){.ds-auth-primary{min-height:44px;}}"
+    },
+    {
+      "name": "验证码次级操作",
+      "kind": "button",
+      "refersTo": "auth-button-secondary",
+      "description": "原生 secondary 按钮，不以认证主色色阶覆盖其底色。",
+      "html": "<button class=\"ds-auth-secondary\" type=\"button\">发送验证码</button>",
+      "css": ".ds-auth-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 19px;border:1px solid transparent;border-radius:var(--motor-radius-xs,4px);font-family:Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;font-size:var(--motor-base-font-size,14px);font-weight:400;line-height:1.5715;cursor:pointer;transition:color .1s cubic-bezier(0,0,1,1),background-color .1s cubic-bezier(0,0,1,1),border-color .1s cubic-bezier(0,0,1,1);color:var(--color-text-2,#4e5969);background:var(--color-secondary,#f2f3f5);}.ds-auth-secondary:hover:not(:disabled){background:var(--color-secondary-hover,#e5e6eb);}.ds-auth-secondary:focus-visible{outline:2px solid var(--login-link-color,#073FA6);outline-offset:3px;}.ds-auth-secondary:active:not(:disabled){background:var(--color-secondary-active,#c9cdd4);transition:none;}.ds-auth-secondary:disabled{color:var(--color-text-4,#c9cdd4);background:var(--color-secondary-disabled,#f7f8fa);cursor:not-allowed;}@media(width <= 520px),(pointer:coarse){.ds-auth-secondary{min-height:44px;}}"
+    },
+    {
+      "name": "认证文字操作",
+      "kind": "button",
+      "refersTo": "auth-button-text",
+      "description": "找回成功后的更换邮箱与策略重试使用此状态：normal/hover 为局部链接色，active 回到原生 text-1/fill-2。",
+      "html": "<button class=\"ds-auth-text\" type=\"button\">更换邮箱重新申请</button>",
+      "css": ".ds-auth-text{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 19px;border:1px solid transparent;border-radius:var(--motor-radius-xs,4px);font-family:Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;font-size:var(--motor-base-font-size,14px);font-weight:400;line-height:1.5715;cursor:pointer;transition:color .1s cubic-bezier(0,0,1,1),background-color .1s cubic-bezier(0,0,1,1),border-color .1s cubic-bezier(0,0,1,1);color:var(--login-link-color,#073FA6);background:transparent;}.ds-auth-text:hover:not(:disabled){color:var(--login-link-color,#073FA6);background:var(--color-fill-1,#f7f8fa);}.ds-auth-text:focus-visible{outline:2px solid var(--login-link-color,#073FA6);outline-offset:3px;}.ds-auth-text:active:not(:disabled){color:var(--color-text-1,#1d2129);background:var(--color-fill-2,#f2f3f5);transition:none;}.ds-auth-text:disabled{color:var(--color-text-4,#c9cdd4);background:transparent;cursor:not-allowed;}@media(width <= 520px),(pointer:coarse){.ds-auth-text{min-height:44px;}}"
+    },
+    {
+      "name": "认证输入框",
+      "kind": "input",
+      "refersTo": "auth-input",
+      "description": "可见标签、Arco 填充背景与原生焦点边框；占位文字使用认证范围的 text-2。",
+      "html": "<label class=\"ds-auth-field\"><span>邮箱</span><input class=\"ds-auth-input\" type=\"email\" autocomplete=\"email\" placeholder=\"请输入邮箱\"></label>",
+      "css": ".ds-auth-field{display:grid;gap:6px;font-family:Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;font-size:var(--motor-base-font-size,14px);color:var(--color-text-2,#4e5969);}.ds-auth-input{min-height:36px;padding:0 12px;font-family:Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;font-size:var(--motor-base-font-size,14px);line-height:1.5715;color:var(--color-text-1,#1d2129);background:var(--color-fill-2,#f2f3f5);border:1px solid transparent;border-radius:var(--motor-radius-sm,8px);transition:color .1s cubic-bezier(0,0,1,1),border-color .1s cubic-bezier(0,0,1,1),background-color .1s cubic-bezier(0,0,1,1);}.ds-auth-input::placeholder{color:var(--color-text-2,#4e5969);}.ds-auth-input:hover:not(:disabled){background:var(--color-fill-3,#e5e6eb);}.ds-auth-input:focus,.ds-auth-input:focus-visible{outline:none;background:var(--color-bg-2,#fff);border-color:rgb(var(--primary-6,22,119,255));}.ds-auth-input:disabled{color:var(--color-text-4,#c9cdd4);background:var(--color-fill-2,#f2f3f5);cursor:not-allowed;}@media(width <= 520px),(pointer:coarse){.ds-auth-input{min-height:44px;font-size:max(16px,var(--motor-base-font-size,14px));}}"
+    },
+    {
+      "name": "认证返回链接",
+      "kind": "nav",
+      "refersTo": "auth-link",
+      "description": "任务之间的文字链接；展示本地链接色与键盘焦点，不定义业务导航布局。",
+      "html": "<nav aria-label=\"账户操作\"><a class=\"ds-auth-link\" href=\"#login\">返回登录</a></nav>",
+      "css": ".ds-auth-link{display:inline-flex;align-items:center;min-height:36px;color:var(--login-link-color,#073FA6);font-family:Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;font-size:var(--motor-base-font-size,14px);text-decoration:none;}.ds-auth-link:hover{text-decoration:underline;text-underline-offset:4px;}.ds-auth-link:focus-visible{outline:2px solid var(--login-link-color,#073FA6);outline-offset:3px;}.ds-auth-link:active{color:var(--login-link-color,#073FA6);}@media(width <= 520px),(pointer:coarse){.ds-auth-link{min-height:44px;}}"
+    },
+    {
+      "name": "原生标签",
+      "kind": "chip",
+      "refersTo": "native-tag",
+      "description": "已有 Arco 普通标签基础外观；仅作为组件目录样例，认证页未新增标签。",
+      "html": "<span class=\"ds-native-tag\">状态</span>",
+      "css": ".ds-native-tag{display:inline-flex;align-items:center;height:24px;padding:0 8px;color:var(--color-text-1,#1d2129);background:var(--color-fill-2,#f2f3f5);font-family:Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;font-weight:500;font-size:12px;line-height:22px;border:1px solid transparent;border-radius:var(--motor-radius-xs,4px);white-space:nowrap;}"
+    },
+    {
+      "name": "原生卡片",
+      "kind": "card",
+      "refersTo": "native-card",
+      "description": "已有中号 Arco 卡片的基础外观；认证表单不使用此容器，样例不代表业务页面已审查。",
+      "html": "<article class=\"ds-native-card\"><div class=\"ds-native-card-title\">信息</div><div class=\"ds-native-card-body\">使用原生 Arco 内容表面。</div></article>",
+      "css": ".ds-native-card{font-family:Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;font-size:14px;background:var(--color-bg-2,#fff);border:1px solid var(--color-neutral-3,#e5e6eb);border-radius:var(--motor-radius-sm,8px);}.ds-native-card-title{display:flex;align-items:center;min-height:46px;padding:10px 16px;color:var(--color-text-1,#1d2129);font-size:16px;font-weight:500;line-height:1.5715;border-bottom:1px solid var(--color-neutral-3,#e5e6eb);}.ds-native-card-body{padding:16px;color:var(--color-text-2,#4e5969);}"
+    }
+  ],
+  "narrative": {
+    "northStar": "沿用现有 Motor 认证外观",
+    "overview": "这是从当前代码提取的既有系统记录。已确认的视觉方向来自用户指定的本地 Ruby Motor 认证页面：小写 motor、M 标记、原生 Arco 控件、克制的工具栏和连续页面表面。没有引入新的视觉隐喻、品牌资产或图片方案。\n\n全站颜色、间距、圆角和字号继续由现有主题与偏好系统控制；本次确认的页面构图仅适用于登录、注册、找回与重置密码。其他业务页面的视觉方向与能力边界仍以 [PRODUCT.md](PRODUCT.md) 为准，本文件不代表全站已完成设计验收。",
+    "keyCharacteristics": [
+      "原生 Arco 语义色与组件状态，保留已有偏好。",
+      "认证页以任务标题、可见标签、单一主操作和明确反馈组织表单。",
+      "桌面故事栏支持表单，窄屏优先保证输入、提交和工具栏可达。",
+      "认证局部色阶保障文字可读性，不改写全局主题色板。"
+    ],
+    "rules": [
+      {
+        "name": "The Saved Palette Rule",
+        "body": "保留用户所选主题及原生 Arco 色板；认证可读色阶只挂在认证外壳上。",
+        "section": "colors"
+      },
+      {
+        "name": "The Inherited Scale Rule",
+        "body": "输入与表单文字继续跟随现有字号 token；移动或粗指针输入采用至少 16px 字号。",
+        "section": "typography"
+      },
+      {
+        "name": "The Reachable Form Rule",
+        "body": "短屏和长错误使用表单区内部滚动；不能通过压缩点击区域或裁掉提交按钮来维持首屏构图。",
+        "section": "layout"
+      }
+    ],
+    "dos": [
+      "**Do** 保留小写 motor、M 标记和原生 Arco 控件。",
+      "**Do** 通过既有偏好 store 修改主题，复用现有登录布局存储。",
+      "**Do** 将认证几何、可读色阶和背景材料限制在认证范围。",
+      "**Do** 同时检查明暗、主题色、窄屏、英文和正常/hover/active 状态。",
+      "**Do** 以真实表单状态呈现错误、加载与成功，保留标签和键盘焦点。"
+    ],
+    "donts": [
+      "**Don't** 为认证页面另建主题状态，或重置用户已有偏好。",
+      "**Don't** 把认证故事栏、背景网格或标题尺寸推广为其他业务页面的统一构图。",
+      "**Don't** 为追求表单紧凑裁掉错误、密码规则、操作区域或页脚。",
+      "**Don't** 将本地 Mailpit、截图或前端回归扩写为生产邮件、设备业务或全站交付证据。"
+    ]
+  }
+}

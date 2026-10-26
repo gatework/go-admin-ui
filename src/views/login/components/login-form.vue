@@ -2,16 +2,16 @@
   <div class="form-box">
     <MFAChallenge v-if="challenge" :token="challenge.token" :expires-in="challenge.expiresIn" @complete="finishLogin" @cancel="challenge = undefined; getCode()" />
     <template v-else>
-      <h2 class="panel-title">{{ resolveAppName(system.info.sys_app_name) }}</h2>
-      <p class="panel-sub">{{ $t('login.subtitle') }}</p>
       <a-form
         ref="formRef"
         :model="model"
         :rules="rules"
+        :disabled="loading"
+        :aria-busy="loading"
         layout="vertical"
         class="login-form"
         autocomplete="on"
-        @submit-success="handleLogin"
+        @submit="handleLogin"
       >
         <a-form-item :label="$t('login.username')" field="username">
           <a-input
@@ -19,11 +19,9 @@
             v-model="model.username"
             :placeholder="$t('login.usernamePlaceholder')"
             name="username"
-            type="text"
-
-            autocomplete="username"
+            :input-attrs="{ 'aria-label': t('login.username'), autocomplete: 'username', autocapitalize: 'none', spellcheck: false }"
             size="large"
-          />
+          ><template #prefix><icon-user /></template></a-input>
         </a-form-item>
 
         <a-form-item :label="$t('login.password')" field="password">
@@ -33,7 +31,7 @@
             :placeholder="$t('login.passwordPlaceholder')"
             name="password"
 
-            autocomplete="current-password"
+            :input-attrs="{ 'aria-label': t('login.password'), autocomplete: 'current-password' }"
             size="large"
           >
             <template #prefix><icon-lock /></template>
@@ -48,12 +46,11 @@
               name="code"
               type="text"
 
-              :input-attrs="{ inputmode: 'numeric' }"
+              :input-attrs="{ 'aria-label': t('login.captcha'), inputmode: 'numeric', autocomplete: 'off' }"
               :max-length="6"
-              autocomplete="off"
               size="large"
-            />
-            <button type="button" class="captcha-wrap" :title="$t('login.captchaRefresh')" :aria-label="$t('login.captchaRefresh')" :disabled="captchaLoading" @click="getCode">
+            ><template #prefix><icon-safe /></template></a-input>
+            <button type="button" class="captcha-wrap" :title="$t('login.captchaRefresh')" :aria-label="$t('login.captchaRefresh')" :disabled="captchaLoading || loading" @click="getCode">
               <a-spin v-if="captchaLoading" />
               <img v-else-if="codeUrl" :src="codeUrl" class="captcha-img" :alt="$t('login.captcha')">
               <icon-refresh v-else />
@@ -61,8 +58,10 @@
           </div>
         </a-form-item>
 
+        <div class="login-form__options"><RouterLink to="/forgot-password">{{ $t('login.forgotPassword') }}</RouterLink></div>
         <a-button
           :loading="loading"
+          :disabled="captchaLoading || !model.uuid"
           size="large"
           class="submit-btn"
           type="primary"
@@ -71,29 +70,28 @@
           {{ loading ? $t('login.submitting') : $t('login.submit') }}
         </a-button>
       </a-form>
-      <div class="access-links"><RouterLink to="/forgot-password">{{ $t('accountAccess.forgot') }}</RouterLink><RouterLink v-if="registrationEnabled" to="/register">{{ $t('accountAccess.register') }}</RouterLink></div>
     </template>
   </div>
 </template>
 <script setup lang="ts">
 import MFAChallenge from './mfa-challenge.vue'
-import { accessSettings } from '@/api/account-access'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { FormInstance } from '@arco-design/web-vue'
 import { useFormLocale } from '@/composables/useFormLocale'
 import { getCodeImg } from '@/api/login'
-import { resolveAppName } from '@/config/app-meta'
 import { useSystemStore } from '@/stores/system'
 import { useUserStore } from '@/stores/user'
 import { prefetchOnIdle } from '@/utils/prefetch'
 const { t } = useI18n(); const route = useRoute(); const router = useRouter()
 const system = useSystemStore(); const user = useUserStore()
+const emit = defineEmits<{ phaseChange: [mfaActive: boolean] }>()
 const formRef = ref<FormInstance>()
 useFormLocale(formRef)
-const model = reactive({ username: 'admin', password: '123456', code: '', uuid: '' })
-const challenge = ref<{ token: string; expiresIn: number }>(); const registrationEnabled = ref(false)
+const model = reactive({ username: '', password: '', code: '', uuid: '' })
+const challenge = ref<{ token: string; expiresIn: number }>()
+watch(challenge, value => emit('phaseChange', Boolean(value)))
 const loading = ref(false); const captchaLoading = ref(false); const codeUrl = ref('')
 const rules = computed(() => ({ username: [{ required: true, message: t('login.rules.username') }], password: [{ required: true, message: t('login.rules.password') }], code: [{ required: true, message: t('login.rules.captcha') }, { match: /^\d{6}$/, message: t('login.rules.captchaFormat') }] }))
 const getCode = async() => {
@@ -108,7 +106,14 @@ const handleLogin = async() => {
   if (loading.value || captchaLoading.value || !model.uuid) return
   loading.value = true
   try {
-    const response = await user.login(model)
+    if (!formRef.value || await formRef.value.validate()) {
+      loading.value = false
+      await nextTick()
+      const root = formRef.value?.$el as HTMLElement | undefined
+      root?.querySelector<HTMLInputElement>('.arco-form-item-status-error input')?.focus()
+      return
+    }
+    const response = await user.login({ ...model })
     if (response.mfaRequired && response.challengeToken) { challenge.value = { token: response.challengeToken, expiresIn: response.expiresIn || 300 }; model.password = ''; return }
     await finishLogin()
   } catch { await getCode() } finally { loading.value = false }
@@ -119,18 +124,17 @@ async function finishLogin() {
   const query = Object.fromEntries(Object.entries(route.query).filter(([key]) => key !== 'redirect'))
   await router.push({ path: redirect, query })
 }
-onMounted(() => { void accessSettings().then(response => { registrationEnabled.value = response.data?.enabled === true }).catch(() => {}); void getCode(); void system.settingDetail().catch(() => {}); prefetchOnIdle(() => import('@/views/dashboard/index.vue')) })
+onMounted(() => { void getCode(); void system.settingDetail().catch(() => {}); prefetchOnIdle(() => import('@/views/dashboard/index.vue')) })
 </script>
 <style scoped lang="scss">
-.access-links { display: flex; justify-content: space-between; gap: 16px; margin-top: 24px; a { color: var(--motor-primary); } }
-.form-box { width: 100%; max-width: 420px; }
-.panel-title { margin: 0 0 10px; color: var(--motor-text-1); font-size: var(--motor-font-size-32); font-weight: 650; overflow-wrap: anywhere; }
-.panel-sub { color: var(--motor-text-2); margin: 0 0 32px; }
-.panel-tip { color: var(--motor-text-2); font-size: 12px; margin-top: 24px; }
+.form-box { width: 100%; }
+.login-form__options { display: flex; justify-content: flex-end; margin: -4px 0 20px; }
+.login-form__options a { color: var(--motor-primary); text-underline-offset: 3px; }
 .captcha-row { display: flex; gap: 10px; width: 100%; min-width: 0; }
 .captcha-row > .arco-input-wrapper { flex: 1; min-width: 0; }
 .captcha-wrap { position: relative; flex-shrink: 0; width: 150px; display: grid; place-items: center; padding: 0; border: 1px solid var(--motor-border); border-radius: var(--motor-radius-sm); background: var(--motor-surface); color: var(--motor-text-3); overflow: hidden; cursor: pointer; }
 .captcha-wrap:hover:not(:disabled) { border-color: var(--motor-primary); }
+.captcha-wrap:focus-visible { outline: 2px solid var(--motor-primary); outline-offset: 3px; }
 .captcha-wrap:disabled { cursor: wait; opacity: 0.7; }
 .captcha-img { position: absolute; width: 100%; height: 100%; object-fit: contain; }
 @media (max-width: 520px) { .captcha-wrap { width: 124px; } }

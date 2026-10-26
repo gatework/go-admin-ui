@@ -620,10 +620,10 @@ test.describe('the login page', () => {
     // of. Without one here, someone who cannot read Chinese is stopped at the
     // first screen -- there is nothing to click past.
     await page.goto('/#/login')
-    await expect(page.locator('.panel-sub')).toHaveText('使用你的用户名和密码登录 motor。')
+    await expect(page.getByText('使用你的用户名和密码登录 motor。', { exact: true })).toBeVisible()
 
     await switchTo(page, 'English')
-    await expect(page.locator('.panel-sub')).toHaveText('Sign in to motor with your username and password.')
+    await expect(page.getByText('Sign in to motor with your username and password.', { exact: true })).toBeVisible()
   })
 
   test('keeps the switcher reachable on a phone', async({ page }) => {

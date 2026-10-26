@@ -67,7 +67,7 @@ test('login waits for MFA and supports recovery code without persisting challeng
   await publicMocks(page)
   let submitted: Record<string, string> = {}
   await page.route('**/api/v1/login', route => { submitted = route.request().postDataJSON(); return route.fulfill({ json: submitted.challengeToken ? { code: 400, msg: 'Invalid code' } : { code: 200, mfaRequired: true, challengeToken: 'opaque-mfa', expiresIn: 300 }}) })
-  await page.goto('/#/login'); await page.locator('input[name="code"]').fill(CAPTCHA_ANSWER)
+  await page.goto('/#/login'); await page.locator('input[name="username"]').fill('admin'); await page.locator('input[name="password"]').fill('123456'); await page.locator('input[name="code"]').fill(CAPTCHA_ANSWER)
   await page.getByRole('button', { name: '登录', exact: true }).click()
   await expect(page.locator('.mfa-challenge')).toBeVisible()
   await expect(page).toHaveURL(/login/)
@@ -118,6 +118,8 @@ test('MFA second factor completes login', async({ page }) => {
   await publicMocks(page)
   await page.route('**/api/v1/login', route => route.fulfill({ json: route.request().postDataJSON().challengeToken ? { code: 200, token: 'verified-mfa-token' } : { code: 200, mfaRequired: true, challengeToken: 'short-challenge', expiresIn: 300 }}))
   await page.goto('/#/login')
+  await page.locator('input[name="username"]').fill('admin')
+  await page.locator('input[name="password"]').fill('123456')
   await page.locator('input[name="code"]').fill(CAPTCHA_ANSWER)
   await page.getByRole('button', { name: '登录', exact: true }).click()
   await page.getByLabel('认证器动态码', { exact: true }).fill('123456')

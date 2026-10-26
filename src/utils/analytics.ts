@@ -62,6 +62,10 @@ export const virtualUrl = (fullPath: string, href: string): string => {
  * before googletagmanager.com answers, and calls made in between are queued.
  */
 export function trackPageView(fullPath: string): void {
+  // Public account links carry email addresses and one-use credentials. Keep
+  // their full URL out of the analytics queue, including outer query values.
+  const path = fullPath.split(/[?#]/, 1)[0]
+  if (/^\/(?:register|forgot-password|reset-password)\/?$/i.test(path)) return
   window.gtag?.('event', 'page_view', {
     page_title: document.title,
     page_location: virtualUrl(fullPath, window.location.href)

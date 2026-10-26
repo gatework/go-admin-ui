@@ -17,14 +17,13 @@ test.describe('signing in', () => {
     await page.setViewportSize({ width: 1280, height: 720 })
   })
 
-  test('the form arrives filled in, with a captcha to solve', async({ page }) => {
+  test('the form arrives empty, with a captcha to solve', async({ page }) => {
     const calls = await installLoginMocks(page)
     await page.goto('/#/login')
 
-    // Demo credentials are pre-filled on purpose; the captcha is the only field
-    // a visitor has to supply.
-    await expect(page.locator('input[name=username]')).toHaveValue('admin')
-    await expect(page.locator('input[name=password]')).toHaveValue('123456')
+    // Credentials are entered by the visitor, never shipped as a form default.
+    await expect(page.locator('input[name=username]')).toHaveValue('')
+    await expect(page.locator('input[name=password]')).toHaveValue('')
     await expect(page.locator('input[name=code]')).toHaveValue('')
 
     // Rendered, not merely requested: the page binds the payload to <img src>,
@@ -39,6 +38,8 @@ test.describe('signing in', () => {
     const calls = await installLoginMocks(page)
     await page.goto('/#/login')
     await expect(page.locator('.captcha-img')).toBeVisible()
+    await page.locator('input[name=username]').fill('admin')
+    await page.locator('input[name=password]').fill('123456')
     await page.locator('.submit-btn').click()
     await expect(page.locator('.arco-form-item-message')).toBeVisible()
     expect(calls.login).toBe(0)
@@ -52,6 +53,8 @@ test.describe('signing in', () => {
     const calls = await installLoginMocks(page)
     await page.goto('/#/login')
     await expect(page.locator('.captcha-img')).toBeVisible()
+    await page.locator('input[name=username]').fill('admin')
+    await page.locator('input[name=password]').fill('123456')
 
     await page.locator('.captcha-wrap').click()
     await expect.poll(() => calls.captcha).toBe(2)
@@ -67,6 +70,8 @@ test.describe('signing in', () => {
     const calls = await installLoginMocks(page)
     await page.goto('/#/login')
     await expect(page.locator('.captcha-img')).toBeVisible()
+    await page.locator('input[name=username]').fill('admin')
+    await page.locator('input[name=password]').fill('123456')
     const code = page.locator('input[name=code]')
     await expect(code).toHaveAttribute('inputmode', 'numeric')
     for (const invalid of ['12345', '12345a']) {
@@ -87,6 +92,8 @@ test.describe('signing in', () => {
     const calls = await installLoginMocks(page)
     await page.goto('/#/login')
     await expect(page.locator('.captcha-img')).toBeVisible()
+    await page.locator('input[name=username]').fill('admin')
+    await page.locator('input[name=password]').fill('123456')
 
     await page.locator('input[name=code]').fill(CAPTCHA_ANSWER)
     await page.locator('.submit-btn').click()
@@ -106,6 +113,8 @@ test.describe('signing in', () => {
     const calls = await installLoginMocks(page)
     await page.goto('/#/login')
     await expect(page.locator('.captcha-img')).toBeVisible()
+    await page.locator('input[name=username]').fill('admin')
+    await page.locator('input[name=password]').fill('123456')
 
     await page.locator('input[name=code]').fill(CAPTCHA_ANSWER)
     await page.locator('.submit-btn').click()
@@ -127,6 +136,8 @@ test.describe('signing in', () => {
     // page: next(`/login?redirect=${to.path}`).
     await page.goto('/#/login?redirect=/admin/sys-user')
     await expect(page.locator('.captcha-img')).toBeVisible()
+    await page.locator('input[name=username]').fill('admin')
+    await page.locator('input[name=password]').fill('123456')
 
     await page.locator('input[name=code]').fill(CAPTCHA_ANSWER)
     await page.locator('.submit-btn').click()
@@ -138,6 +149,8 @@ test.describe('signing in', () => {
     const calls = await installLoginMocks(page)
     await page.goto('/#/login')
     await expect(page.locator('.captcha-img')).toBeVisible()
+    await page.locator('input[name=username]').fill('admin')
+    await page.locator('input[name=password]').fill('123456')
 
     await page.locator('input[name=code]').fill('000000')
     await page.locator('.submit-btn').click()
@@ -157,10 +170,8 @@ test.describe('signing in', () => {
 /**
  * The same page on a phone.
  *
- * Its layout is two halves side by side: a terminal animation and the form.
- * Stacked, the terminal keeps its natural height -- eight lines of code, 493px
- * of a 812px screen -- and pushes the form, which is the only part with a job,
- * into the bottom third.
+ * The authentication shell hides its story at compact widths and gives the
+ * form a scrollable workspace without displacing the header or footer.
  */
 test.describe('signing in on a phone', () => {
   const PHONE = { width: 375, height: 812 }
@@ -170,11 +181,13 @@ test.describe('signing in on a phone', () => {
     await page.setViewportSize(PHONE)
     await page.goto('/#/login')
     await expect(page.locator('.captcha-img')).toBeVisible()
+    await page.locator('input[name=username]').fill('admin')
+    await page.locator('input[name=password]').fill('123456')
 
     // The decorative half is gone, and with it the second copy of the product
     // name -- the form already opens with it.
-    await expect(page.locator('.login-story__features')).toBeHidden()
-    await expect(page.locator('.panel-title')).toBeVisible()
+    await expect(page.locator('.login-story-features')).toBeHidden()
+    await expect(page.locator('#login-title')).toBeVisible()
 
     const submit = (await page.locator('.submit-btn').boundingBox())!
     // Reachable rather than merely present: it sat 110px from the bottom edge
@@ -195,9 +208,11 @@ test.describe('signing in on a phone', () => {
     await page.setViewportSize({ width: 1440, height: 900 })
     await page.goto('/#/login')
     await expect(page.locator('.captcha-img')).toBeVisible()
+    await page.locator('input[name=username]').fill('admin')
+    await page.locator('input[name=password]').fill('123456')
 
     // It is the page's main visual where there is room for it.
-    await expect(page.locator('.login-story__features')).toBeVisible()
+    await expect(page.locator('.login-story-features')).toBeVisible()
     await expect(page.locator('.login-story')).toBeVisible()
   })
 })
