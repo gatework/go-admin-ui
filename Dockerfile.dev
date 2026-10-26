@@ -1,0 +1,8 @@
+FROM node:24-alpine
+
+RUN npm install -g pnpm@9.15.1
+WORKDIR /workspace/go-admin-ui
+EXPOSE 9527
+
+# Synchronize the persistent node_modules volume on every start.
+CMD ["sh", "-ec", "CI=true pnpm install --frozen-lockfile --store-dir /pnpm/store && exec pnpm dev --host 0.0.0.0 --port 9527 --strictPort"]

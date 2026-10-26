@@ -34,7 +34,15 @@ const GO = process.env.GO_ADMIN_PATH ?? join(UI, '..', 'go-admin')
  * createdAt, updatedAt, createBy, updateBy) are now declared over there, and a
  * checkout without it can only conclude that every model has lost them.
  */
-const CORE = process.env.GO_ADMIN_CORE_PATH ?? join(UI, '..', 'go-admin-core')
+const siblingCore = join(UI, '..', 'go-admin-core')
+const goModFile = join(GO, 'go.mod')
+const coreVersion = existsSync(goModFile)
+  ? readFileSync(goModFile, 'utf8').match(/^\s*github\.com\/go-admin-team\/go-admin-core\/v2\s+(\S+)/m)?.[1]
+  : undefined
+const cachedCore = process.env.GOMODCACHE && coreVersion
+  ? join(process.env.GOMODCACHE, `github.com/go-admin-team/go-admin-core/v2@${coreVersion}`)
+  : undefined
+const CORE = process.env.GO_ADMIN_CORE_PATH ?? (existsSync(siblingCore) ? siblingCore : cachedCore ?? siblingCore)
 
 /** Where in that repository the bases live -- named once, so the diagnostic
  *  below names the directory actually read rather than the repository root. */
