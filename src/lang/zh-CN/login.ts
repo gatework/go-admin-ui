@@ -6,7 +6,7 @@ export default {
   password: '密码',
   passwordPlaceholder: '请输入密码',
   captcha: '验证码',
-  captchaPlaceholder: '请输入图中的验证码',
+  captchaPlaceholder: '请输入6位数字',
   captchaRefresh: '刷新验证码',
   submit: '登录',
   submitting: '登录中',
@@ -16,6 +16,7 @@ export default {
   rules: {
     username: '请输入用户名',
     password: '请输入密码',
-    captcha: '请输入图中的验证码'
+    captcha: '请输入图中的验证码',
+    captchaFormat: '请输入6位数字验证码'
   }
 }

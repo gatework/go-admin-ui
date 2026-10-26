@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 import type { ApiResponse } from '@/types/api'
-import type { UserInfo } from '@/stores/user'
+import type { LoginPayload, UserInfo } from '@/stores/user'
 
 /** Session endpoints. */
 
@@ -8,8 +8,8 @@ import type { UserInfo } from '@/stores/user'
  * The token comes back at the top of the envelope, beside `code`, not inside
  * `data` the way every other endpoint answers.
  */
-export function login(data: { username: string, password: string, code?: string, uuid?: string }) {
-  return request<ApiResponse<null> & { token: string }>({
+export function login(data: LoginPayload) {
+  return request<ApiResponse<null> & { token?: string, mfaRequired?: boolean, challengeToken?: string, expiresIn?: number }>({
     url: '/api/v1/login',
     method: 'post',
     data

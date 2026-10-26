@@ -26,7 +26,7 @@ watch(() => i18n.global.locale.value, () => {
   document.title = getPageTitle(usePreferencesStore().dynamicTitle ? routeTitle(router.currentRoute.value) : '')
 })
 
-const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
+const whiteList = ['/login', '/auth-redirect', '/register', '/forgot-password', '/reset-password'] // no redirect whitelist
 
 router.beforeEach(async(to, from, next) => {
   // start progress bar
@@ -37,6 +37,7 @@ router.beforeEach(async(to, from, next) => {
 
   // determine whether the user has logged in
   const hasToken = getToken()
+  if (['/register', '/forgot-password', '/reset-password'].includes(to.path)) { next(); NProgress.done(); return }
 
   if (hasToken) {
     if (to.path === '/login') {

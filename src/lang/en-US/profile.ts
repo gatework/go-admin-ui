@@ -1,5 +1,5 @@
 export default {
-  alignment: { 'description': 'Manage your profile, password and preferences on this browser.', 'localPreferences': 'Preferences are saved in this browser and can be reset at any time.', 'loadError': 'Could not load your profile. Please retry.', 'backendDifferences': 'Multi-factor authentication, API tokens, session management, notifications and email verification are currently unavailable.' },
+  alignment: { 'description': 'Manage your profile, password and preferences on this browser.', 'localPreferences': 'Preferences are saved in this browser and can be reset at any time.', 'loadError': 'Could not load your profile. Please retry.', 'backendDifferences': 'API tokens, session management, notifications and contact email verification are currently unavailable.' },
   title: 'Profile',
   username: 'Username',
   phone: 'Phone Number',

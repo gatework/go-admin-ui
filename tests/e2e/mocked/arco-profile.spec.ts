@@ -129,6 +129,7 @@ test('password validation and keyboard tab navigation work together', async({ pa
   const request = page.waitForRequest(req => req.url().endsWith('/api/v1/user/pwd/set') && req.method() === 'PUT')
   await form.getByRole('button', { name: '修改密码' }).click()
   expect((await request).postDataJSON()).toEqual({ oldPassword: 'old-secret', newPassword: 'new-secret' })
+  await expect(page).toHaveURL(/login/)
 })
 
 test('language menu supports keyboard selection and returns focus', async({ page }) => {

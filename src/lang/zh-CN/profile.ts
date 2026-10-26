@@ -4,7 +4,7 @@
  * UI copy is maintained with the corresponding English pack.
  */
 export default {
-  alignment: { 'description': '管理个人资料、账户密码和当前浏览器的界面偏好。', 'localPreferences': '界面偏好仅保存在当前浏览器，可随时重置。', 'loadError': '个人资料加载失败，请重试。', 'backendDifferences': '多因子认证、API 令牌、会话管理、通知和邮箱验证暂不可用。' },
+  alignment: { 'description': '管理个人资料、账户密码和当前浏览器的界面偏好。', 'localPreferences': '界面偏好仅保存在当前浏览器，可随时重置。', 'loadError': '个人资料加载失败，请重试。', 'backendDifferences': 'API 令牌、会话管理、通知和联系邮箱验证暂不可用。' },
   title: '个人信息',
   username: '用户名称',
   phone: '手机号码',

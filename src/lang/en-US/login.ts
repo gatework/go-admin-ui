@@ -7,7 +7,7 @@ export default {
   password: 'Password',
   passwordPlaceholder: 'Enter password',
   captcha: 'Verification code',
-  captchaPlaceholder: 'Enter the code in the image',
+  captchaPlaceholder: 'Enter 6 digits',
   captchaRefresh: 'Refresh verification code',
   submit: 'Sign in',
   submitting: 'Signing in',
@@ -16,6 +16,7 @@ export default {
   rules: {
     username: 'Username is required',
     password: 'Password is required',
-    captcha: 'Captcha is required'
+    captcha: 'Captcha is required',
+    captchaFormat: 'Enter a 6-digit verification code'
   }
 }

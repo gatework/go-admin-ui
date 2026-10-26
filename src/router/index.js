@@ -36,6 +36,7 @@ import Layout from '@/layout'
  * all roles can be accessed
  */
 export const constantRoutes = [
+  ...['register', 'forgot-password', 'reset-password'].map(path => ({ path: '/' + path, component: () => import('@/views/account-access/index.vue'), hidden: true })),
   {
     path: '/redirect',
     component: Layout,

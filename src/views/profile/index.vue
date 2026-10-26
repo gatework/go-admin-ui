@@ -4,7 +4,7 @@
     <a-spin :loading="loading" class="account-loading">
       <a-alert v-if="failed" type="error"><span>{{ $t('profile.alignment.loadError') }}</span><a-button type="text" @click="load">{{ $t('common.retry') }}</a-button></a-alert>
       <div v-else class="account-workspace">
-        <aside class="account-sidebar">
+        <aside class="account-sidebar" :inert="securityProtected">
           <section class="account-hero">
             <UserAvatar :user="user" @uploaded="user.avatar = $event" />
             <div class="account-hero__copy"><h2>{{ user.nickName || user.username || session.name }}</h2><span>@{{ user.username }}</span><div><a-tag v-for="role in roleNames" :key="role" color="arcoblue">{{ role }}</a-tag></div></div>
@@ -34,7 +34,8 @@
           </section>
           <section id="account-panel-resetPwd" role="tabpanel" :hidden="activeTab !== 'resetPwd'" aria-labelledby="account-tab-resetPwd" class="account-section">
             <header><h3>{{ $t('account.security.title') }}</h3><p>{{ $t('account.security.description') }}</p></header>
-            <ResetPwd />
+            <div :inert="securityProtected"><ResetPwd /></div>
+            <MFASettings v-if="securityVisited" @protected="securityProtected = $event" />
           </section>
           <section id="account-panel-preferences" role="tabpanel" :hidden="activeTab !== 'preferences'" aria-labelledby="account-tab-preferences" class="account-section">
             <header><h3>{{ $t('settings.title') }}</h3><p>{{ $t('profile.alignment.localPreferences') }}</p></header>
@@ -47,7 +48,7 @@
   </PageContainer>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { IconUser, IconSafe, IconSettings } from '@arco-design/web-vue/es/icon'
 import { getUserProfile } from '@/api/admin/sys-user'
 import type { SysUser } from '@/types/admin'
@@ -57,10 +58,13 @@ import PageContainer from '@/components/PageContainer/index.vue'
 import UserAvatar from './userAvatar.vue'
 import UserInfo from './userInfo.vue'
 import ResetPwd from './resetPwd.vue'
+import MFASettings from './components/mfa-settings.vue'
 defineOptions({ name: 'Profile' })
 const session = useUserStore(); const preferences = usePreferencesStore()
 const user = ref<SysUser>({}); const roles = ref<{ roleId: number, roleName: string }[]>([])
 const loading = ref(false); const failed = ref(false); const activeTab = ref('userinfo')
+const securityProtected = ref(false); const securityVisited = ref(false)
+watch(activeTab, tab => { if (tab === 'resetPwd') securityVisited.value = true })
 const tabs = [{ key: 'userinfo', label: 'profile.tabs.info', icon: IconUser }, { key: 'resetPwd', label: 'profile.tabs.password', icon: IconSafe }, { key: 'preferences', label: 'settings.title', icon: IconSettings }]
 const roleNames = computed(() => roles.value.filter(role => user.value.roleIds?.includes(role.roleId) || role.roleId === user.value.roleId).map(role => role.roleName))
 const load = async() => {

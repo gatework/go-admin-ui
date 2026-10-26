@@ -1154,11 +1154,12 @@ export async function installApiMocks(page: Page) {
     })
   }
 
+  await installAccountDefaults(page)
   return { calls, delays }
 }
 
 /** The answer installLoginMocks accepts; anything else is rejected. */
-export const CAPTCHA_ANSWER = '1234'
+export const CAPTCHA_ANSWER = '012345'
 
 /**
  * Mocks for the endpoints reachable *before* a session exists.
@@ -1218,5 +1219,12 @@ export async function installLoginMocks(page: Page) {
     await route.fulfill(json({ code: 400, msg: '验证码错误', data: null }))
   })
 
+  await installAccountDefaults(page)
   return calls
+}
+
+async function installAccountDefaults(page: Page) {
+  await page.route('**/api/v1/account/settings', route => route.fulfill(json({ code: 200, data: { enabled: false, emailConfigured: true, mfaConfigured: true }})))
+  await page.route('**/api/v1/account/mfa', route => route.fulfill(json({ code: 200, data: { enabled: false, configured: true, recoveryCodesRemaining: 0 }})))
+  await page.route('**/api/v1/account/registration-policy', route => route.fulfill(json({ code: 200, data: { enabled: false, emailConfigured: true, mfaConfigured: true }})))
 }

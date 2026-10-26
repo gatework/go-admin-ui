@@ -1,3 +1,4 @@
+import accountAccess from './account-access'
 import errorPage from './error-page'
 import motorAccount from './motor-account'
 import motorLogin from './motor-login'
@@ -26,4 +27,4 @@ import dict from './dict'
  * Unlike zh-CN this does carry menu and dict: those are the translations of
  * text the backend only ever sends in Chinese.
  */
-export default { errorPage, ...motorSettings, ...motorNavbar, ...motorLogin, ...motorAccount, common, schedule, devTools, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables, gen, menu, dict }
+export default { accountAccess, errorPage, ...motorSettings, ...motorNavbar, ...motorLogin, ...motorAccount, common, schedule, devTools, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables, gen, menu, dict }

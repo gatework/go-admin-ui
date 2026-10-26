@@ -104,6 +104,7 @@
                     </a-col>
                   </a-row>
                 </a-form>
+                <RegistrationPolicy v-if="accountUser.roles.includes('admin')" />
               </div>
             </div>
 
@@ -204,6 +205,9 @@
 </template>
 
 <script setup lang="ts">
+import RegistrationPolicy from './registration-policy.vue'
+import { useUserStore } from '@/stores/user'
+const accountUser = useUserStore()
 import { useFormLocale } from '@/composables/useFormLocale'
 
 import { ref, computed, onMounted, nextTick } from 'vue'

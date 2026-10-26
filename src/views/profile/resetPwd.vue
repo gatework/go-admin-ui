@@ -26,6 +26,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import type { FormInstance } from '@arco-design/web-vue'
 import type { FormRules } from '@/types/ui'
+import { useUserStore } from '@/stores/user'
 import { useTagsViewStore } from '@/stores/tagsView'
 import { msgSuccess } from '@/utils/message'
 const { t } = useI18n()
@@ -60,6 +61,8 @@ const submit = async() => {
     user.value = { oldPassword: '', newPassword: '', confirmPassword: '' }
     formRef.value?.clearValidate()
     msgSuccess(response.msg)
+    await useUserStore().resetToken()
+    await router.replace('/login')
   } catch {
     // The request interceptor already reports failures.
   } finally {

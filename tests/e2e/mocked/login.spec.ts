@@ -63,6 +63,26 @@ test.describe('signing in', () => {
     await expect.poll(() => calls.lastLogin?.uuid).toBe('e2e-captcha-2')
   })
 
+  test('captcha accepts exactly six digits and preserves a leading zero', async({ page }) => {
+    const calls = await installLoginMocks(page)
+    await page.goto('/#/login')
+    await expect(page.locator('.captcha-img')).toBeVisible()
+    const code = page.locator('input[name=code]')
+    await expect(code).toHaveAttribute('inputmode', 'numeric')
+    for (const invalid of ['12345', '12345a']) {
+      await code.fill(invalid)
+      await page.locator('.submit-btn').click()
+      await expect(page.getByText('请输入6位数字验证码', { exact: true })).toBeVisible()
+      expect(calls.login).toBe(0)
+    }
+    await code.fill(CAPTCHA_ANSWER)
+    await code.press('End')
+    await code.press('9')
+    await expect(code).toHaveValue(CAPTCHA_ANSWER)
+    await page.locator('.submit-btn').click()
+    await expect.poll(() => calls.lastLogin?.code).toBe(CAPTCHA_ANSWER)
+  })
+
   test('the attempt carries the captcha id the image was issued under', async({ page }) => {
     const calls = await installLoginMocks(page)
     await page.goto('/#/login')
@@ -119,7 +139,7 @@ test.describe('signing in', () => {
     await page.goto('/#/login')
     await expect(page.locator('.captcha-img')).toBeVisible()
 
-    await page.locator('input[name=code]').fill('0000')
+    await page.locator('input[name=code]').fill('000000')
     await page.locator('.submit-btn').click()
 
     await expect.poll(() => calls.login).toBe(1)

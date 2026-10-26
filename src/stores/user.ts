@@ -4,8 +4,11 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 import storage from '@/utils/storage'
 
 export interface LoginPayload {
-  username: string
-  password: string
+  username?: string
+  password?: string
+  challengeToken?: string
+  totpCode?: string
+  recoveryCode?: string
   code?: string
   uuid?: string
 }
@@ -51,8 +54,11 @@ export const useUserStore = defineStore('user', {
   actions: {
     async login(userInfo: LoginPayload) {
       const response = await login(userInfo)
+      if (response.mfaRequired && response.challengeToken) return response
+      if (!response.token) throw new Error('Missing authentication token')
       this.token = response.token
       setToken(response.token)
+      return response
     },
 
     /**
