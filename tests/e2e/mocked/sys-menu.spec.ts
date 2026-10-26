@@ -36,6 +36,40 @@ test.describe('sys-menu', () => {
     await expect(page.getByRole('row', { name: /用户新增/ }).getByText('--')).toBeVisible()
   })
 
+  test('button permissions do not render stored navigation icons', async({ page }) => {
+    await installApiMocks(page)
+    const rows = structuredClone(menuRows)
+    rows[0].children[1].icon = 'app-group-fill'
+    await page.route(/\/api\/v1\/menu(\?|$)/, route => route.fulfill(json({ code: 200, data: rows })))
+
+    await page.goto('/#/admin/sys-menu')
+
+    const buttonRow = page.getByRole('row', { name: /用户新增/ })
+    await expect(buttonRow).toBeVisible()
+    await expect(buttonRow.locator('.menu-icon')).toHaveCount(0)
+    await expect(buttonRow.getByRole('cell').nth(1)).toHaveText('—')
+    await expect(page.locator('.sidebar-container').getByText('用户新增', { exact: true })).toHaveCount(0)
+  })
+
+  test('menu icons match in the table, editor and navigation', async({ page }) => {
+    await installApiMocks(page)
+    await page.goto('/#/admin/sys-menu')
+
+    const row = page.getByRole('row', { name: /用户管理/ })
+    const tableIcon = row.locator('.menu-icon svg')
+    const navigationIcon = page.locator('.sidebar-container .menu-icon svg.arco-icon-user')
+    await expect(tableIcon).toBeVisible()
+    await expect(navigationIcon).toBeVisible()
+    const glyph = await navigationIcon.innerHTML()
+    expect(await tableIcon.innerHTML()).toBe(glyph)
+
+    await row.getByRole('button', { name: '修改', exact: true }).click()
+    const dialog = page.getByRole('dialog', { name: '修改菜单' })
+    const preview = dialog.locator('.arco-icon-select .menu-icon svg')
+    await expect(preview).toBeVisible()
+    expect(await preview.innerHTML()).toBe(glyph)
+  })
+
   test('the permission column reveals the routes it grants', async({ page }) => {
     await installApiMocks(page)
 

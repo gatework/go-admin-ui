@@ -48,7 +48,9 @@
       />
       <a-table-column data-index="icon" :title="$t('admin.sysMenu.icon')" :width="70">
         <template #cell="{ record: row }">
-          <MenuIcon v-if="row.icon" :name="row.icon" />
+          <!-- Button permissions never appear in navigation, even if older rows retain an icon. -->
+          <MenuIcon v-if="row.menuType !== 'F' && row.icon" :name="row.icon" />
+          <span v-else>—</span>
         </template>
       </a-table-column>
       <a-table-column data-index="sort" :title="$t('admin.sysMenu.sort')" :width="70" />
