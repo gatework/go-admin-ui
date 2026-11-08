@@ -1,0 +1,32 @@
+.wireless-page { min-width: 0; }
+.wireless-heading, .wireless-section-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.wireless-heading h1 { margin: 0; font-size: 22px; font-weight: 600; }
+.wireless-heading p, .wireless-muted { color: var(--color-text-3); font-size: 12px; line-height: 1.6; }
+.wireless-page h2, .wireless-ap-detail h2 { margin: 0 0 12px; font-size: 17px; font-weight: 600; }
+.wireless-workspace { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 16px; align-items: start; }
+.wireless-main, .wireless-navigation, .wireless-detail, .wireless-resources { min-width: 0; }
+.wireless-navigation > .arco-card { position: sticky; top: 12px; }
+.wireless-controller-list { border-top: 1px solid var(--color-border-2); margin-top: 16px; padding-top: 8px; }
+.wireless-controller-list > .arco-btn { margin-top: 8px; }
+.wireless-controller { height: auto; min-height: 50px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 3px; white-space: normal; text-align: left; }
+.wireless-controller strong, .wireless-controller span { display: block; overflow-wrap: anywhere; }
+.wireless-controller-list .arco-pagination { justify-content: center; margin-top: 12px; }
+.wireless-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--color-border-2); border-radius: var(--border-radius-medium); margin-bottom: 24px; }
+.wireless-stats > div { padding: 16px; border-right: 1px solid var(--color-border-2); }
+.wireless-stats > div:last-child { border: 0; }
+.wireless-stats span { color: var(--color-text-3); }
+.wireless-stats strong { display: block; font-size: 26px; font-weight: 600; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.wireless-issue-row, .wireless-evidence-row { display: flex; align-items: center; gap: 16px; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--color-border-2); }
+.wireless-issue-row > div:first-child { flex: 1; min-width: 0; }
+.wireless-issue-row p, .wireless-evidence-row p { margin: 5px 0 0; }
+.wireless-counts { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: var(--color-text-3); }
+.wireless-counts b { color: var(--color-text-1); font-variant-numeric: tabular-nums; }
+.wireless-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 28px; margin: 28px 0; }
+.wireless-outcomes { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.wireless-breadcrumb { margin-bottom: 16px; }
+.wireless-form-gap { margin-top: 20px; }
+.wireless-ap-detail .arco-form { margin-top: 20px; }
+.wireless-ap-detail .arco-alert { margin: 12px 0; }
+.wireless-evidence-row { overflow-wrap: anywhere; }
+@media (max-width: 1100px) { .wireless-workspace { grid-template-columns: 220px minmax(0,1fr); } .wireless-issue-row { flex-wrap: wrap; } .wireless-counts { flex-basis: 100%; } }
+@media (max-width: 767px) { .wireless-workspace { display: block; } .wireless-heading, .wireless-section-title { flex-direction: column; } .wireless-grid { grid-template-columns: minmax(0,1fr); } .wireless-stats { grid-template-columns: repeat(2,minmax(0,1fr)); } .wireless-stats > div { border-bottom: 1px solid var(--color-border-2); } .wireless-detail > .arco-card-body { padding: 14px; } .wireless-evidence-row { gap: 8px; flex-wrap: wrap; } }

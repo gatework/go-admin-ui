@@ -1,0 +1,23 @@
+.circuit-drawer {
+  .arco-drawer-body { overflow-wrap: anywhere; }
+  .arco-drawer-footer { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+  .arco-drawer-footer > .arco-btn { margin: 0; }
+  .arco-picker, .arco-input-number { width: 100%; }
+  .arco-collapse-item-content { background: transparent; }
+}
+.circuit-editor { display: block; min-height: 160px; }
+.circuit-section { margin: 28px 0 0; }
+.circuit-section:first-child { margin-top: 0; }
+.circuit-section h2, .circuit-identity h2 { margin: 0 0 16px; color: var(--color-text-1); font-size: var(--motor-font-size-16); font-weight: 600; }
+.circuit-identity { margin-bottom: 24px; overflow-wrap: anywhere; }
+.circuit-identity h2 { font-size: var(--motor-font-size-20); margin-bottom: 6px; }
+.circuit-identity p, .circuit-help { color: var(--color-text-2); line-height: 1.6; margin: 8px 0 16px; }
+.circuit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
+.circuit-notice { margin-bottom: 20px; }
+.circuit-notes { white-space: pre-wrap; line-height: 1.7; overflow-wrap: anywhere; }
+@media (max-width: 767px) {
+  .circuit-grid { grid-template-columns: minmax(0, 1fr); }
+  .circuit-drawer .arco-drawer-footer { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  .circuit-drawer .arco-picker { min-height: 44px; }
+  .circuit-drawer .arco-collapse-item-header { min-height: 44px; }
+}

@@ -1,0 +1,47 @@
+import request from '@/utils/request'
+import type { ApiResponse, PageQuery, PageResult } from '@/types/api'
+import type { DeviceQuery } from '@/types/network'
+import type { CollectionBatch, CollectionInput, FirewallConnection, FirewallConnectionInput, FirewallDevice } from '@/types/firewall'
+import type { Analysis, Coverage, Domain, Draft, FirewallObject, ImportJob, Input, Instance, InstanceInput, InstanceQuery, Normalized, ObjectKind, ObjectQuery, Options, References, RequestInput, SavedRequest, Settings, Snapshot } from '@/types/firewall'
+const base = '/api/v1/network-firewall'
+function read<T>(path: string, signal?: AbortSignal, params?: object) { return request<ApiResponse<T>>({ url: base + path, signal, params }) }
+function write<T>(path: string, data: object, method: 'post' | 'put' = 'post', signal?: AbortSignal) { return request<ApiResponse<T>>({ url: base + path, method, data, signal }) }
+export const getOptions = (signal?: AbortSignal) => read<Options>('/options', signal)
+export const listFirewallDevices = (params: DeviceQuery & PageQuery, signal?: AbortSignal) => read<PageResult<FirewallDevice>>('/devices', signal, params)
+export const getFirewallConnection = (id: number, signal?: AbortSignal) => read<FirewallConnection>(`/devices/${id}/connection`, signal)
+export const saveFirewallConnection = (id: number, data: FirewallConnectionInput, signal?: AbortSignal) => write<FirewallConnection>(`/devices/${id}/connection`, data, 'put', signal)
+export const addCollection = (data: CollectionInput, signal?: AbortSignal) => write<CollectionBatch>('/collection-batches', data, 'post', signal)
+export const listCollections = (params: PageQuery, signal?: AbortSignal) => read<PageResult<CollectionBatch>>('/collection-batches', signal, params)
+export const getCollection = (id: number, signal?: AbortSignal) => read<CollectionBatch>(`/collection-batches/${id}`, signal)
+export const cancelCollection = (id: number) => write<CollectionBatch>(`/collection-batches/${id}/cancel`, {})
+export const listDomains = (signal?: AbortSignal) => read<Domain[]>('/domains', signal)
+export const addDomain = (data: { name: string, code: string }) => write<Domain>('/domains', data)
+export const updateDomain = (id: number, data: { name: string, code: string, version: number }) => write<Domain>(`/domains/${id}`, data, 'put')
+export const listInstances = (params: InstanceQuery & PageQuery, signal?: AbortSignal) => read<PageResult<Instance>>('/instances', signal, params)
+export const addInstance = (data: InstanceInput, signal?: AbortSignal) => write<Instance>('/instances', data, 'post', signal)
+export const getInstance = (id: number, signal?: AbortSignal) => read<Instance>(`/instances/${id}`, signal)
+export const getSettings = (id: number, signal?: AbortSignal) => read<Settings>(`/instances/${id}/settings`, signal)
+export const saveSettings = (id: number, data: Settings, signal?: AbortSignal) => write<Settings>(`/instances/${id}/settings`, data, 'put', signal)
+export const getCoverage = (id: number, signal?: AbortSignal) => read<Coverage[]>(`/instances/${id}/coverage`, signal)
+export const addImport = (id: number, data: { requestKey: string, expectedRevision: string, text: string, filename: string, complete: boolean, capturedAt?: string }, signal?: AbortSignal) => write<ImportJob>(`/instances/${id}/imports`, data, 'post', signal)
+export const getImport = (id: number, signal?: AbortSignal) => read<ImportJob>(`/imports/${id}`, signal)
+export const cancelImport = (id: number) => write<ImportJob>(`/imports/${id}/cancel`, {})
+export const listImports = (id: number, params: PageQuery, signal?: AbortSignal) => read<PageResult<ImportJob>>(`/instances/${id}/imports`, signal, params)
+export const listSnapshots = (id: number, params: PageQuery, signal?: AbortSignal) => read<PageResult<Snapshot>>(`/instances/${id}/snapshots`, signal, params)
+export const listObjects = (snapshot: number, kind: ObjectKind, params: ObjectQuery & PageQuery, signal?: AbortSignal) => read<PageResult<FirewallObject>>(`/snapshots/${snapshot}/objects/${kind}`, signal, params)
+export const getObject = (snapshot: number, kind: ObjectKind, id: number, signal?: AbortSignal) => read<FirewallObject>(`/snapshots/${snapshot}/objects/${kind}/${id}`, signal)
+export const getReferences = (snapshot: number, kind: ObjectKind, id: number, signal?: AbortSignal) => read<References>(`/snapshots/${snapshot}/objects/${kind}/${id}/references`, signal)
+export const normalize = (data: Input, signal?: AbortSignal) => write<Normalized>('/normalize', data, 'post', signal)
+export const listRequests = (params: PageQuery, signal?: AbortSignal) => read<PageResult<SavedRequest>>('/requests', signal, params)
+export const addRequest = (data: RequestInput, signal?: AbortSignal) => write<SavedRequest>('/requests', data, 'post', signal)
+export const getRequest = (id: number, signal?: AbortSignal) => read<SavedRequest>(`/requests/${id}`, signal)
+export const updateRequest = (id: number, data: RequestInput & { version: number }, signal?: AbortSignal) => write<SavedRequest>(`/requests/${id}`, data, 'put', signal)
+export const addAnalysis = (id: number, data: { requestKey: string, version: number }, signal?: AbortSignal) => write<Analysis>(`/requests/${id}/analyses`, data, 'post', signal)
+export const getAnalysis = (id: number, signal?: AbortSignal) => read<Analysis>(`/analyses/${id}`, signal)
+export const cancelAnalysis = (id: number) => write<Analysis>(`/analyses/${id}/cancel`, {})
+export const listAnalyses = (id: number, params: PageQuery, signal?: AbortSignal) => read<PageResult<Analysis>>(`/requests/${id}/analyses`, signal, params)
+export const addDraft = (data: { requestKey: string, analysisId: number, title: string, rowKeys?: string[] }, signal?: AbortSignal) => write<Draft>('/drafts', data, 'post', signal)
+export const listDrafts = (params: PageQuery, signal?: AbortSignal) => read<PageResult<Draft>>('/drafts', signal, params)
+export const getDraft = (id: number, signal?: AbortSignal) => read<Draft>(`/drafts/${id}`, signal)
+export const updateDraft = (id: number, data: { version: number, title: string, notes: string }, signal?: AbortSignal) => write<Draft>(`/drafts/${id}`, data, 'put', signal)
+export const reanalyzeDraft = (id: number, data: { requestKey: string, version: number }, signal?: AbortSignal) => write<Draft>(`/drafts/${id}/reanalyze`, data, 'post', signal)

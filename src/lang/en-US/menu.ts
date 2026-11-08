@@ -15,6 +15,16 @@
  * reviewer can check a translation without opening the SQL.
  */
 export default {
+  NetworkFirewallObjects: 'Firewall Objects',
+  NetworkFirewallQuery: 'Firewall Policy Query',
+  NetworkFirewallDesign: 'Firewall Policy Design',
+  NetworkWirelessManage: 'Wireless management',
+  NetworkFabricManage: 'Fabric Management',
+  NetworkDeliveryManage: 'Configuration Delivery',
+  NetworkCircuitManage: 'Circuit Inventory',
+  NetworkDiagnostics: 'Network diagnostics',
+  NetworkManagement: 'Network Management', // 网络管理
+  NetworkDeviceManage: 'Device Inventory', // 设备管理
   Admin: 'System', // 系统管理
   SysUserManage: 'User Management', // 用户管理
   SysMenuManage: 'Menu Management', // 菜单管理

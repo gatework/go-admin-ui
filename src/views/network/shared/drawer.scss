@@ -1,0 +1,19 @@
+// Keep native theme colors and density; enlarge only touch controls.
+@media (max-width: 767px), (pointer: coarse) {
+  .network-drawer {
+    .arco-btn,
+    .arco-input-wrapper,
+    .arco-select-view-single,
+    .arco-input-tag { min-height: 44px; }
+
+    .arco-drawer-close-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+
+    .arco-input-wrapper .arco-input,
+    .arco-textarea-wrapper .arco-textarea,
+    .arco-select-view .arco-select-view-input,
+    .arco-select-view .arco-select-view-value,
+    .arco-select-view .arco-select-view-placeholder,
+    .arco-input-tag .arco-input-tag-input,
+    .arco-input-tag .arco-input-tag-inner { font-size: max(16px, var(--motor-base-font-size)); }
+  }
+}

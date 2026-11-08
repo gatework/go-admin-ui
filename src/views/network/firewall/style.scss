@@ -1,0 +1,198 @@
+.fw-page {
+  min-width: 0;
+}
+
+.fw-heading,
+.fw-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.fw-heading h1 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  color: var(--color-text-1);
+}
+
+.fw-heading p,
+.fw-muted {
+  margin: 4px 0 12px;
+  color: var(--color-text-3);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.fw-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.fw-main,
+.fw-sidebar {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.fw-sidebar .arco-btn {
+  max-width: 100%;
+}
+
+.fw-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.fw-toolbar>.arco-select {
+  width: 220px;
+  max-width: 100%;
+}
+
+.fw-page .arco-card {
+  min-width: 0;
+}
+
+.fw-connection-status {
+  max-width: 100%;
+  height: auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.fw-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fw-grid .arco-form-item {
+  margin-bottom: 8px;
+}
+
+.fw-row,
+.fw-binding {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.fw-row:first-child {
+  padding-top: 0;
+}
+
+.fw-binding .arco-form-item {
+  margin-bottom: 12px;
+}
+
+.fw-notices {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.fw-section {
+  margin-top: 20px;
+}
+
+.fw-section h2,
+.fw-section h3 {
+  font-size: 16px;
+  margin: 0 0 12px;
+  color: var(--color-text-1);
+}
+
+.fw-definition {
+  display: grid;
+  grid-template-columns: minmax(120px, 200px) minmax(0, 1fr);
+  gap: 10px;
+  margin: 0;
+}
+
+.fw-definition dt {
+  color: var(--color-text-3);
+}
+
+.fw-definition dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.fw-list-button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  white-space: normal;
+  height: auto;
+  padding: 10px;
+  margin: 4px 0;
+}
+
+.fw-scroll {
+  overflow: auto;
+  max-width: 100%;
+}
+
+.fw-inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fw-page .arco-descriptions-item-value {
+  overflow-wrap: anywhere;
+}
+
+.fw-file {
+  display: block;
+  max-width: 100%;
+  margin: 12px 0;
+}
+
+.fw-card-list {
+  display: grid;
+  gap: 12px;
+}
+
+@media (max-width:900px) {
+  .fw-device-workspace .pro-card__badge {
+    max-width: 45%;
+  }
+
+  .fw-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .fw-sidebar {
+    order: 0;
+  }
+
+  .fw-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fw-toolbar>.arco-select {
+    flex: 1;
+    min-width: 160px;
+  }
+
+  .fw-definition {
+    grid-template-columns: 100px minmax(0, 1fr);
+  }
+
+  .fw-heading h1 {
+    font-size: 20px;
+  }
+}
+
+.fw-full-width { width: 100%; }
+.fw-batch-detail h2 { margin: 0; font-size: 16px; }

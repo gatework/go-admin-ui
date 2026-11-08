@@ -1,3 +1,6 @@
+import networkFirewall from './network/firewall'
+import networkWireless from './network/wireless'
+import networkFabric from './network/fabric'
 import accountAccess from './account-access'
 import errorPage from './error-page'
 import motorAccount from './motor-account'
@@ -18,6 +21,10 @@ import dashboard from './dashboard'
 import admin from './admin'
 import composables from './composables'
 import gen from './gen'
+import network from './network'
+import networkDiagnostics from './network/diagnostics'
+import networkCircuit from './network/circuit'
+import networkDelivery from './network/delivery'
 import menu from './menu'
 import dict from './dict'
 
@@ -27,4 +34,4 @@ import dict from './dict'
  * Unlike zh-CN this does carry menu and dict: those are the translations of
  * text the backend only ever sends in Chinese.
  */
-export default { accountAccess, errorPage, ...motorSettings, ...motorNavbar, ...motorLogin, ...motorAccount, common, schedule, devTools, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables, gen, menu, dict }
+export default { networkFirewall, networkWireless, networkFabric, networkDelivery, networkCircuit, networkDiagnostics, accountAccess, errorPage, ...motorSettings, ...motorNavbar, ...motorLogin, ...motorAccount, common, schedule, devTools, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables, gen, network, menu, dict }

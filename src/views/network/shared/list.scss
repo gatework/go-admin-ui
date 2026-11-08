@@ -1,0 +1,7 @@
+@media (max-width: 767px), (pointer: coarse) {
+  .network-list .pro-table__fab-menu {
+    max-width: calc(100vw - 32px);
+
+    .arco-btn { min-height: 44px; }
+  }
+}
