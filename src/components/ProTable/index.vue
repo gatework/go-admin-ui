@@ -319,7 +319,7 @@ watch(asCards, cards => { if (!cards) fabOpen.value = false })
 const PAGING_KEYS = new Set(['pageIndex', 'pageSize', 'orderBy', 'sort', 'order'])
 const activeFilters = computed(() =>
   Object.entries(props.table.query as Record<string, unknown>).filter(([key, value]) => {
-    if (PAGING_KEYS.has(key)) return false
+    if (PAGING_KEYS.has(key) || (key.endsWith('Order') && (value === 'asc' || value === 'desc'))) return false
     if (value === undefined || value === null || value === '') return false
     return !(Array.isArray(value) && value.length === 0)
   }).length

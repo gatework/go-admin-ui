@@ -101,3 +101,14 @@ it('maps native selected keys to records and clears them when results are replac
   expect(table.selectedIds).toEqual([])
   wrapper.unmount()
 })
+
+it('counts search values but excludes sorting from the mobile filter badge', async() => {
+  const table = useTable<object, { keyword: string }>({ immediate: false, api: async() => ({ code: 200, msg: '', data: { list: [], count: 0 }}), defaultSort: { prop: 'createdAt', order: 'descending' }, defaultQuery: () => ({ keyword: 'switch' }) })
+  const wrapper = shallowMount(ProTable<object, { keyword: string }>, { global: { ...global, renderStubDefaultSlot: true }, props: { table }, slots: { search: '<input />' }})
+  await nextTick()
+  expect(wrapper.find('.pro-table__filter-bar').text()).toContain('· 1')
+  table.query.keyword = ''
+  await nextTick()
+  expect(wrapper.find('.pro-table__filter-bar').text()).not.toContain('·')
+  wrapper.unmount()
+})
