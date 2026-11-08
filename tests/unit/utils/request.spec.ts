@@ -26,6 +26,7 @@ const requestSpy = vi.hoisted(() => vi.fn())
 
 vi.mock('axios', () => ({
   default: {
+    isCancel: (error: { __CANCEL__?: boolean }) => error.__CANCEL__ === true,
     create: () => ({
       request: requestSpy,
       interceptors: {
@@ -71,12 +72,25 @@ describe('request response interceptor', () => {
     resetToken.mockClear()
   })
 
+  it('silently rejects deliberate request cancellation during drawer or period changes', async() => {
+    const error = Object.assign(new Error('canceled'), { __CANCEL__: true, code: 'ERR_CANCELED' }) as unknown as AxiosError
+    await expect(captured.rejected!(error)).rejects.toBe(error)
+    expect(message).not.toHaveBeenCalled()
+  })
+
   it('resolves with the envelope, not the axios response', async() => {
     const out = await Promise.resolve(captured.fulfilled!(envelope({ code: 200, data: { id: 1 }, msg: 'ok' })))
 
     // Callers read `.data` off this, so it has to be the body
     expect(out).toEqual({ code: 200, data: { id: 1 }, msg: 'ok' })
     expect(message).not.toHaveBeenCalled()
+  })
+
+  it('preserves a business conflict code from an HTTP 200 envelope', async() => {
+    const error = await Promise.resolve(captured.fulfilled!(envelope({ code: 409, msg: '资料已更新，请重新加载' })))
+      .catch((e: Error) => e)
+    expect(error).toMatchObject({ code: 409, reported: true, message: '资料已更新，请重新加载' })
+    expect(message).toHaveBeenCalledTimes(1)
   })
 
   describe('every non-200 rejects, with a real Error carrying the message', () => {

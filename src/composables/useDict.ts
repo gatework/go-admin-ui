@@ -67,12 +67,9 @@ export function useDict<T extends string>(...types: T[]): Record<T, ComputedRef<
 /**
  * Look up the label for a value.
  *
- * NOT interchangeable with utils/costum.js's selectDictLabel, which the
- * unmigrated Options-API pages still use: that one compares strictly after
- * stringifying and falls back to an empty string. This compares loosely -- the
- * backend sends dictionary values as strings while several tables store the
- * same field as a number -- and falls back to the raw value, so an unmapped
- * code shows as itself instead of vanishing from the column.
+ * Compare loosely because the backend sends dictionary values as strings while
+ * several tables store the same field as a number. Fall back to the raw value
+ * so an unmapped code shows as itself instead of vanishing from the column.
  */
 export function dictLabel(options: DictOption[], value: unknown): string {
   if (value === undefined || value === null) return ''

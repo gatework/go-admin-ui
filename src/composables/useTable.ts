@@ -118,7 +118,7 @@ export interface UseTableReturn<TRow, TQuery extends object> {
   handleSelectionChange: (rows: TRow[]) => void
   /** Receives the normalized property/order from ProTable. */
   handleSortChange: (arg: { prop: string | null, order: string | null }) => Promise<void>
-  /** Bind to AppPagination's `pagination`. */
+  /** Bind to Pagination's `pagination`. */
   handlePagination: (payload: { page: number, limit: number }) => Promise<void>
 }
 

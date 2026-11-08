@@ -1,8 +1,8 @@
 <template>
-  <div :class="{'show':show}" class="header-search" @click.stop @keydown.esc.stop="close(); $refs.searchTrigger.focus()">
-    <button ref="searchTrigger" type="button" class="search-trigger" :aria-label="$t('common.search')" :aria-expanded="show" @click.stop="click">
+  <div :class="{'show':show}" class="header-search" @click.stop @keydown.esc.capture.stop.prevent="closeAndFocus">
+    <HeaderIconButton ref="searchTrigger" class="search-trigger" :aria-label="$t('common.search')" :aria-expanded="show" @click.stop="click">
       <icon-search class="search-icon" />
-    </button>
+    </HeaderIconButton>
     <a-select
       v-if="show"
       ref="headerSearchSelect"
@@ -24,6 +24,7 @@
 // fuse is a lightweight fuzzy-search module
 // make search results more in line with expectations
 import { mapState } from 'pinia'
+import HeaderIconButton from '@/components/header-icon-button/index.vue'
 import { usePermissionStore } from '@/stores/permission'
 import Fuse from 'fuse.js'
 import path from 'path'
@@ -31,6 +32,7 @@ import { routeTitle } from '@/lang/backend'
 
 export default {
   name: 'HeaderSearch',
+  components: { HeaderIconButton },
   data() {
     return {
       search: '',
@@ -87,6 +89,11 @@ export default {
       this.$el.querySelector('input')?.blur()
       this.options = []
       this.show = false
+    },
+    async closeAndFocus() {
+      this.close()
+      await this.$nextTick()
+      this.$refs.searchTrigger.focus()
     },
     change(val) {
       this.$router.push(val)
@@ -168,29 +175,10 @@ export default {
 
 <style lang="scss" scoped>
 .header-search {
-  font-size: 0 !important;
-
-  .search-trigger {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    min-width: 24px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-  }
-
-  .search-icon {
-    cursor: pointer;
-    font-size: 18px;
-    vertical-align: middle;
-  }
+  display: inline-flex;
+  align-items: center;
 
   .header-search-select {
-    font-size: 18px;
     transition: width 0.2s;
     width: 0;
     overflow: hidden;
@@ -220,6 +208,5 @@ export default {
 </style>
 
 <style scoped>
-.search-trigger { width: 32px; height: 32px; padding: 0; display: grid; place-items: center; border-radius: var(--motor-radius-sm); color: var(--motor-text-2); } .search-trigger:hover { background: var(--motor-surface-hover); }
 @media (max-width: 767px) { .header-search.show { position: absolute; left: 8px; right: 8px; z-index: 1; background: var(--motor-surface); } .header-search-select { width: calc(100vw - 70px) !important; } }
 </style>

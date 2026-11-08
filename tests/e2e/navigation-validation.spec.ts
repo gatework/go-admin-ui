@@ -1,10 +1,7 @@
 /**
  * go-admin-ui Navigation and Content Rendering Validation
  *
- * Verifies the following fixes:
- * 1. permission.js loadView: require.context now extracts .default (fixes component loading)
- * 2. main.js: registers both `this.getDicts` and `this.$getDicts` (fixes 107 usage sites)
- * 3. main.js: registers both `Pagination` and `AppPagination` component names
+ * Checks page loading, API calls and pagination against a running backend.
  *
  * Auth: JWT token pre-obtained via captcha-solving, injected via context.addCookies()
  * before page navigation, so Vue router guard reads the cookie correctly.
@@ -268,8 +265,8 @@ test.describe('go-admin-ui Navigation and Content Rendering Validation', () => {
     const fix3Pass = elTableCount > 0 || elCardCount > 0 // component rendered
 
     console.log('Fix 1 (loadView .default - no "Cannot find module"):', fix1Pass ? 'PASS' : 'FAIL')
-    console.log('Fix 2 (getDicts registration - no getDicts errors):', fix2Pass ? 'PASS' : 'FAIL')
-    console.log('Fix 3 (Pagination/AppPagination - page renders):', fix3Pass ? 'PASS' : 'FAIL')
+    console.log('Dictionary API calls (no getDicts errors):', fix2Pass ? 'PASS' : 'FAIL')
+    console.log('Table components render:', fix3Pass ? 'PASS' : 'FAIL')
     console.log('el-card present:', elCardCount > 0 ? 'PASS' : 'FAIL')
     console.log('el-table present:', elTableCount > 0 ? 'PASS' : 'FAIL')
     console.log('Data loaded (rows > 0):', elTableRowCount > 0 ? 'YES' : 'NO (may be empty or still loading)')
@@ -480,7 +477,7 @@ test.describe('go-admin-ui Navigation and Content Rendering Validation', () => {
 
     console.log('\n=== Fix Verification Summary ===')
     console.log('Fix 1 - loadView .default (no "Cannot find module"):', hasModuleError ? 'FAIL' : 'PASS')
-    console.log('Fix 2 - getDicts registration (no getDicts errors):', hasGetDictsError ? 'FAIL' : 'PASS')
+    console.log('Dictionary API calls (no getDicts errors):', hasGetDictsError ? 'FAIL' : 'PASS')
     console.log('Fix 3 - Pagination component (no Pagination errors):', hasPaginationError ? 'FAIL' : 'PASS')
     console.log('\nTotal JS errors across all pages:', allErrors.length)
 

@@ -413,19 +413,17 @@ e2e 的浏览器语言在 `playwright.config.ts` 里钉死为 `zh-CN`。别去�
 无需 import 即可使用：
 
 - 指令：`v-permisaction` `v-permission`
-- 组件：`<BasicLayout>` `<AppPagination>` `<SvgIcon>` `<CodeEditor>`
-  （前两个是存量页面用的旧写法，新页面用 `PageContainer` / `ProTable`，显式 import）
+- 组件：`<BasicLayout>` `<SvgIcon>`；新页面显式 import `PageContainer` / `ProTable`。
 - Arco 图标已全局注册，例如 `<icon-user />`。
 
-`this.$getDicts` `this.$parseTime` `this.$msgSuccess` 这类挂在 globalProperties 上的
-方法**只在 Options API 组件里可用**。`<script setup>` 没有 `this`，一律改 import：
+工具函数显式 import；字典和表单使用对应 composable：
 
-| 旧 | 新 |
+| 能力 | 用法 |
 |---|---|
-| `this.$msgSuccess` / `this.$msgError` | `import { msgSuccess, msgError } from '@/utils/message'` |
-| `this.$parseTime` | `import { parseTime } from '@/utils/costum'` |
-| `this.getDicts(...)` | `useDict('...')` |
-| `this.resetForm('form')` | `useForm` 的 `reset()`（没有直接的 import 等价物） |
+| 消息提示 | `import { msgSuccess, msgError } from '@/utils/message'` |
+| 时间格式化 | `import { parseTime } from '@/utils/costum'` |
+| 字典选项 | `useDict('...')` |
+| 表单重置 | `useForm` 的 `reset()` |
 
 ## Vue 3 注意事项
 
@@ -437,7 +435,7 @@ e2e 的浏览器语言在 `playwright.config.ts` 里钉死为 `zh-CN`。别去�
 | `slot-scope="scope"` | `#default="scope"` |
 | `:visible.sync` `:page.sync` | `v-model:visible` `v-model:page` |
 | `@keyup.enter.native` | `@keyup.enter` |
-| `filters` 选项 | `$filters.xxx(val)` |
+| `filters` 选项 | 显式 import 格式化函数，在模板中调用 |
 | `this.$set` / `this.$delete` | 直接赋值 |
 | 指令 `bind` / `inserted` / `unbind` | `beforeMount` / `mounted` / `unmounted` |
 

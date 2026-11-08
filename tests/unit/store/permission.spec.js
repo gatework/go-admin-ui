@@ -103,6 +103,25 @@ describe('stores/permission', () => {
       expect(routes[0].children[0].path).toBe('child')
     })
 
+    it('keeps an explicit directory visible when it has one page', () => {
+      const routes = []
+      generaMenu(routes, [menuItem({
+        path: '/network', component: 'Layout', menuType: 'M',
+        menuName: 'NetworkManagement',
+        children: [menuItem({ path: '/network/device', menuType: 'C' })]
+      })])
+
+      expect(routes[0].alwaysShow).toBe(true)
+      expect(routes[0].redirect).toBe('/network/device')
+      expect(routes[0].children[0].alwaysShow).toBe(false)
+    })
+
+    it('does not force an untyped layout wrapper into the sidebar', () => {
+      const routes = []
+      generaMenu(routes, [menuItem({ component: 'Layout', children: [menuItem()] })])
+      expect(routes[0].alwaysShow).toBe(false)
+    })
+
     /**
      * A directory route renders nothing on its own, so navigating straight to
      * it would leave the content area blank.

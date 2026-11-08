@@ -20,7 +20,6 @@
         <div class="preferences-header__actions">
           <HeaderIconButton
             :tooltip="t('settings.preference.reset')"
-            motion="spin"
             @click="resetPreferences"
           >
             <icon-refresh />
@@ -28,7 +27,6 @@
           <HeaderIconButton
             :tooltip="t('settings.pin')"
             :active="appStore.preferencesPinned"
-            motion="pulse"
             @click="
               appStore.updateSettings({
                 preferencesPinned: !appStore.preferencesPinned,

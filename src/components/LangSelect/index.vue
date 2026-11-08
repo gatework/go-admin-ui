@@ -1,6 +1,6 @@
 <template>
   <AppDropdown v-if="!fixed" trigger="click" @select="choose">
-    <HeaderIconButton v-bind="$attrs" type="button" class="lang-select" :title="$t('layout.language')" :aria-label="$t('layout.language')">
+    <HeaderIconButton v-bind="$attrs" class="lang-select" :title="$t('layout.language')" :aria-label="$t('layout.language')">
       <icon-language />
     </HeaderIconButton>
     <template #content>
@@ -68,19 +68,3 @@ const choose = async(value: unknown) => {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.lang-select {
-  border: none;
-  background: transparent;
-  color: inherit;
-  padding: 0;
-  min-width: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  font-size: 18px;
-  cursor: pointer;
-}
-</style>
