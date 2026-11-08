@@ -25,7 +25,8 @@ jobs:
       - name: checkout go-admin
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: go-admin-team/go-admin
+          repository: gatework/go-admin
+          ref: 9855adac4958efaca3fb54a447f8bde5edd515da # v2.4.1
           path: go-admin
 
       # The bases every model embeds -- id, createdAt, createBy and the rest --

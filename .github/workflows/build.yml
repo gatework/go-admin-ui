@@ -8,6 +8,9 @@ on:
 
 jobs:
   build:
+    # Only the upstream repository owns the demo host and analytics property.
+    # Forks build deployable assets in nodejs.yml without running this deploy.
+    if: github.repository == 'go-admin-team/go-admin-ui'
     runs-on: ubuntu-latest
 
     steps:
