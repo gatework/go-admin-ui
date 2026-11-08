@@ -1,6 +1,7 @@
 <template>
-  <PageContainer class="fw-page fw-query-page">
-    <Heading /><a-alert
+  <PageContainer class="fw-page fw-query-page" :title="t('networkFirewall.title')" :description="t('networkFirewall.description')">
+    <template #actions><SectionNav /></template>
+    <a-alert
       v-if="!workspace.allowed('query')"
       type="warning"
     >{{ t('networkFirewall.readRequired') }}</a-alert><template v-else><a-alert
@@ -9,56 +10,58 @@
                                                                        >{{ t('networkFirewall.loadFailed') }}<template #action><a-button
                                                                          @click="load"
                                                                        >{{ t('networkFirewall.retry') }}</a-button></template></a-alert>
-      <div class="fw-layout">
-        <aside class="fw-sidebar"><a-card :title="t('networkFirewall.savedRequests')"><a-button
-          @click="newRequest"
-        >{{ t('common.add') }}</a-button><a-button
-          v-for="item in requests.rows"
-          :key="item.id"
-          class="fw-list-button"
-          :type="requestId === item.id ? 'primary' : 'text'"
-          @click="selectRequest(item.id)"
-        >{{ item.title || `#${item.id}` }}<br><small>v{{ item.version }}</small></a-button><a-pagination
-          simple
-          :total="requests.total"
-          :current="requests.query.pageIndex"
-          :page-size="requests.query.pageSize"
-          @change="pageIndex => requests.handlePagination({ page: pageIndex, limit: requests.query.pageSize })"
-        /></a-card><a-card
-          v-if="saved"
-          :title="t('networkFirewall.analyses')"
-        ><a-button @click="analyses.getList">{{ t('networkFirewall.refresh') }}</a-button><a-button
-          v-for="item in analyses.rows"
-          :key="item.id"
-          class="fw-list-button"
-          :type="analysisId === item.id ? 'primary' : 'text'"
-          @click="navigate({ analysis: item.id })"
-        >#{{ item.id }} ·
-          <StateTag :value="item.status" /><br><small>v{{ item.requestVersion }}</small>
-        </a-button><a-pagination
-          simple
-          :total="analyses.total"
-          :current="analyses.query.pageIndex"
-          :page-size="analyses.query.pageSize"
-          @change="pageIndex => analyses.handlePagination({ page: pageIndex, limit: analyses.query.pageSize })"
-        /></a-card></aside>
-        <main class="fw-main"><a-card><a-form
-                                        :model="metadata"
-                                        layout="vertical"
-                                      >
-                                        <div class="fw-grid"><a-form-item :label="t('networkFirewall.titleField')"><a-input
-                                          v-model="metadata.title"
-                                          :disabled="workspace.pending.value"
-                                          :input-attrs="{ 'aria-label': t('networkFirewall.titleField') }"
-                                        /></a-form-item><a-form-item :label="t('networkFirewall.domain')"><a-select
-                                          v-model="metadata.domainId"
-                                          :disabled="workspace.pending.value"
-                                        ><a-option
-                                          v-for="domain in options.domains"
-                                          :key="domain.id"
-                                          :value="domain.id"
-                                        >{{ domain.name }}</a-option></a-select></a-form-item></div>
-                                      </a-form>
+      <AsideLayout :title="t('networkFirewall.savedRequests')" collapse="stack">
+        <template #aside>
+          <div class="fw-aside-lists">
+            <NavList
+              :title="t('networkFirewall.savedRequests')"
+              :items="requests.rows.map(item => ({ key: item.id, title: item.title || `#${item.id}`, description: `v${item.version}` }))"
+              :selected="requestId"
+              :total="requests.total"
+              :page="requests.query.pageIndex"
+              :page-size="requests.query.pageSize"
+              :loading="requests.loading"
+              :empty-text="t('networkFirewall.noRequests')"
+              @page="pageIndex => requests.handlePagination({ page: pageIndex, limit: requests.query.pageSize })"
+              @select="key => selectRequest(Number(key))"
+            >
+              <template #actions><a-button type="text" size="small" :aria-label="t('common.add')" :title="t('common.add')" @click="newRequest"><template #icon><icon-plus /></template></a-button></template>
+            </NavList>
+            <NavList
+              v-if="saved"
+              :title="t('networkFirewall.analyses')"
+              :items="analyses.rows.map(item => ({ key: item.id, title: `#${item.id}`, description: `v${item.requestVersion}`, status: item.status }))"
+              :selected="analysisId"
+              :total="analyses.total"
+              :page="analyses.query.pageIndex"
+              :page-size="analyses.query.pageSize"
+              :loading="analyses.loading"
+              :empty-text="t('networkFirewall.noAnalyses')"
+              @page="pageIndex => analyses.handlePagination({ page: pageIndex, limit: analyses.query.pageSize })"
+              @select="key => navigate({ analysis: Number(key) })"
+            >
+              <template #actions><a-button type="text" size="small" :aria-label="t('networkFirewall.refresh')" :title="t('networkFirewall.refresh')" @click="analyses.getList"><template #icon><icon-refresh /></template></a-button></template>
+              <template #meta="{ item }"><StateTag :value="item.status" /></template>
+            </NavList>
+          </div>
+        </template>
+        <div class="fw-main"><a-card><a-form
+                                       :model="metadata"
+                                       layout="vertical"
+                                     >
+                                       <div class="fw-grid"><a-form-item :label="t('networkFirewall.titleField')"><a-input
+                                         v-model="metadata.title"
+                                         :disabled="workspace.pending.value"
+                                         :input-attrs="{ 'aria-label': t('networkFirewall.titleField') }"
+                                       /></a-form-item><a-form-item :label="t('networkFirewall.domain')"><a-select
+                                         v-model="metadata.domainId"
+                                         :disabled="workspace.pending.value"
+                                       ><a-option
+                                         v-for="domain in options.domains"
+                                         :key="domain.id"
+                                         :value="domain.id"
+                                       >{{ domain.name }}</a-option></a-select></a-form-item></div>
+                                     </a-form>
           <p class="fw-muted">{{ t('networkFirewall.domainHelp') }}</p><a-alert
             type="info"
           >{{ t('networkFirewall.defaultProtocol') }}</a-alert>
@@ -204,8 +207,8 @@
             v-if="analysis.result"
             :result="analysis.result"
           />
-        </a-card></main>
-      </div>
+        </a-card></div>
+      </AsideLayout>
     </template>
   </PageContainer>
 </template>
@@ -218,7 +221,9 @@ import AppTabs from '@/components/AppTabs/index.vue'
 import { useTable } from '@/composables/useTable'
 import * as api from '@/api/network/firewall'
 import type { Analysis, Input, Normalized, Options, SavedRequest } from '@/types/firewall'
-import Heading from './heading.vue'
+import AsideLayout from '@/components/AsideLayout/index.vue'
+import NavList from '@/components/NavList/index.vue'
+import SectionNav from './section-nav.vue'
 import Results from './results.vue'
 import Notices from './notices.vue'
 import StateTag from './state-tag.vue'

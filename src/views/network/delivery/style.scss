@@ -22,12 +22,7 @@
   .delivery-picked-list span { overflow-wrap: anywhere; }
   .delivery-picked-list small { color: var(--color-text-2); margin-left: 8px; }
   .delivery-picked-list .arco-btn { flex-shrink: 0; min-height: 40px; }
-  .delivery-inventory { display: grid; grid-template-columns: 208px minmax(0, 1fr); align-items: start; gap: 24px; }
   .delivery-inventory-nav { min-width: 0; }
-  .delivery-inventory-nav h3, .delivery-group-nav h3 { margin: 0 0 12px; font-size: var(--motor-font-size-14); font-weight: 600; }
-  .delivery-inventory-nav .arco-tree { overflow: auto; max-height: 640px; }
-  .delivery-inventory-nav .arco-tree-node-title { white-space: normal; overflow-wrap: anywhere; padding-top: 8px; padding-bottom: 8px; }
-  .delivery-inventory-main { min-width: 0; }
   .delivery-device-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
   .delivery-device-filters > .arco-form-item { margin-bottom: 0; }
   .delivery-device-filters .delivery-device-search { grid-column: 1 / -1; margin: 0; }
@@ -65,6 +60,7 @@
   .delivery-target .delivery-missing { color: rgb(var(--danger-7)); }
   .delivery-script { min-width: 0; }
   .delivery-group-nav { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .delivery-group-nav h3 { margin: 0 0 12px; font-size: var(--motor-font-size-14); font-weight: 600; }
   .delivery-group-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
   .delivery-group-heading h3 { margin: 0 0 8px; font-size: var(--motor-font-size-18); }
   .delivery-group-heading p { margin: 0; color: var(--color-text-2); line-height: 1.5; }
@@ -112,8 +108,6 @@
   .delivery-page, .delivery-drawer {
     .delivery-launch { align-items: stretch; flex-direction: column; gap: 12px; }
     .delivery-launch > .arco-btn { min-height: 44px; }
-    .delivery-inventory { display: block; }
-    .delivery-inventory-nav { margin-bottom: 16px; }
     .delivery-device-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .delivery-device-filters .arco-select-view-single { min-height: 44px; }
     .delivery-selection { flex-wrap: nowrap; gap: 4px; padding-bottom: 8px; margin-bottom: 12px; }
@@ -122,7 +116,6 @@
     .delivery-device-search .arco-btn, .delivery-selection-actions .arco-btn, .delivery-selection-actions .arco-checkbox, .delivery-selection .arco-btn { min-height: 44px; }
     .delivery-selection-actions > span { margin-left: 0; }
     .delivery-device-check > .arco-checkbox { min-height: 44px; min-width: 32px; display: flex; align-items: center; }
-    .delivery-picker .pro-table .arco-empty { display: none; }
   }
   .delivery-drawer {
     .delivery-workbench { display: block; }
@@ -141,5 +134,4 @@
     .delivery-picker-actions > .arco-btn { min-height: 44px; }
     .delivery-code { padding: 12px; font-size: var(--motor-font-size-12); }
   }
-  .delivery-page .pro-table .arco-empty { display: none; }
 }

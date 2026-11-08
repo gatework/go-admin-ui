@@ -1,12 +1,13 @@
 <template>
-  <PageContainer class="fabric-page">
-    <header class="fabric-heading"><div><h1>{{ t('networkFabric.title') }}</h1><p>{{ t('networkFabric.description') }}</p></div><a-space wrap><a-button v-if="allowed('edit')" @click="rulesVisible = true">{{ t('networkFabric.rules') }}</a-button><a-button v-if="canReadDetail || allowed('list')" @click="endpointVisible = true">{{ t('networkFabric.allRegions') }}</a-button></a-space></header>
+  <PageContainer class="fabric-page" :title="t('networkFabric.title')" :description="t('networkFabric.description')">
+    <template #actions><a-button v-if="allowed('edit')" @click="rulesVisible = true">{{ t('networkFabric.rules') }}</a-button><a-button v-if="canReadDetail || allowed('list')" @click="endpointVisible = true">{{ t('networkFabric.allRegions') }}</a-button></template>
     <template v-if="!location.id || !canReadDetail">
       <a-alert v-if="failed" type="warning">{{ t('networkFabric.loadFailed') }}<template #action><a-button @click="table.getList">{{ t('common.refresh') }}</a-button></template></a-alert>
       <ProTable :table="table" row-key="id" :actions-width="100">
         <template #search><a-form-item :label="t('networkFabric.keyword')"><a-input v-model="table.query.keyword" :input-attrs="{ 'aria-label': t('networkFabric.keyword') }" allow-clear /></a-form-item></template>
         <template #toolbar><span class="fabric-hint">{{ t('networkFabric.scope') }}</span></template>
-        <a-table-column data-index="code" :title="t('networkFabric.region')" :width="180"><template #cell="{ record }"><a-button v-if="canReadDetail" type="text" @click="select(record.id)">{{ record.code }}</a-button><strong v-else>{{ record.code }}</strong><span v-if="record.name !== record.code" class="fabric-secondary">{{ record.name }}</span></template></a-table-column>
+        <!-- data-index "code" reads as a primary key, which ProTable skips for the phone card title; the region is the identity here. -->
+        <a-table-column data-index="code" card-role="title" :title="t('networkFabric.region')" :width="180"><template #cell="{ record }"><a-button v-if="canReadDetail" type="text" @click="select(record.id)">{{ record.code }}</a-button><strong v-else>{{ record.code }}</strong><span v-if="record.name !== record.code" class="fabric-secondary">{{ record.name }}</span></template></a-table-column>
         <a-table-column data-index="state" :title="t('networkFabric.state')" :width="140"><template #cell="{ record }"><StateTag :value="record.state" /><span v-if="!record.completeScope" class="fabric-secondary">{{ t('networkFabric.scope') }}</span></template></a-table-column>
         <a-table-column data-index="evidenceCoverage" :title="t('networkFabric.coverage')" :width="140"><template #cell="{ record }">{{ record.evidenceCoverage }}%<span class="fabric-secondary">{{ t('networkFabric.problem.title') }}: {{ record.issueCount }}</span></template></a-table-column>
         <a-table-column data-index="memberCount" :title="t('networkFabric.members')" :width="110" />

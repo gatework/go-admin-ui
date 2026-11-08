@@ -1,6 +1,6 @@
 export default {
   device: {
-    title: '设备管理', source: '来源：Netdisco', lastSync: '最近同步', neverSynced: '尚未同步', sync: '同步台账', syncing: '正在同步台账',
+    title: '设备管理', pageDescription: '从 Netdisco 同步设备资料，按区域分组查找设备并维护人工台账。', source: '来源：Netdisco', lastSync: '最近同步', neverSynced: '尚未同步', sync: '同步台账', syncing: '正在同步台账',
     syncSucceeded: '同步完成：新增 {imported} 台，更新 {updated} 台，共 {total} 台。',
     syncFailed: '同步未完成，已有台账保持不变。可稍后重试同步。',
     syncRunning: '台账正在同步。完成后刷新同步状态和列表。', checkSync: '刷新同步状态',

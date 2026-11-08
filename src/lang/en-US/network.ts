@@ -1,6 +1,6 @@
 export default {
   device: {
-    title: 'Devices', source: 'Source: Netdisco', lastSync: 'Last sync', neverSynced: 'Not synced yet', sync: 'Sync inventory', syncing: 'Syncing inventory',
+    title: 'Devices', pageDescription: 'Sync device records from Netdisco, find devices by area group, and maintain the manual inventory.', source: 'Source: Netdisco', lastSync: 'Last sync', neverSynced: 'Not synced yet', sync: 'Sync inventory', syncing: 'Syncing inventory',
     syncSucceeded: 'Sync complete: {imported} added, {updated} updated, {total} devices in total.',
     syncFailed: 'Sync did not complete. Existing inventory is unchanged. Try syncing again later.',
     syncRunning: 'Inventory sync is running. Refresh its status and the list when it completes.', checkSync: 'Refresh sync status',

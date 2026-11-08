@@ -1,9 +1,29 @@
 <template>
-  <PageContainer class="wireless-page">
-    <header class="wireless-heading"><div><h1>{{ t('networkWireless.title') }}</h1><p>{{ t('networkWireless.description') }}</p></div><a-space wrap><a-button v-if="narrow" @click="treeVisible = true">{{ t('networkWireless.groups') }}</a-button><a-button v-if="canRead" @click="locateVisible = true">{{ t('networkWireless.locate') }}</a-button><a-button @click="owner?.refresh()">{{ t('common.refresh') }}</a-button></a-space></header>
-    <div class="wireless-workspace">
-      <aside v-if="!narrow" class="wireless-navigation"><a-card><GroupPanel :labels="groupLabels" :data="groups" :selected="location.group" :loading="navigationLoading" :failed="navigationFailed" read-only @select="selectGroup" @refresh="owner?.refresh()" /><ControllerList /></a-card></aside>
-      <main class="wireless-main">
+  <PageContainer class="wireless-page" :title="t('networkWireless.title')" :description="t('networkWireless.description')">
+    <template #actions><a-button v-if="canRead" @click="locateVisible = true"><template #icon><icon-search /></template>{{ t('networkWireless.locate') }}</a-button><a-button @click="owner?.refresh()"><template #icon><icon-refresh /></template>{{ t('common.refresh') }}</a-button></template>
+    <AsideLayout ref="aside" class="wireless-workspace" :title="t('networkWireless.groups')" :current="currentScope">
+      <template #aside="{ compact }">
+        <div class="wireless-navigation">
+          <GroupPanel :labels="groupLabels" :data="groups" :selected="location.group" :loading="navigationLoading" :failed="navigationFailed" :show-title="!compact" read-only @select="selectGroup" @refresh="owner?.refresh()" />
+          <NavList
+            class="wireless-controllers"
+            :title="t('networkWireless.controllers')"
+            :items="controllerItems"
+            :selected="location.controller"
+            :total="controllerCount"
+            :page="controllerPage"
+            :page-size="20"
+            :empty-text="t('networkWireless.emptyScope')"
+            :search-placeholder="t('networkWireless.keyword')"
+            :search="controllerSearch"
+            @update:search="controllerSearch = $event"
+            @search="controllerPage = 1; setupOwner()"
+            @page="controllerPage = $event; setupOwner()"
+            @select="selectController(Number($event))"
+          />
+        </div>
+      </template>
+      <div class="wireless-main">
         <a-alert v-if="failed" type="warning">{{ t('networkWireless.loadFailed') }}</a-alert>
         <a-card v-if="controller && analysis && canRead" class="wireless-detail">
           <div class="wireless-section-title"><div><h2>{{ controller.device.name }}</h2><p class="wireless-muted">{{ controller.device.ip }} · {{ controller.device.vendor }} · {{ controller.platform }}</p></div><a-space wrap><a-button v-if="allowed('export')" :loading="exporting" @click="template">{{ t('networkWireless.template') }}</a-button><a-button v-if="allowed('import')" @click="importVisible = true">{{ t('networkWireless.import') }}</a-button><a-button v-if="allowed('collect')" type="primary" :disabled="!controller.supportedDimensions.length || controller.device.status !== 'active'" @click="openCollection()">{{ t('networkWireless.collect') }}</a-button></a-space></div>
@@ -15,10 +35,9 @@
           <Jobs v-else-if="location.tab === 'jobs'" :key="location.controller" :controller="location.controller!" :refresh="revision" />
           <Resources v-else :key="`${location.controller}-${location.tab}`" :controller="location.controller" :kind="location.tab as Kind" :filters="{ keyword: location.keyword, ssid: location.ssid, band: location.band, ap: location.apFilter, vlan: location.vlan, status: location.status }" :refresh="revision" :can-export="allowed('export')" compact @inspect="inspect" @filters="setFilters" />
         </a-card>
-        <a-card v-else :loading="loading"><a-empty :description="canRead ? t('networkWireless.selectController') : t('networkWireless.readRequired')" /></a-card>
-      </main>
-    </div>
-    <AppDrawer v-model:visible="treeVisible" :title="t('networkWireless.groups')" :width="narrow ? '100%' : 380" :footer="false"><GroupPanel :labels="groupLabels" :data="groups" :selected="location.group" :loading="navigationLoading" :failed="navigationFailed" read-only @select="selectGroup" @refresh="owner?.refresh()" /><ControllerList /></AppDrawer>
+        <a-card v-else :loading="loading" class="wireless-placeholder"><a-empty :description="canRead ? t('networkWireless.selectController') : t('networkWireless.readRequired')" /></a-card>
+      </div>
+    </AsideLayout>
     <AppDrawer :visible="!!location.ap && canRead" :title="t('networkWireless.detail')" :width="narrow ? '100%' : 800" :footer="false" @update:visible="value => { if (!value) closeAP() }"><APDetails
       v-if="apDetail && apDetail.resource.id === location.ap"
       :key="`${location.controller}-${location.ap}`"
@@ -39,12 +58,13 @@
   </PageContainer>
 </template>
 <script setup lang="ts">
-import { computed, defineComponent, h, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
-import { Button, Input, Pagination, Empty } from '@arco-design/web-vue'
+import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer/index.vue'
 import AppDrawer from '@/components/AppDrawer/index.vue'
+import AsideLayout from '@/components/AsideLayout/index.vue'
+import NavList from '@/components/NavList/index.vue'
 import AppTabs from '@/components/AppTabs/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import { useNarrowScreen } from '@/composables/useNarrowScreen'
@@ -53,7 +73,8 @@ import { msgSuccess } from '@/utils/message'
 import { getGroups, listController, getController, getAnalysis, getAP, getClient, listResource, listCollection, getCollection, exportResource } from '@/api/network/wireless'
 import type { Device, DeviceGroupTree } from '@/types/network'
 import type { Controller, Analysis, APDetail, Kind, Resource, IssueOutcome, Suggestion, Collection, WirelessQuery } from '@/types/network-wireless'
-import GroupPanel from '../device/groups/panel.vue'
+import GroupPanel from '../shared/group-panel.vue'
+import { flattenGroups } from '../device/groups/tree'
 import Resources from './resources.vue'
 import Overview from './overview.vue'
 import Jobs from './jobs.vue'
@@ -73,13 +94,13 @@ const canRead = computed(() => ['query', 'collect', 'edit', 'import', 'export'].
 const controller = ref<Controller>(); const analysis = ref<Analysis>(); const apDetail = ref<APDetail>(); const clientDetail = ref<Resource>()
 const groups = ref<DeviceGroupTree>({ items: [], totalDeviceCount: 0, ungroupedDeviceCount: 0 }); const controllers = ref<Device[]>([]); const controllerCount = ref(0); const controllerPage = ref(1); const controllerSearch = ref('')
 const loading = ref(false); const failed = ref(false); const navigationLoading = ref(false); const navigationFailed = ref(false); const revision = ref(0)
-const treeVisible = ref(false); const collectVisible = ref(false); const importVisible = ref(false); const locateVisible = ref(false); const suggestion = ref<Suggestion>(); const exporting = ref(false)
+const aside = ref<InstanceType<typeof AsideLayout>>(); const collectVisible = ref(false); const importVisible = ref(false); const locateVisible = ref(false); const suggestion = ref<Suggestion>(); const exporting = ref(false)
 const apIssues = computed(() => analysis.value?.groups.filter(group => group.outcomes.some(row => row.apName === apDetail.value?.resource.fields.name)) || [])
 let owner: ReturnType<typeof createOwner> | undefined
 let active = true; const account = user.token; let generation = 0
 function navigate(query: Record<string, string | number | undefined>) { void router.push({ query: { ...route.query, ...query }}) }
-function selectGroup(group?: number) { treeVisible.value = false; controllerPage.value = 1; navigate({ group, controller: undefined, ap: undefined, client: undefined, issue: undefined, tab: undefined, keyword: undefined, ssid: undefined, band: undefined, apFilter: undefined, vlan: undefined, status: undefined }) }
-function selectController(id: number) { treeVisible.value = false; if (canRead.value) navigate({ controller: id, ap: undefined, client: undefined, issue: undefined, tab: 'overview', keyword: undefined, ssid: undefined, band: undefined, apFilter: undefined, vlan: undefined, status: undefined }) }
+function selectGroup(group?: number) { aside.value?.close(); controllerPage.value = 1; navigate({ group, controller: undefined, ap: undefined, client: undefined, issue: undefined, tab: undefined, keyword: undefined, ssid: undefined, band: undefined, apFilter: undefined, vlan: undefined, status: undefined }) }
+function selectController(id: number) { aside.value?.close(); if (canRead.value) navigate({ controller: id, ap: undefined, client: undefined, issue: undefined, tab: 'overview', keyword: undefined, ssid: undefined, band: undefined, apFilter: undefined, vlan: undefined, status: undefined }) }
 function setTab(tab: string | number) { navigate({ tab: String(tab), ap: undefined, client: undefined, keyword: undefined, ssid: undefined, band: undefined, apFilter: undefined, vlan: undefined, status: undefined }) }
 function setIssue(issue: string) { navigate({ issue: issue || undefined, tab: 'overview', ap: undefined, client: undefined }) }
 function setFilters(filters: WirelessQuery) {
@@ -120,5 +141,12 @@ watch(() => user.token, () => { suspend(); controller.value = undefined; analysi
 onMounted(() => { document.addEventListener('visibilitychange', visibility); setupOwner() })
 onActivated(() => { if (!active && user.token === account) { active = true; setupOwner() } })
 onDeactivated(suspend); onBeforeUnmount(() => { suspend(); document.removeEventListener('visibilitychange', visibility) })
-const ControllerList = defineComponent({ setup: () => () => h('section', { class: 'wireless-controller-list' }, [h('h3', t('networkWireless.controllers')), h(Input, { modelValue: controllerSearch.value, allowClear: true, placeholder: t('networkWireless.keyword'), 'onUpdate:modelValue': (value: string) => { controllerSearch.value = value }, onPressEnter: () => { controllerPage.value = 1; setupOwner() } }), h(Button, { onClick: () => { controllerPage.value = 1; setupOwner() }, size: 'small' }, () => t('common.search')), ...controllers.value.map(d => h(Button, { long: true, type: d.id === location.value.controller ? 'primary' : 'text', onClick: () => selectController(d.id), class: 'wireless-controller' }, () => [h('strong', d.name), h('span', d.ip)])), !controllers.value.length && h(Empty, { description: t('networkWireless.emptyScope') }), h(Pagination, { total: controllerCount.value, current: controllerPage.value, pageSize: 20, simple: true, onChange: (page: number) => { controllerPage.value = page; setupOwner() } })]) })
+const controllerItems = computed(() => controllers.value.map(device => ({ key: device.id, title: device.name, description: device.ip })))
+const currentScope = computed(() => {
+  if (controller.value) return controller.value.device.name
+  const group = location.value.group
+  if (group === undefined) return t('networkWireless.allControllers')
+  if (group === 0) return t('network.device.groups.ungrouped')
+  return flattenGroups(groups.value.items).find(node => node.id === group)?.name ?? '—'
+})
 </script>

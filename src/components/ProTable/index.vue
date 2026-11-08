@@ -5,7 +5,7 @@
         <template #icon><icon-search /></template>{{ $t('components.proTable.filters') }}<template v-if="activeFilters"> · {{ activeFilters }}</template>
       </a-button>
     </div>
-    <a-drawer
+    <AppDrawer
       v-if="asCards && $slots.search"
       v-model:visible="filtersOpen"
       placement="bottom"
@@ -13,13 +13,6 @@
       :footer="false"
       :title="$t('components.proTable.filters')"
       class="pro-table__sheet"
-      role="dialog"
-      aria-modal="true"
-      :aria-label="$t('components.proTable.filters')"
-      unmount-on-close
-      :data-dialog-focus="restoreFilterFocus.id"
-      @open="restoreFilterFocus.open"
-      @close="restoreFilterFocus"
     >
       <a-form :model="table.query" layout="vertical" class="pro-table__sheet-form" @submit-success="submitFilters">
         <slot name="search" />
@@ -28,7 +21,7 @@
           <a-button type="primary" html-type="submit" :loading="table.loading">{{ $t('components.proTable.showResults') }}</a-button>
         </div>
       </a-form>
-    </a-drawer>
+    </AppDrawer>
     <component :is="panelTag" v-if="$slots.search && !asCards" class="pro-table__search-panel">
       <a-form :model="table.query" layout="inline" class="pro-table__search" :style="{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, '--wide-span': Math.min(2, cols) }" :data-visible="collapsed ? collapsible() : 0" @submit-success="table.search">
         <slot name="search" />
@@ -64,7 +57,8 @@
         >
           <template v-if="$slots.actions" #actions="scope"><slot name="actions" v-bind="scope" /></template>
         </MobileCards>
-        <a-empty v-if="asCards && !table.loading && !stack.length" :description="$t('common.empty')" />
+        <!-- Same #empty slot as the table, so a page's own empty state stays inside its card on a phone. -->
+        <template v-if="asCards && !table.loading && !stack.length"><slot name="empty"><a-empty :description="$t('common.empty')" /></slot></template>
         <a-table
           v-if="!asCards"
           ref="tableRef"
@@ -103,13 +97,13 @@
 import { nextTick, ref, computed, watch, useSlots, type Ref } from 'vue'
 import { Card as ACard, type TableData } from '@arco-design/web-vue'
 import { IconDown, IconPlus, IconRefresh, IconSearch } from '@arco-design/web-vue/es/icon'
+import AppDrawer from '@/components/AppDrawer/index.vue'
 import Pagination from '@/components/Pagination/index.vue'
 import MobileCards from './MobileCards.vue'
 import { readCardColumns } from './columns'
 import { searchFieldSpans, colsFor, collapseTo } from './search'
 import { useElementWidth } from '@/composables/useElementWidth'
 import { useNarrowScreen } from '@/composables/useNarrowScreen'
-import { useDialogFocus } from '@/composables/useDialogFocus'
 import type { UseTableReturn } from '@/composables/useTable'
 
 /**
@@ -289,7 +283,6 @@ const collapsed = ref(true)
 const collapsible = () => collapseTo(searchFieldSpans(slots.search), cols.value)
 
 const filtersOpen = ref(false)
-const restoreFilterFocus = useDialogFocus(() => filtersOpen.value)
 const fabOpen = ref(false)
 
 // The sheet closes on submit: on a phone the result *is* the feedback, and a

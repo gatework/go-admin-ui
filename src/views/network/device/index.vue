@@ -1,5 +1,5 @@
 <template>
-  <PageContainer class="device-page network-list" :class="{ 'device-page--empty': !table.rows.length }">
+  <PageContainer class="device-page network-list" :title="t('network.device.title')" :description="t('network.device.pageDescription')">
     <a-alert v-if="statusFailed" type="warning" class="device-page__feedback">
       {{ t('network.device.statusFailed') }}
       <template #action><a-button :loading="statusLoading" @click="refreshStatus">{{ t('network.device.checkSync') }}</a-button></template>
@@ -18,119 +18,106 @@
       {{ t('network.device.unconfiguredHelp') }}
     </a-alert>
 
-    <a-button v-if="compactGroups" class="device-page__group-trigger" @click="groupDrawerVisible = true"><template #icon><icon-folder /></template>{{ t('network.device.groups.title') }} · {{ currentScope }}</a-button>
-    <div class="device-page__layout" :class="{ 'device-page__layout--compact': compactGroups }">
-      <a-card v-if="!compactGroups" class="device-page__groups">
-        <GroupPanel :data="groups" :selected="appliedFilters.groupId" :loading="groupsLoading" :failed="groupsFailed" @select="selectGroup" @create="createGroup" @edit="editGroup" @refresh="refreshGroups" @changed="groupRemoved" />
-      </a-card>
-      <div class="device-page__results">
-        <ProTable :table="table" :selection="canEdit" row-key="id" :actions-width="canEdit ? 136 : 84" :scroll="{ x: 1310 }">
-          <template #search>
-            <a-form-item :label="t('network.device.keyword')">
-              <a-input v-model="table.query.keyword" :input-attrs="{ 'aria-label': t('network.device.keyword') }" :placeholder="t('network.device.keywordPlaceholder')" allow-clear />
-            </a-form-item>
-            <a-form-item v-input-label="t('network.device.status')" :label="t('network.device.status')">
-              <a-select v-model="table.query.status" :placeholder="t('common.selectPlaceholder')" allow-clear>
-                <a-option v-for="status in deviceStatuses" :key="status" :value="status">{{ t(`network.device.statusValues.${status}`) }}</a-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item v-input-label="t('network.device.deviceType')" :label="t('network.device.deviceType')">
-              <a-select v-model="table.query.deviceType" :placeholder="t('common.selectPlaceholder')" allow-clear>
-                <a-option v-for="type in deviceTypes" :key="type" :value="type">{{ t(`network.device.typeValues.${type}`) }}</a-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item v-input-label="t('network.device.vendor')" :label="t('network.device.vendor')">
-              <a-select v-model="table.query.vendor" :placeholder="t('common.selectPlaceholder')" allow-search allow-clear>
-                <a-option v-for="vendor in options.vendors" :key="vendor" :value="vendor">{{ vendor }}</a-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item v-input-label="t('network.device.model')" :label="t('network.device.model')">
-              <a-select v-model="table.query.model" :placeholder="t('common.selectPlaceholder')" allow-search allow-clear>
-                <a-option v-for="model in options.models" :key="model" :value="model">{{ model }}</a-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item v-input-label="t('network.device.deviceRole')" :label="t('network.device.deviceRole')">
-              <a-select v-model="table.query.deviceRole" :placeholder="t('common.selectPlaceholder')" allow-clear>
-                <a-option v-for="role in deviceRoles" :key="role" :value="role">{{ t(`network.device.roleValues.${role}`) }}</a-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('network.device.tag')"><a-input v-model="table.query.tag" :input-attrs="{ 'aria-label': t('network.device.tag') }" allow-clear /></a-form-item>
-          </template>
-          <template #toolbar>
-            <a-button v-if="canSync" type="primary" :loading="syncing" :disabled="!syncStatus?.configured || statusLoading || syncStatus.status === 'running'" @click="sync">
-              {{ t(syncing ? 'network.device.syncing' : 'network.device.sync') }}
-            </a-button>
-            <a-button v-if="canExport" :loading="exporting" :disabled="table.loading || !table.total" :title="t('network.device.exportHelp')" @click="download">
-              {{ t('common.export') }}
-            </a-button>
-            <a-button v-if="canEdit" :disabled="table.multiple || table.loading || groupsLoading || groupsFailed || table.selection.length > 200" :title="t('network.device.groups.selectionLimit')" @click="showAssignment(table.selection)">{{ t('network.device.groups.assign') }}</a-button>
-            <div class="device-page__summary">
-              <span>{{ t('network.device.groups.scope', { name: currentScope }) }}</span>
-              <span>{{ t('network.device.resultCount', { count: table.total }) }}</span>
-              <span>{{ t('network.device.source') }}</span>
-              <span>{{ t('network.device.lastSync') }}: {{ lastSyncLabel }}</span>
+    <AsideLayout ref="aside" :title="t('network.device.groups.title')" :current="currentScope">
+      <template #aside="{ compact }">
+        <GroupPanel :data="groups" :selected="appliedFilters.groupId" :loading="groupsLoading" :failed="groupsFailed" :show-title="!compact" @select="selectGroup" @create="createGroup" @edit="editGroup" @refresh="refreshGroups" @changed="groupRemoved" />
+      </template>
+      <ProTable :table="table" :selection="canEdit" row-key="id" :actions-width="canEdit ? 136 : 84" :scroll="{ x: 1310 }">
+        <template #search>
+          <a-form-item :label="t('network.device.keyword')">
+            <a-input v-model="table.query.keyword" :input-attrs="{ 'aria-label': t('network.device.keyword') }" :placeholder="t('network.device.keywordPlaceholder')" allow-clear />
+          </a-form-item>
+          <a-form-item v-input-label="t('network.device.status')" :label="t('network.device.status')">
+            <a-select v-model="table.query.status" :placeholder="t('common.selectPlaceholder')" allow-clear>
+              <a-option v-for="status in deviceStatuses" :key="status" :value="status">{{ t(`network.device.statusValues.${status}`) }}</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item v-input-label="t('network.device.deviceType')" :label="t('network.device.deviceType')">
+            <a-select v-model="table.query.deviceType" :placeholder="t('common.selectPlaceholder')" allow-clear>
+              <a-option v-for="type in deviceTypes" :key="type" :value="type">{{ t(`network.device.typeValues.${type}`) }}</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item v-input-label="t('network.device.vendor')" :label="t('network.device.vendor')">
+            <a-select v-model="table.query.vendor" :placeholder="t('common.selectPlaceholder')" allow-search allow-clear>
+              <a-option v-for="vendor in options.vendors" :key="vendor" :value="vendor">{{ vendor }}</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item v-input-label="t('network.device.model')" :label="t('network.device.model')">
+            <a-select v-model="table.query.model" :placeholder="t('common.selectPlaceholder')" allow-search allow-clear>
+              <a-option v-for="model in options.models" :key="model" :value="model">{{ model }}</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item v-input-label="t('network.device.deviceRole')" :label="t('network.device.deviceRole')">
+            <a-select v-model="table.query.deviceRole" :placeholder="t('common.selectPlaceholder')" allow-clear>
+              <a-option v-for="role in deviceRoles" :key="role" :value="role">{{ t(`network.device.roleValues.${role}`) }}</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item :label="t('network.device.tag')"><a-input v-model="table.query.tag" :input-attrs="{ 'aria-label': t('network.device.tag') }" allow-clear /></a-form-item>
+        </template>
+        <template #toolbar>
+          <a-button v-if="canSync" type="primary" :loading="syncing" :disabled="!syncStatus?.configured || statusLoading || syncStatus.status === 'running'" @click="sync">
+            {{ t(syncing ? 'network.device.syncing' : 'network.device.sync') }}
+          </a-button>
+          <a-button v-if="canExport" :loading="exporting" :disabled="table.loading || !table.total" :title="t('network.device.exportHelp')" @click="download">
+            {{ t('common.export') }}
+          </a-button>
+          <a-button v-if="canEdit" :disabled="table.multiple || table.loading || groupsLoading || groupsFailed || table.selection.length > 200" :title="t('network.device.groups.selectionLimit')" @click="showAssignment(table.selection)">{{ t('network.device.groups.assign') }}</a-button>
+          <div class="device-page__summary">
+            <span>{{ t('network.device.groups.scope', { name: currentScope }) }}</span>
+            <span>{{ t('network.device.resultCount', { count: table.total }) }}</span>
+            <span>{{ t('network.device.source') }}</span>
+            <span>{{ t('network.device.lastSync') }}: {{ lastSyncLabel }}</span>
+          </div>
+        </template>
+        <a-table-column :title="t('network.device.identity')" data-index="name" :width="232">
+          <template #cell="{ record }">
+            <div class="device-page__identity">
+              <a-button v-if="canQuery" type="text" class="device-page__name" @click="showDetail(record.id)">{{ record.name || record.hostname || record.ip }}</a-button>
+              <strong v-else>{{ record.name || record.hostname || record.ip }}</strong>
+              <span>{{ [record.vendor, record.model].filter(Boolean).join(' ') || '—' }}</span>
             </div>
           </template>
-          <a-table-column :title="t('network.device.identity')" data-index="name" :width="232">
-            <template #cell="{ record }">
-              <div class="device-page__identity">
-                <a-button v-if="canQuery" type="text" class="device-page__name" @click="showDetail(record.id)">{{ record.name || record.hostname || record.ip }}</a-button>
-                <strong v-else>{{ record.name || record.hostname || record.ip }}</strong>
-                <span>{{ [record.vendor, record.model].filter(Boolean).join(' ') || '—' }}</span>
-              </div>
+        </a-table-column>
+        <a-table-column :title="t('network.device.ip')" data-index="ip" :width="148" ellipsis tooltip />
+        <a-table-column :title="t('network.device.deviceRole')" data-index="deviceRole" :width="140" ellipsis tooltip>
+          <template #cell="{ record }">{{ record.deviceRole ? t(`network.device.roleValues.${record.deviceRole}`) : '—' }}</template>
+        </a-table-column>
+        <a-table-column :title="t('network.device.deviceType')" data-index="deviceType" :width="128" ellipsis tooltip>
+          <template #cell="{ record }">{{ record.deviceType ? t(`network.device.typeValues.${record.deviceType}`) : '—' }}</template>
+        </a-table-column>
+        <a-table-column :title="t('network.device.serial')" data-index="serial" :width="158" ellipsis tooltip>
+          <template #cell="{ record }">{{ record.serial || '—' }}</template>
+        </a-table-column>
+        <a-table-column :title="t('network.device.location')" data-index="location" :width="160" ellipsis tooltip>
+          <template #cell="{ record }">{{ record.location || '—' }}</template>
+        </a-table-column>
+        <a-table-column :title="t('network.device.status')" data-index="status" :width="112">
+          <template #cell="{ record }"><a-tag :color="statusColors[record.status as DeviceStatus]">{{ t(`network.device.statusValues.${record.status}`) }}</a-tag></template>
+        </a-table-column>
+        <a-table-column :title="t('network.device.group')" data-index="group" :width="132" ellipsis tooltip>
+          <template #cell="{ record }">{{ record.group || t('network.device.groups.ungrouped') }}</template>
+        </a-table-column>
+        <template v-if="canQuery || canEdit" #actions="{ row }">
+          <a-button v-if="canQuery && !canEdit" type="text" @click="showDetail(row.id)">{{ t('network.device.view') }}</a-button>
+          <a-button v-if="canEdit" type="text" @click="showEditor(row.id)">{{ t('common.edit') }}</a-button>
+          <AppDropdown v-if="canEdit" trigger="click" @select="rowAction($event, row)">
+            <a-button type="text">{{ t('common.actions') }}<icon-down /></a-button>
+            <template #content>
+              <a-doption v-if="canQuery" value="view">{{ t('network.device.view') }}</a-doption>
+              <a-doption value="assign" :disabled="groupsLoading || groupsFailed">{{ t('network.device.groups.assign') }}</a-doption>
             </template>
-          </a-table-column>
-          <a-table-column :title="t('network.device.ip')" data-index="ip" :width="148" ellipsis tooltip />
-          <a-table-column :title="t('network.device.deviceRole')" data-index="deviceRole" :width="140" ellipsis tooltip>
-            <template #cell="{ record }">{{ record.deviceRole ? t(`network.device.roleValues.${record.deviceRole}`) : '—' }}</template>
-          </a-table-column>
-          <a-table-column :title="t('network.device.deviceType')" data-index="deviceType" :width="128" ellipsis tooltip>
-            <template #cell="{ record }">{{ record.deviceType ? t(`network.device.typeValues.${record.deviceType}`) : '—' }}</template>
-          </a-table-column>
-          <a-table-column :title="t('network.device.serial')" data-index="serial" :width="158" ellipsis tooltip>
-            <template #cell="{ record }">{{ record.serial || '—' }}</template>
-          </a-table-column>
-          <a-table-column :title="t('network.device.location')" data-index="location" :width="160" ellipsis tooltip>
-            <template #cell="{ record }">{{ record.location || '—' }}</template>
-          </a-table-column>
-          <a-table-column :title="t('network.device.status')" data-index="status" :width="112">
-            <template #cell="{ record }"><a-tag :color="statusColors[record.status as DeviceStatus]">{{ t(`network.device.statusValues.${record.status}`) }}</a-tag></template>
-          </a-table-column>
-          <a-table-column :title="t('network.device.group')" data-index="group" :width="132" ellipsis tooltip>
-            <template #cell="{ record }">{{ record.group || t('network.device.groups.ungrouped') }}</template>
-          </a-table-column>
-          <template v-if="canQuery || canEdit" #actions="{ row }">
-            <a-button v-if="canQuery && !canEdit" type="text" @click="showDetail(row.id)">{{ t('network.device.view') }}</a-button>
-            <a-button v-if="canEdit" type="text" @click="showEditor(row.id)">{{ t('common.edit') }}</a-button>
-            <AppDropdown v-if="canEdit" trigger="click" @select="rowAction($event, row)">
-              <a-button type="text">{{ t('common.actions') }}<icon-down /></a-button>
-              <template #content>
-                <a-doption v-if="canQuery" value="view">{{ t('network.device.view') }}</a-doption>
-                <a-doption value="assign" :disabled="groupsLoading || groupsFailed">{{ t('network.device.groups.assign') }}</a-doption>
-              </template>
-            </AppDropdown>
-          </template>
-          <template #empty>
-            <a-result v-if="!table.loading" :status="listFailed ? 'error' : 'info'" :title="emptyTitle" :subtitle="emptyHelp">
-              <template #extra>
-                <a-button v-if="hasFilters" @click="table.resetQuery">{{ t('network.device.resetFilters') }}</a-button>
-                <a-button v-else-if="listFailed" @click="table.getList">{{ t('network.device.retry') }}</a-button>
-              </template>
-            </a-result>
-          </template>
-        </ProTable>
-        <a-result v-if="narrow && !table.loading && !table.rows.length" :status="listFailed ? 'error' : 'info'" :title="emptyTitle" :subtitle="emptyHelp">
-          <template #extra>
-            <a-button v-if="hasFilters" @click="table.resetQuery">{{ t('network.device.resetFilters') }}</a-button>
-            <a-button v-else-if="listFailed" @click="table.getList">{{ t('network.device.retry') }}</a-button>
-          </template>
-        </a-result>
-      </div>
-    </div>
-    <AppDrawer v-if="compactGroups" v-model:visible="groupDrawerVisible" class="network-drawer" :title="t('network.device.groups.title')" :width="narrow ? '100%' : 360">
-      <GroupPanel :data="groups" :selected="appliedFilters.groupId" :loading="groupsLoading" :failed="groupsFailed" :show-title="false" @select="selectGroup" @create="createGroup" @edit="editGroup" @refresh="refreshGroups" @changed="groupRemoved" />
-      <template #footer><a-button @click="groupDrawerVisible = false">{{ t('common.close') }}</a-button></template>
-    </AppDrawer>
+          </AppDropdown>
+        </template>
+        <template #empty>
+          <a-result v-if="!table.loading" :status="listFailed ? 'error' : 'info'" :title="emptyTitle" :subtitle="emptyHelp">
+            <template #extra>
+              <a-button v-if="hasFilters" @click="table.resetQuery">{{ t('network.device.resetFilters') }}</a-button>
+              <a-button v-else-if="listFailed" @click="table.getList">{{ t('network.device.retry') }}</a-button>
+            </template>
+          </a-result>
+        </template>
+      </ProTable>
+    </AsideLayout>
     <DeviceDetail :id="selectedId" v-model:visible="detailVisible" :can-edit="canEdit" @edit="showEditor" />
     <DeviceEditor :id="selectedId" v-model:visible="editorVisible" :groups="groups.items" :groups-loading="groupsLoading" :groups-failed="groupsFailed" @saved="reloadInventory" />
     <GroupEditor v-model:visible="groupEditorVisible" :record="groupEditorRecord" :parent-id="groupParentId" :groups="groups.items" :refresh="refreshGroupEditor" @saved="reloadInventory" />
@@ -143,10 +130,8 @@ import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMoun
 import { useI18n } from 'vue-i18n'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
-import AppDrawer from '@/components/AppDrawer/index.vue'
 import AppDropdown from '@/components/AppDropdown/index.vue'
 import { useTable } from '@/composables'
-import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import { useUserStore } from '@/stores/user'
 import { usePreferencesStore } from '@/stores/preferences'
 import { preferenceTime } from '@/utils/preference-time'
@@ -154,7 +139,8 @@ import { exportDevice, getDeviceOptions, getDeviceSyncStatus, listDevice, listDe
 import { deviceRoles, deviceStatuses, deviceTypes, type Device, type DeviceGroupNode, type DeviceGroupTree, type DeviceOptions, type DeviceQuery, type DeviceStatus, type DeviceSyncResult, type DeviceSyncStatus } from '@/types/network'
 import DeviceDetail from './detail.vue'
 import DeviceEditor from './editor.vue'
-import GroupPanel from './groups/panel.vue'
+import AsideLayout from '@/components/AsideLayout/index.vue'
+import GroupPanel from '../shared/group-panel.vue'
 import GroupEditor from './groups/editor.vue'
 import GroupAssignment from './groups/assignment.vue'
 import { flattenGroups } from './groups/tree'
@@ -165,8 +151,6 @@ defineOptions({ name: 'NetworkDeviceManage' })
 const { t } = useI18n()
 const user = useUserStore()
 const preferences = usePreferencesStore()
-const narrow = useNarrowScreen()
-const compactGroups = useNarrowScreen(1023)
 const allowed = (action: string) => user.permisaction.some(permission => permission === '*:*:*' || permission === `network:device:${action}`)
 const canQuery = computed(() => allowed('query'))
 const canEdit = computed(() => allowed('edit'))
@@ -176,7 +160,7 @@ const options = ref<DeviceOptions>({ vendors: [], models: [] })
 const groups = ref<DeviceGroupTree>({ items: [], totalDeviceCount: 0, ungroupedDeviceCount: 0 })
 const groupsLoading = ref(false)
 const groupsFailed = ref(false)
-const groupDrawerVisible = ref(false)
+const aside = ref<InstanceType<typeof AsideLayout>>()
 const groupEditorVisible = ref(false)
 const groupEditorRecord = ref<DeviceGroupNode>()
 const groupParentId = ref<number>()
@@ -238,7 +222,7 @@ function showEditor(id: number) {
 }
 function selectGroup(id: number | undefined) {
   Object.assign(table.query, defaultQuery(), appliedFilters.value, { groupId: id })
-  groupDrawerVisible.value = false
+  aside.value?.close()
   void table.search()
 }
 function createGroup(parentId?: number) {
@@ -351,7 +335,7 @@ function invalidate() {
   generation++
   detailVisible.value = false
   editorVisible.value = false
-  groupDrawerVisible.value = false
+  aside.value?.close()
   groupEditorVisible.value = false
   assignmentVisible.value = false
   assignmentRecords.value = []
@@ -371,12 +355,6 @@ onBeforeUnmount(invalidate)
 
 <style scoped lang="scss">
 .device-page__feedback { margin-bottom: 16px; }
-.device-page__layout { display: grid; grid-template-columns: 244px minmax(0, 1fr); align-items: start; gap: 16px; }
-.device-page__layout--compact { grid-template-columns: minmax(0, 1fr); }
-.device-page__groups { min-width: 0; }
-.device-page__groups :deep(.arco-card-body) { padding: 16px; }
-.device-page__results { min-width: 0; }
-.device-page__group-trigger { margin-bottom: 12px; max-width: 100%; height: auto; min-height: 32px; white-space: normal; text-align: left; }
 .device-page__summary { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-right: auto; color: var(--color-text-2); font-size: var(--motor-font-size-12); line-height: 1.6; }
 .device-page__identity { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
 .device-page__identity > span { color: var(--color-text-2); font-size: var(--motor-font-size-12); line-height: 1.6; overflow-wrap: anywhere; }
@@ -386,7 +364,5 @@ onBeforeUnmount(invalidate)
 @media (max-width: 767px) {
   .device-page__summary { flex-direction: column; max-width: min(280px, calc(100vw - 64px)); }
   .device-page__feedback { margin: 0 12px 12px; width: auto; }
-  .device-page__group-trigger { margin-left: 12px; max-width: calc(100% - 24px); min-height: 44px; }
-  .device-page--empty :deep(.pro-table .arco-empty) { display: none; }
 }
 </style>

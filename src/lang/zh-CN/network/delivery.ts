@@ -17,7 +17,7 @@ export default {
   backToGroup: '返回组配置', restoreGroup: '恢复组配置', individualHelp: '仅修改当前设备。后续更新组配置时，不会覆盖这里的内容。',
   previewDevice: '预览实际下发脚本', reviewSummary: '{devices} · {groups} · {individual}', groupCount: '{count} 个角色平台组',
   platforms: { h3c: 'H3C Comware', h3c_wireless: 'H3C 无线', cisco_ios: 'Cisco IOS', cisco_nxos: 'Cisco NX-OS', huawei: '华为 VRP', hillstone: '山石 StoneOS', radware: 'Radware', palo_alto: 'Palo Alto PAN-OS', topsec: '天融信', fortinet: 'Fortinet FortiOS', juniper: 'Juniper Junos', centec: '盛科 Centec' },
-  title: '配置下发', keyword: '查找工单', keywordPlaceholder: '工单号或任务名称', status: '执行状态',
+  title: '配置下发', description: '选择目标设备，按角色编写并核对逐台配置，跟踪工单状态与设备回显。', keyword: '查找工单', keywordPlaceholder: '工单号或任务名称', status: '执行状态',
   create: '新建下发', edit: '修改下发工单', detail: '下发详情', name: '任务名称', namePlaceholder: '例如：更新接入交换机描述',
   order: '下发工单', count: '共 {count} 张工单', deviceCount: '{count} 台设备', creator: '提交人', scheduledAt: '计划执行',
   progress: '执行结果', progressText: '{done} / {total} 成功', runtime: '并发 {count} 台 · 缓冲 {minutes} 分钟',
@@ -55,5 +55,5 @@ export default {
   reasons: { profile_unknown: '无法自动识别设备平台', connection_missing: '未设置登录配置', transport_unavailable: '服务器缺少所选协议的客户端', delivery_disabled: '下发服务未启用', disabled: '下发服务未启用', credentials_missing: '缺少登录凭据', ssh_missing: '服务器缺少 SSH 客户端', configuration_invalid: '服务端配置无效', profile_missing: '未设置设备驱动', unsupported_profile: '设备驱动不受支持', device_unavailable: '设备当前不可下发', known_hosts_missing: '未配置主机密钥信任文件', unavailable: '登录配置未就绪' },
   statuses: { scheduled: '待执行', queued: '排队中', pending: '等待下发', running: '执行中', succeeded: '成功', partially_failed: '部分失败', failed: '失败', uncertain: '待核对', cancelled: '已取消' },
   rules: { changedDevice: '有设备角色或平台发生变化，请在单台配置中核对保留的脚本。', titleRequired: '请填写任务名称。', noDevices: '请至少选择一台设备。', tooManyTargets: '设备数量超过单次下发上限。', duplicateDevice: '同一设备不能重复选择。', emptyScript: '请为每台设备填写至少一条有效命令。', invalidScript: '脚本包含无效字符，请检查后重试。', scriptTooLarge: '单台设备的脚本超过大小限制。', scriptsTooLarge: '整批脚本不能超过 4 MiB。' },
-  errors: { device_changed: '设备或连接配置已变更，未继续下发。', connection_failed: '未能建立设备连接，请检查登录配置。', execution_unconfirmed: '执行结果无法确认，请核对设备配置。', cancelled: '任务已取消。', invalid_script: '脚本校验未通过。', persistence_failed: '执行状态未能保存，已停止后续命令，请核对设备。', receipt_persistence_failed: '执行回执未能完整保存，请核对设备。', worker_lost: '执行进程中断，请核对设备状态。', close_unconfirmed: '设备会话未能确认关闭，请核对设备。', output_limit: '执行输出达到保存上限，已停止后续命令，请核对设备。', unknown: '执行未完成，请查看输出并核对设备。' }
+  errors: { device_quarantined: '设备上次会话关闭未确认，已隔离，需管理员核对后解除。', device_changed: '设备或连接配置已变更，未继续下发。', connection_failed: '未能建立设备连接，请检查登录配置。', execution_unconfirmed: '执行结果无法确认，请核对设备配置。', cancelled: '任务已取消。', invalid_script: '脚本校验未通过。', persistence_failed: '执行状态未能保存，已停止后续命令，请核对设备。', receipt_persistence_failed: '执行回执未能完整保存，请核对设备。', worker_lost: '执行进程中断，请核对设备状态。', close_unconfirmed: '设备会话未能确认关闭，请核对设备。', output_limit: '执行输出达到保存上限，已停止后续命令，请核对设备。', unknown: '执行未完成，请查看输出并核对设备。' }
 }

@@ -481,6 +481,7 @@ scope 写改动落在哪一块——组件名、模块名或目录名，例如
 Arco 是唯一的 UI 组件库，不注册 `el-*` 别名，不加载 Element CSS 或字体。主题通过 `body[arco-theme="dark"]` 与 Arco 色阶变量切换；业务色彩沿用映射到 Arco 的 `--ga-*` token。
 
 - 弹窗和抽屉用 `AppModal` / `AppDrawer`，保留原生 Arco API，并提供对话框名称、卸载和关闭后的焦点回归。
+- 列表旁的范围选择用 `AsideLayout`：宽屏左侧 244px 卡片（随页面吸顶），≤1023px 收进抽屉并在触发按钮上显示当前范围；`collapse="stack"` 改为堆叠在内容上方，`"none"` 交给页面自己的窄屏控件。树形导航用 `TreeNav`（搜索保留路径、单一 Tab 停靠与方向键、计数右对齐、加载/失败留在树内，`pinned` 放「全部」「未分组」这类不随搜索消失的入口）；短的可选列表（已保存查询、草稿、控制器）用 `NavList`，只有第二页时才出现分页。状态值标签用 `StatusTag`，各模块只提供 i18n 前缀和颜色映射。网络管理页通过 `PageContainer` 的 `title` / `description` / `#actions` 统一页头；设备分组树统一用 `src/views/network/shared/group-panel.vue`。
 - 下拉操作菜单用 `AppDropdown`，内容仍是 `a-doption`，它补齐菜单语义、方向键与关闭后的焦点回归。
 - 页签用 `AppTabs`，内容仍是 `a-tab-pane`，它补齐 Arco 2.59 的 tab 语义和方向键。新增原生组件时检查键盘和无障碍行为。
 - `useForm` 负责表单会话与重复提交保护；直接使用 Arco 表单的页面调用 `useFormLocale(formRef)`，让已经显示的错误跟随语言切换。

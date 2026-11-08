@@ -1,6 +1,6 @@
 <template>
-  <PageContainer class="fw-page fw-objects-page">
-    <Heading />
+  <PageContainer class="fw-page fw-objects-page" :title="t('networkFirewall.title')" :description="t('networkFirewall.description')">
+    <template #actions><SectionNav /></template>
     <a-alert
       v-if="!workspace.allowed('list')"
       type="warning"
@@ -21,67 +21,37 @@
       </AppTabs>
       <Devices v-if="area === 'devices'" :options="options" @started="value => navigate({ area: 'collections', batch: value.id })" @inspect="value => navigate({ area: 'objects', instance: value, snapshot: undefined, object: undefined })" />
       <Collections v-else-if="area === 'collections'" :batch-id="positiveId(route.query.batch)" @select="value => navigate({ batch: value })" @inspect="value => navigate({ area: 'objects', instance: value.instanceId, snapshot: value.snapshotId, object: undefined })" />
-      <div v-else class="fw-layout">
-        <aside class="fw-sidebar">
-          <a-card>
-            <a-form
-              :model="instances.query"
-              layout="vertical"
-              @submit-success="instances.search"
+      <AsideLayout v-else :title="t('networkFirewall.instances')" collapse="stack">
+        <template #aside>
+          <div class="fw-instances">
+            <a-form-item :label="t('networkFirewall.domain')" class="fw-instances__domain">
+              <a-select v-model="instances.query.domainId" @change="instances.search">
+                <a-option v-for="domain in options.domains" :key="domain.id" :value="domain.id">{{ domain.name }}</a-option>
+              </a-select>
+            </a-form-item>
+            <NavList
+              :title="t('networkFirewall.instances')"
+              :items="instanceItems"
+              :selected="instanceId"
+              :total="instances.total"
+              :page="instances.query.pageIndex"
+              :page-size="instances.query.pageSize"
+              :loading="instances.loading"
+              :empty-text="t('networkFirewall.noInstances')"
+              :search-placeholder="t('networkFirewall.keyword')"
+              :search="instances.query.keyword"
+              @update:search="instances.query.keyword = $event"
+              @search="instances.search"
+              @page="pageIndex => instances.handlePagination({ page: pageIndex, limit: instances.query.pageSize })"
+              @select="key => navigate({ instance: Number(key), snapshot: undefined, object: undefined })"
             >
-              <a-form-item :label="t('networkFirewall.domain')">
-                <a-select
-                  v-model="instances.query.domainId"
-                  @change="instances.search"
-                >
-                  <a-option
-                    v-for="domain in options.domains"
-                    :key="domain.id"
-                    :value="domain.id"
-                  >{{ domain.name }}</a-option>
-                </a-select>
-              </a-form-item>
-              <a-form-item :label="t('networkFirewall.keyword')">
-                <a-input
-                  v-model="instances.query.keyword"
-                  :input-attrs="{ 'aria-label': t('networkFirewall.keyword') }"
-                  @press-enter="instances.search"
-                />
-              </a-form-item>
-              <a-button
-                html-type="submit"
-                :loading="instances.loading"
-              >{{ t('common.search') }}</a-button>
-            </a-form>
-            <a-button
-              v-if="workspace.allowed('edit')"
-              class="fw-section"
-              type="primary"
-              @click="createVisible = true"
-            >{{ t('networkFirewall.newInstance') }}</a-button>
-            <div class="fw-section">
-              <a-button
-                v-for="item in instances.rows"
-                :key="item.id"
-                class="fw-list-button"
-                :type="instanceId === item.id ? 'primary' : 'text'"
-                @click="navigate({ instance: item.id, snapshot: undefined, object: undefined })"
-              >{{ item.name }}
-                <br>
-                <small>{{ item.vendor }} · {{ item.nativeContext || '—' }}</small>
-              </a-button>
-              <a-empty v-if="!instances.rows.length && !instances.loading" />
-              <a-pagination
-                simple
-                :total="instances.total"
-                :current="instances.query.pageIndex"
-                :page-size="instances.query.pageSize"
-                @change="pageIndex => instances.handlePagination({ page: pageIndex, limit: instances.query.pageSize })"
-              />
-            </div>
-          </a-card>
-        </aside>
-        <main class="fw-main">
+              <template v-if="workspace.allowed('edit')" #actions>
+                <a-button type="text" size="small" :aria-label="t('networkFirewall.newInstance')" :title="t('networkFirewall.newInstance')" @click="createVisible = true"><template #icon><icon-plus /></template></a-button>
+              </template>
+            </NavList>
+          </div>
+        </template>
+        <div class="fw-main">
           <a-card v-if="instance">
             <div class="fw-section-title">
               <div>
@@ -287,8 +257,8 @@
           >
             <a-empty :description="t('networkFirewall.selectInstance')" />
           </a-card>
-        </main>
-      </div>
+        </div>
+      </AsideLayout>
     </template>
     <AppDrawer
       v-model:visible="createVisible"
@@ -354,12 +324,14 @@ import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import AppDrawer from '@/components/AppDrawer/index.vue'
 import AppTabs from '@/components/AppTabs/index.vue'
+import AsideLayout from '@/components/AsideLayout/index.vue'
+import NavList from '@/components/NavList/index.vue'
 import { useTable } from '@/composables/useTable'
 import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import * as api from '@/api/network/firewall'
 import type { FirewallObject, ImportJob, Instance, InstanceQuery, ObjectKind, ObjectQuery, Options, Snapshot } from '@/types/firewall'
 import { objectKinds } from '@/types/firewall'
-import Heading from './heading.vue'
+import SectionNav from './section-nav.vue'
 import Devices from './devices.vue'
 import Collections from './collections.vue'
 import InstanceEditor from './instance-editor.vue'
@@ -373,7 +345,7 @@ import './style.scss'
 defineOptions({ name: 'NetworkFirewallObjects' })
 const { t } = useI18n(); const route = useRoute(); const router = useRouter(); const workspace = useWorkspace(); const narrow = useNarrowScreen(); const tab = ref('objects')
 const options = ref<Options>({ domains: [], vendors: [], limits: { maxRows: 1000, maxDesignRows: 100, maxFileBytes: 16777216 }, defaultProtocol: 'tcp' }); const instance = ref<Instance>(); const defaultSnapshot = ref<number>()
-const instanceId = computed(() => positiveId(route.query.instance)); const snapshotId = computed(() => positiveId(route.query.snapshot) || defaultSnapshot.value); const objectId = computed(() => positiveId(route.query.object)); const kind = computed<ObjectKind>(() => objectKinds.includes(route.query.kind as ObjectKind) ? route.query.kind as ObjectKind : 'rule')
+const instanceId = computed(() => positiveId(route.query.instance)); const instanceItems = computed(() => instances.rows.map(item => ({ key: item.id, title: item.name, description: `${item.vendor} · ${item.nativeContext || '—'}` }))); const snapshotId = computed(() => positiveId(route.query.snapshot) || defaultSnapshot.value); const objectId = computed(() => positiveId(route.query.object)); const kind = computed<ObjectKind>(() => objectKinds.includes(route.query.kind as ObjectKind) ? route.query.kind as ObjectKind : 'rule')
 const area = computed(() => ['devices', 'objects', 'collections'].includes(String(route.query.area)) ? String(route.query.area) : instanceId.value ? 'objects' : 'devices')
 const createVisible = ref(false); const importVisible = ref(false); const protectionVisible = ref(false); const objectFilters = ['keyword', 'address', 'protocol', 'port', 'zone', 'state'] as const
 const instances = useTable<Instance, InstanceQuery>({ api: query => workspace.allowed('list') ? workspace.guard(signal => api.listInstances(query, signal)) : Promise.reject(), defaultQuery: () => ({ keyword: '', domainId: undefined }), pageSize: 10, idKey: 'id', immediate: false, onError: () => { if (workspace.current()) workspace.failed.value = true } })
@@ -396,5 +368,9 @@ watch([instanceId, area, () => route.query.snapshot], ([id, view], [previousId])
 })
 watch(() => [snapshotId.value, kind.value], () => { objects.rows = []; void objects.search() })
 usePolling(load, () => imports.rows.some(item => running(item.status)))
-onMounted(load); onActivated(() => { if (!instance.value) void load() })
+// Under keep-alive the first activation fires right after mount; loading on both
+// sent every request twice. Activation only reloads a page that was left empty.
+let mounted = false
+onMounted(() => { mounted = true; void load() })
+onActivated(() => { if (mounted) { mounted = false; return } if (!instance.value) void load() })
 </script>

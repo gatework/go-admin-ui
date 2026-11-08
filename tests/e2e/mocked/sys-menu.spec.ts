@@ -33,7 +33,10 @@ test.describe('sys-menu', () => {
     await page.waitForSelector('.arco-table')
 
     await expect(page.getByRole('row', { name: /用户管理/ }).getByText('显示')).toBeVisible()
-    await expect(page.getByRole('row', { name: /用户新增/ }).getByText('--')).toBeVisible()
+    // Neither an icon nor visibility applies to a button entry: both cells show the empty-value dash.
+    const button = page.getByRole('row', { name: /用户新增/ })
+    await expect(button.getByText('—', { exact: true })).toHaveCount(2)
+    await expect(button.getByText(/^(显示|隐藏)$/)).toHaveCount(0)
   })
 
   test('button permissions do not render stored navigation icons', async({ page }) => {

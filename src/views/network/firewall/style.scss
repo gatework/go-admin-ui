@@ -2,7 +2,6 @@
   min-width: 0;
 }
 
-.fw-heading,
 .fw-section-title {
   display: flex;
   justify-content: space-between;
@@ -12,38 +11,33 @@
   margin-bottom: 16px;
 }
 
-.fw-heading h1 {
-  margin: 0 0 8px;
-  font-size: 22px;
-  color: var(--color-text-1);
-}
-
-.fw-heading p,
 .fw-muted {
   margin: 4px 0 12px;
-  color: var(--color-text-3);
+  color: var(--color-text-2);
   font-size: 13px;
   line-height: 1.6;
 }
 
-.fw-layout {
-  display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
-  gap: 16px;
-  align-items: start;
-}
-
-.fw-main,
-.fw-sidebar {
+.fw-main {
   min-width: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
-.fw-sidebar .arco-btn {
-  max-width: 100%;
+.fw-instances,
+.fw-aside-lists {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
+
+.fw-instances__domain { margin-bottom: 0; }
+.fw-aside-lists > .nav-list + .nav-list { padding-top: 16px; border-top: 1px solid var(--color-border-2); }
+
+/* Selection count leads, like the scope summary on the device list; actions follow it. */
+.fw-device-toolbar { flex: 1; margin-bottom: 0; }
+.fw-device-toolbar__summary { margin-right: auto; color: var(--color-text-2); font-size: var(--motor-font-size-12); }
 
 .fw-toolbar {
   display: flex;
@@ -118,22 +112,12 @@
 }
 
 .fw-definition dt {
-  color: var(--color-text-3);
+  color: var(--color-text-2);
 }
 
 .fw-definition dd {
   margin: 0;
   overflow-wrap: anywhere;
-}
-
-.fw-list-button {
-  display: block;
-  width: 100%;
-  text-align: left;
-  white-space: normal;
-  height: auto;
-  padding: 10px;
-  margin: 4px 0;
 }
 
 .fw-scroll {
@@ -168,14 +152,6 @@
     max-width: 45%;
   }
 
-  .fw-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .fw-sidebar {
-    order: 0;
-  }
-
   .fw-grid {
     grid-template-columns: 1fr;
   }
@@ -188,11 +164,14 @@
   .fw-definition {
     grid-template-columns: 100px minmax(0, 1fr);
   }
-
-  .fw-heading h1 {
-    font-size: 20px;
-  }
 }
+
 
 .fw-full-width { width: 100%; }
 .fw-batch-detail h2 { margin: 0; font-size: 16px; }
+
+/* PageContainer drops its gutter on a phone so cards can run edge to edge;
+   text that is not inside a card would then touch the screen edge. */
+@media (max-width: 767px) {
+  .fw-device-workspace > .fw-muted { padding-inline: 12px; }
+}

@@ -1,7 +1,6 @@
-<template><a-tag :color="stateColor(value)">{{ te(`networkFabric.states.${value}`) ? t(`networkFabric.states.${value}`) : value || t('networkFabric.states.unknown') }}</a-tag></template>
+<template><StatusTag :value="value" namespace="networkFabric.states" :tone="stateColor" /></template>
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import StatusTag from '@/components/StatusTag/index.vue'
 import { stateColor } from './presentation'
 defineProps<{ value: string }>()
-const { t, te } = useI18n()
 </script>

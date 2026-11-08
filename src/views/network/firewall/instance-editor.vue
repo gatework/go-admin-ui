@@ -9,8 +9,8 @@
     layout="vertical"
     @submit-success="form.submit"
   >
-    <div v-if="!device" class="fw-layout">
-      <GroupPanel
+    <AsideLayout v-if="!device" :title="t('network.device.groups.title')" :card="false" :width="220" collapse="stack">
+      <template #aside><GroupPanel
         :data="groups"
         :selected="devices.query.groupId"
         :loading="workspace.loading.value"
@@ -18,31 +18,29 @@
         read-only
         @select="selectGroup"
         @refresh="loadGroups"
-      />
-      <div>
-        <ProTable
-          :table="devices"
-          :panels="false"
-          row-key="id"
-          :actions-width="90"
-        ><template #search><a-form-item :label="t('networkFirewall.searchDevice')"><a-input
-          v-model="devices.query.keyword"
-          :input-attrs="{ 'aria-label': t('networkFirewall.searchDevice') }"
-        /></a-form-item></template><a-table-column
-          :title="t('networkFirewall.device')"
-          data-index="name"
-        /><a-table-column
-          title="IP"
-          data-index="ip"
-        /><a-table-column
-          :title="t('networkFirewall.vendor')"
-          data-index="vendor"
-        /><template #actions="{ row }"><a-button
-          type="text"
-          @click="choose(row)"
-        >{{ t('networkFirewall.select') }}</a-button></template></ProTable>
-      </div>
-    </div><a-form-item
+      /></template>
+      <ProTable
+        :table="devices"
+        :panels="false"
+        row-key="id"
+        :actions-width="90"
+      ><template #search><a-form-item :label="t('networkFirewall.searchDevice')"><a-input
+        v-model="devices.query.keyword"
+        :input-attrs="{ 'aria-label': t('networkFirewall.searchDevice') }"
+      /></a-form-item></template><a-table-column
+        :title="t('networkFirewall.device')"
+        data-index="name"
+      /><a-table-column
+        title="IP"
+        data-index="ip"
+      /><a-table-column
+        :title="t('networkFirewall.vendor')"
+        data-index="vendor"
+      /><template #actions="{ row }"><a-button
+        type="text"
+        @click="choose(row)"
+      >{{ t('networkFirewall.select') }}</a-button></template></ProTable>
+    </AsideLayout><a-form-item
       field="deviceId"
       :label="t('networkFirewall.device')"
     ><a-input
@@ -91,7 +89,8 @@ import { listDeviceGroup } from '@/api/network/device'
 import { addInstance, listFirewallDevices } from '@/api/network/firewall'
 import type { DeviceGroupTree, DeviceQuery } from '@/types/network'
 import type { FirewallDevice, Instance, InstanceInput, Options } from '@/types/firewall'
-import GroupPanel from '../device/groups/panel.vue'
+import AsideLayout from '@/components/AsideLayout/index.vue'
+import GroupPanel from '../shared/group-panel.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import { useWorkspace } from './workspace'
 const props = defineProps<{ options: Options, device?: FirewallDevice }>(); const emit = defineEmits<{ saved: [value: Instance] }>(); const { t } = useI18n(); const workspace = useWorkspace()

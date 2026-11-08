@@ -1,4 +1,5 @@
-import type { SelectOptionData, TreeNodeData } from '@arco-design/web-vue'
+import type { SelectOptionData } from '@arco-design/web-vue'
+import type { TreeNavItem } from '@/components/TreeNav/tree'
 import type { DeviceGroupNode } from '@/types/network'
 
 export function flattenGroups(nodes: DeviceGroupNode[]): DeviceGroupNode[] {
@@ -12,21 +13,14 @@ export function groupOptions(nodes: DeviceGroupNode[], options: { preserveId?: n
   })
 }
 
-export interface NavigationNode extends TreeNodeData {
-  key: string | number
-  title: string
-  count: number
-  level: number
-  parentKey?: number
-  enabled: boolean
-  children: NavigationNode[]
-}
-
-export function navigationNodes(nodes: DeviceGroupNode[], search = '', level = 1): NavigationNode[] {
-  const query = search.trim().toLocaleLowerCase()
-  return nodes.flatMap(node => {
-    const matches = !query || `${node.name} ${node.code}`.toLocaleLowerCase().includes(query)
-    const children = navigationNodes(node.children ?? [], matches ? '' : query, level + 1)
-    return matches || children.length ? [{ key: node.id, title: node.name, count: node.deviceCount, level, parentKey: node.parentId ?? undefined, enabled: node.enabled, children }] : []
-  })
+/** Groups as TreeNav rows: the code is searchable, a disabled group says so. */
+export function groupNavItems(nodes: DeviceGroupNode[], disabledNote: string): TreeNavItem[] {
+  return nodes.map(node => ({
+    key: node.id,
+    title: node.name,
+    count: node.deviceCount,
+    searchText: node.code,
+    note: node.enabled ? undefined : disabledNote,
+    children: groupNavItems(node.children ?? [], disabledNote)
+  }))
 }

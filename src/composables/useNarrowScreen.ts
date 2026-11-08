@@ -19,7 +19,9 @@ export const NARROW_MAX = 767
  * the component mounted, and its dropdown is teleported to the body regardless.
  */
 export function useNarrowScreen(maxWidth = NARROW_MAX): Ref<boolean> {
-  const narrow = ref(false)
+  // Answer on the first render, not after mount: starting from `false` drew the
+  // desktop layout on every phone and then swapped it out, a visible layout shift.
+  const narrow = ref(typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(`(max-width: ${maxWidth}px)`).matches)
   let query: MediaQueryList | undefined
   const onChange = (event: MediaQueryListEvent) => { narrow.value = event.matches }
 

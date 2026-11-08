@@ -2,50 +2,50 @@
   <div class="fw-device-workspace">
     <p class="fw-muted">{{ t('networkFirewall.online.deviceHelp') }}</p>
     <a-alert v-if="workspace.failed.value" type="warning">{{ t('networkFirewall.loadFailed') }}<template #action><a-button @click="refresh">{{ t('networkFirewall.retry') }}</a-button></template></a-alert>
-    <div class="fw-layout">
-      <GroupPanel :data="groups" :selected="devices.query.groupId" :loading="workspace.loading.value" :failed="workspace.failed.value" read-only @select="selectGroup" @refresh="loadGroups" />
-      <div class="fw-main">
-        <ProTable :table="devices" selection row-key="id" :actions-width="160" :scroll="{ x: 1000 }">
-          <template #search>
-            <a-form-item :label="t('networkFirewall.searchDevice')"><a-input v-model="devices.query.keyword" :input-attrs="{ 'aria-label': t('networkFirewall.searchDevice') }" /></a-form-item>
-            <a-form-item :label="t('networkFirewall.vendor')"><a-input v-model="devices.query.vendor" /></a-form-item>
-          </template>
-          <template #toolbar>
-            <div class="fw-toolbar">
-              <a-button v-if="workspace.allowed('edit')" type="primary" @click="editorDevice = undefined; editorOpen = true">{{ t('networkFirewall.newInstance') }}</a-button>
-              <a-select v-model="domainId" :aria-label="t('networkFirewall.domain')"><a-option v-for="domain in options.domains" :key="domain.id" :value="domain.id">{{ domain.name }}</a-option></a-select>
-              <template v-if="workspace.allowed('collect')">
-                <a-button :disabled="!canStart" :loading="workspace.pending.value" @click="start('connection_test')">{{ t('networkFirewall.online.testLogin') }}</a-button>
-                <a-button :disabled="!canStart" :loading="workspace.pending.value" @click="start('capture')">{{ t('networkFirewall.online.capture') }}</a-button>
-              </template>
-              <span class="fw-muted">{{ t('networkFirewall.online.selected', { count: devices.selection.length, limit: options.limits.maxCollectionTargets || 100 }) }}</span>
-            </div>
-            <a-alert v-if="selectionIssue" type="warning">{{ reasonText(selectionIssue) }}</a-alert>
-          </template>
-          <a-table-column :title="t('networkFirewall.device')" data-index="name" :width="180" ellipsis tooltip />
-          <a-table-column title="IP" data-index="ip" :width="150" ellipsis tooltip />
-          <a-table-column :title="t('networkFirewall.vendor')" data-index="vendor" :width="110" ellipsis tooltip />
-          <a-table-column :title="t('networkFirewall.online.readiness')" data-index="status" :width="220">
-            <template #cell="{ record }"><a-tag class="fw-connection-status" :color="record.connection.ready ? 'green' : 'orange'">{{ record.connection.ready ? t('networkFirewall.online.readyToTest') : reasonText(record.connection.reason) }}</a-tag></template>
-          </a-table-column>
-          <a-table-column :title="t('networkFirewall.instance')" data-index="instances" :width="140">
-            <template #cell="{ record }">
-              <a-select v-if="record.instances.length > 1" v-model="chosen[record.id]" :aria-label="t('networkFirewall.online.contextFor', { name: record.name })" :placeholder="t('networkFirewall.online.chooseContext')"><a-option v-for="item in record.instances" :key="item.id" :value="item.id">{{ item.nativeContext || item.name }}</a-option></a-select>
-              <span v-else>{{ record.instances[0]?.nativeContext || (record.instances.length ? t('networkFirewall.online.defaultContext') : t('networkFirewall.online.autoAssociate')) }}</span>
+    <AsideLayout ref="aside" :title="t('network.device.groups.title')" :current="currentScope">
+      <template #aside="{ compact }">
+        <GroupPanel :data="groups" :selected="devices.query.groupId" :loading="workspace.loading.value" :failed="workspace.failed.value" :show-title="!compact" read-only @select="selectGroup" @refresh="loadGroups" />
+      </template>
+      <ProTable :table="devices" selection row-key="id" :actions-width="160" :scroll="{ x: 1000 }">
+        <template #search>
+          <a-form-item :label="t('networkFirewall.searchDevice')"><a-input v-model="devices.query.keyword" :input-attrs="{ 'aria-label': t('networkFirewall.searchDevice') }" /></a-form-item>
+          <a-form-item :label="t('networkFirewall.vendor')"><a-input v-model="devices.query.vendor" /></a-form-item>
+        </template>
+        <template #toolbar>
+          <div class="fw-toolbar fw-device-toolbar">
+            <span class="fw-device-toolbar__summary">{{ t('networkFirewall.online.selected', { count: devices.selection.length, limit: options.limits.maxCollectionTargets || 100 }) }}</span>
+            <a-button v-if="workspace.allowed('edit')" type="primary" @click="editorDevice = undefined; editorOpen = true">{{ t('networkFirewall.newInstance') }}</a-button>
+            <a-select v-model="domainId" :aria-label="t('networkFirewall.domain')"><a-option v-for="domain in options.domains" :key="domain.id" :value="domain.id">{{ domain.name }}</a-option></a-select>
+            <template v-if="workspace.allowed('collect')">
+              <a-button :disabled="!canStart" :loading="workspace.pending.value" @click="start('connection_test')">{{ t('networkFirewall.online.testLogin') }}</a-button>
+              <a-button :disabled="!canStart" :loading="workspace.pending.value" @click="start('capture')">{{ t('networkFirewall.online.capture') }}</a-button>
             </template>
-          </a-table-column>
-          <template #actions="{ row }">
-            <a-button type="text" @click="connectionDevice = row">{{ t('networkFirewall.online.connection') }}</a-button>
-            <AppDropdown trigger="click"><a-button type="text" :aria-label="t('networkFirewall.online.actionsFor', { name: row.name })">{{ t('networkFirewall.online.more') }}</a-button><template #content>
-              <a-doption v-if="instanceFor(row)" @click="emit('inspect', instanceFor(row)!)">{{ t('networkFirewall.objects') }}</a-doption>
-              <a-doption v-if="workspace.allowed('collect')" :disabled="!!choice(row).reason" @click="start('connection_test', [row])">{{ t('networkFirewall.online.testLogin') }}</a-doption>
-              <a-doption v-if="workspace.allowed('collect')" :disabled="!!choice(row).reason" @click="start('capture', [row])">{{ t('networkFirewall.online.capture') }}</a-doption>
-              <a-doption v-if="workspace.allowed('edit')" @click="editorDevice = row; editorOpen = true">{{ t('networkFirewall.newInstance') }}</a-doption>
-            </template></AppDropdown>
+          </div>
+          <a-alert v-if="selectionIssue" type="warning">{{ reasonText(selectionIssue) }}</a-alert>
+        </template>
+        <a-table-column :title="t('networkFirewall.device')" data-index="name" :width="180" ellipsis tooltip />
+        <a-table-column title="IP" data-index="ip" :width="150" ellipsis tooltip />
+        <a-table-column :title="t('networkFirewall.vendor')" data-index="vendor" :width="110" ellipsis tooltip />
+        <a-table-column :title="t('networkFirewall.online.readiness')" data-index="status" :width="220">
+          <template #cell="{ record }"><a-tag class="fw-connection-status" :color="record.connection.ready ? 'green' : 'orange'">{{ record.connection.ready ? t('networkFirewall.online.readyToTest') : reasonText(record.connection.reason) }}</a-tag></template>
+        </a-table-column>
+        <a-table-column :title="t('networkFirewall.instance')" data-index="instances" :width="140">
+          <template #cell="{ record }">
+            <a-select v-if="record.instances.length > 1" v-model="chosen[record.id]" :aria-label="t('networkFirewall.online.contextFor', { name: record.name })" :placeholder="t('networkFirewall.online.chooseContext')"><a-option v-for="item in record.instances" :key="item.id" :value="item.id">{{ item.nativeContext || item.name }}</a-option></a-select>
+            <span v-else>{{ record.instances[0]?.nativeContext || (record.instances.length ? t('networkFirewall.online.defaultContext') : t('networkFirewall.online.autoAssociate')) }}</span>
           </template>
-        </ProTable>
-      </div>
-    </div>
+        </a-table-column>
+        <template #actions="{ row }">
+          <a-button type="text" @click="connectionDevice = row">{{ t('networkFirewall.online.connection') }}</a-button>
+          <AppDropdown trigger="click"><a-button type="text" :aria-label="t('networkFirewall.online.actionsFor', { name: row.name })">{{ t('networkFirewall.online.more') }}</a-button><template #content>
+            <a-doption v-if="instanceFor(row)" @click="emit('inspect', instanceFor(row)!)">{{ t('networkFirewall.objects') }}</a-doption>
+            <a-doption v-if="workspace.allowed('collect')" :disabled="!!choice(row).reason" @click="start('connection_test', [row])">{{ t('networkFirewall.online.testLogin') }}</a-doption>
+            <a-doption v-if="workspace.allowed('collect')" :disabled="!!choice(row).reason" @click="start('capture', [row])">{{ t('networkFirewall.online.capture') }}</a-doption>
+            <a-doption v-if="workspace.allowed('edit')" @click="editorDevice = row; editorOpen = true">{{ t('networkFirewall.newInstance') }}</a-doption>
+          </template></AppDropdown>
+        </template>
+      </ProTable>
+    </AsideLayout>
     <Connection :visible="!!connectionDevice" :device="connectionDevice" @update:visible="value => { if (!value) connectionDevice = undefined }" @saved="refresh" />
     <AppDrawer v-model:visible="editorOpen" :title="t('networkFirewall.newInstance')" :width="narrow ? '100%' : editorDevice ? 600 : 1000" :footer="false"><InstanceEditor v-if="editorOpen" :device="editorDevice" :options="options" @saved="associated" /></AppDrawer>
   </div>
@@ -63,7 +63,9 @@ import { listDeviceGroup } from '@/api/network/device'
 import * as api from '@/api/network/firewall'
 import type { DeviceGroupTree, DeviceQuery } from '@/types/network'
 import type { CollectionBatch, CollectionInput, CollectionKind, FirewallDevice, Instance, Options } from '@/types/firewall'
-import GroupPanel from '../device/groups/panel.vue'
+import AsideLayout from '@/components/AsideLayout/index.vue'
+import GroupPanel from '../shared/group-panel.vue'
+import { flattenGroups } from '../device/groups/tree'
 import Connection from './connection.vue'
 import InstanceEditor from './instance-editor.vue'
 import { chooseCollectionInstance, collectionSubmission } from './collection'
@@ -81,7 +83,14 @@ const selectionIssue = computed(() => devices.selection.length > (props.options.
 const canStart = computed(() => !!devices.selection.length && !selectionIssue.value && !!domainId.value && !workspace.pending.value)
 let pending: CollectionInput | undefined
 function reasonText(reason: string) { const key = `networkFirewall.online.reasons.${reason}`; return te(key) ? t(key) : t('networkFirewall.online.reasons.collection_failed') }
-function selectGroup(groupId?: number) { devices.query.groupId = groupId; void devices.search() }
+const aside = ref<InstanceType<typeof AsideLayout>>()
+const currentScope = computed(() => {
+  const id = devices.query.groupId
+  if (id === undefined) return t('network.device.groups.all')
+  if (id === 0) return t('network.device.groups.ungrouped')
+  return flattenGroups(groups.value.items).find(node => node.id === id)?.name ?? '—'
+})
+function selectGroup(groupId?: number) { devices.query.groupId = groupId; aside.value?.close(); void devices.search() }
 function loadGroups() { void workspace.read(() => listDeviceGroup(), response => { groups.value = response.data }) }
 async function refresh() { await devices.getList() }
 function associated(instance: Instance) { chosen[instance.deviceId] = instance.id; editorDevice.value = undefined; editorOpen.value = false; void refresh() }

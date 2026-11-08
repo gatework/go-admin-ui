@@ -35,3 +35,8 @@ body {
 .rail-dark { --rail-bg: var(--color-menu-dark-bg); --rail-title: rgba(255, 255, 255, .9); }
 
 body[arco-theme="dark"] { --ga-bg-body: var(--color-bg-1); }
+
+/* Arco breaks table text anywhere (word-break: break-all), which suits IDs and
+   paths in cells but splits the words of an empty-state sentence ("manag-ement").
+   The empty row holds prose, so it wraps between words. */
+.arco-table-tr-empty .arco-table-td { word-break: normal; overflow-wrap: anywhere; }

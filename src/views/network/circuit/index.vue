@@ -1,5 +1,5 @@
 <template>
-  <PageContainer class="circuit-page network-list" :class="{ 'circuit-page--empty': !table.rows.length }">
+  <PageContainer class="circuit-page network-list" :title="t('networkCircuit.title')" :description="t('networkCircuit.subtitle')">
     <a-alert v-if="optionsFailed" type="warning" class="circuit-notice">{{ t('networkCircuit.lookupFailed') }}<template #action><a-button @click="loadOptions">{{ t('networkCircuit.retry') }}</a-button></template></a-alert>
     <a-alert v-if="removeFailed" type="warning" class="circuit-notice">{{ t('networkCircuit.removeConflict') }}<template #action><a-button @click="reload">{{ t('common.refresh') }}</a-button></template></a-alert>
     <ProTable :table="table" row-key="id" :actions-width="allowed('traffic') && allowed('edit') ? 172 : 124" :scroll="{ x: 1180 }">
@@ -33,7 +33,6 @@
       </template>
       <template #empty><a-result v-if="!table.loading" :status="listFailed ? 'error' : 'info'" :title="emptyTitle" :subtitle="emptyHelp"><template #extra><a-button v-if="hasFilters" @click="table.resetQuery">{{ t('networkCircuit.resetFilters') }}</a-button><a-button v-else-if="listFailed" @click="table.getList">{{ t('networkCircuit.retry') }}</a-button></template></a-result></template>
     </ProTable>
-    <a-result v-if="narrow && !table.loading && !table.rows.length" :status="listFailed ? 'error' : 'info'" :title="emptyTitle" :subtitle="emptyHelp"><template #extra><a-button v-if="hasFilters" @click="table.resetQuery">{{ t('networkCircuit.resetFilters') }}</a-button><a-button v-else-if="listFailed" @click="table.getList">{{ t('networkCircuit.retry') }}</a-button></template></a-result>
     <CircuitDetail :id="selectedId" v-model:visible="detailVisible" :can-edit="allowed('edit')" :can-traffic="allowed('traffic')" @edit="showEditor" @traffic="showTraffic" />
     <CircuitEditor :id="selectedId" ref="editor" v-model:visible="editorVisible" :options="options" :options-failed="optionsFailed" @saved="reload" @retry-options="loadOptions" />
     <CircuitTraffic v-model:visible="trafficVisible" :record="trafficRecord" />
@@ -49,7 +48,6 @@ import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import AppDropdown from '@/components/AppDropdown/index.vue'
 import { useRemove, useTable } from '@/composables'
-import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import { useUserStore } from '@/stores/user'
 import { circuitFilters, delCircuit, exportCircuit, getCircuitOptions, listCircuit } from '@/api/network/circuit'
 import { circuitCategories, circuitStatuses } from '@/types/network-circuit'
@@ -64,7 +62,6 @@ import CircuitTraffic from './traffic.vue'
 defineOptions({ name: 'NetworkCircuitManage' })
 const { t } = useI18n()
 const user = useUserStore()
-const narrow = useNarrowScreen()
 const allowed = (action: string) => user.permisaction.some(permission => permission === '*:*:*' || permission === `network:circuit:${action}`)
 const options = ref<CircuitOptions>()
 const optionsFailed = ref(false)
@@ -184,6 +181,5 @@ onBeforeUnmount(invalidate)
 .circuit-page__endpoints b { color: var(--color-text-2); font-weight: 400; margin-right: 4px; }
 .circuit-page :deep(.arco-table-td) { font-variant-numeric: tabular-nums; }
 @media (max-width: 767px) {
-  .circuit-page--empty :deep(.pro-table .arco-empty) { display: none; }
 }
 </style>

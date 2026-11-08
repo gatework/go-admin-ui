@@ -8,40 +8,38 @@
       <div v-for="device in devices" :key="device.id"><span>{{ deviceName(device) }} <small>{{ device.ip }}</small></span><a-button type="text" :aria-label="t('networkDelivery.removeDevice', { name: deviceName(device) })" :disabled="disabled || collecting" @click="remove(device.id)"><template #icon><icon-close /></template></a-button></div>
     </div>
     <a-alert v-if="selectionError" type="warning" class="delivery-notice" closable @close="selectionError = ''">{{ t(`networkDelivery.${selectionError}`, { max: options.maxTargets }) }}</a-alert>
-    <div class="delivery-inventory">
-      <aside v-if="!narrow" class="delivery-inventory-nav" :inert="collecting || undefined">
-        <h3>{{ t('networkDelivery.selectArea') }}</h3>
-        <GroupPanel :data="groupTree" :selected="table.query.groupId" :loading="false" :failed="false" :show-title="false" read-only @select="selectArea" />
-      </aside>
-      <div class="delivery-inventory-main">
-        <a-form :model="searchModel" class="delivery-device-filters" layout="vertical" @submit-success="search">
-          <a-form-item v-if="narrow" v-input-label="t('networkDelivery.selectArea')" :label="t('networkDelivery.area')"><a-select :model-value="table.query.groupId ?? 'all'" allow-search :disabled="collecting" @change="selectArea($event === 'all' ? undefined : Number($event))">
-            <a-option value="all">{{ t('networkDelivery.allDevices') }} · {{ groupTree.totalDeviceCount }}</a-option>
-            <a-option v-for="option in areaOptions" :key="String(option.value)" :value="option.value">{{ option.label }}</a-option>
-            <a-option :value="0">{{ t('network.device.groups.ungrouped') }} · {{ groupTree.ungroupedDeviceCount }}</a-option>
-          </a-select></a-form-item>
-          <a-form-item v-input-label="t('networkDelivery.deviceRoles')" :label="t('networkDelivery.deviceRoles')"><a-select v-model="searchModel.role" :placeholder="t('networkDelivery.allRoles')" allow-clear allow-search :disabled="collecting" @change="search"><a-option v-for="role in roles" :key="role" :value="role">{{ role === '__empty__' ? t('networkDelivery.noRole') : t(`network.device.roleValues.${role}`) }}</a-option></a-select></a-form-item>
-          <a-form-item v-input-label="t('networkDelivery.vendor')" :label="t('networkDelivery.vendor')"><a-select v-model="searchModel.vendor" :placeholder="t('networkDelivery.allVendors')" allow-clear allow-search :disabled="collecting" @change="changeVendor"><a-option v-for="vendor in vendors" :key="vendor" :value="vendor">{{ vendor === '__empty__' ? t('networkDelivery.unknownVendor') : vendor }}</a-option></a-select></a-form-item>
-          <a-form-item v-input-label="t('networkDelivery.model')" :label="t('networkDelivery.model')"><a-select v-model="searchModel.model" :placeholder="t('networkDelivery.allModels')" allow-clear allow-search :disabled="collecting" @change="search"><a-option v-for="model in models" :key="model" :value="model">{{ model }}</a-option></a-select></a-form-item>
-          <div class="delivery-device-search"><a-form-item hide-label :label="t('networkDelivery.deviceSearch')"><a-input v-model="searchModel.keyword" :input-attrs="{ 'aria-label': t('networkDelivery.deviceSearch') }" :placeholder="t('networkDelivery.devicePlaceholder')" allow-clear :disabled="collecting"><template #prefix><icon-search /></template></a-input></a-form-item><a-button html-type="submit" :loading="table.loading" :disabled="collecting">{{ t('common.search') }}</a-button><a-button :disabled="collecting" @click="resetFilters">{{ t('common.reset') }}</a-button></div>
-        </a-form>
-        <div v-if="canSelect" class="delivery-selection-actions">
-          <a-checkbox :model-value="pageSelected" :indeterminate="pagePartial" :disabled="disabled || collecting || table.loading || !selectable.length" @change="selectPage">{{ t('networkDelivery.selectPage') }}</a-checkbox>
-          <a-button type="text" :loading="collecting" :disabled="disabled || table.loading || !table.total" @click="selectResults">{{ t('networkDelivery.selectResults') }}</a-button>
-          <span>{{ t('networkDelivery.matchingDevices', { count: table.total }) }}</span>
+    <AsideLayout class="delivery-inventory" :title="t('networkDelivery.selectArea')" :card="false" :breakpoint="767" collapse="none">
+      <template #aside>
+        <div class="delivery-inventory-nav" :inert="collecting || undefined">
+          <GroupPanel :data="groupTree" :selected="table.query.groupId" :labels="{ title: t('networkDelivery.selectArea') }" read-only @select="selectArea" />
         </div>
-        <ProTable :table="table" :panels="false" row-key="id" :actions-width="104" :scroll="{ x: 580 }">
-          <a-table-column data-index="name" :title="t('networkDelivery.device')" :width="240"><template #cell="{ record }">
-            <div class="delivery-device-check"><a-checkbox v-if="canSelect" :model-value="selectedIds.has(record.id)" :aria-label="t('networkDelivery.pick', { name: deviceName(record) })" :disabled="disabled || collecting || (!selectedIds.has(record.id) && (!record.connection.ready || devices.length >= options.maxTargets))" @change="toggle(record)" @click.stop @pointerdown.stop /><div class="delivery-identity"><strong>{{ deviceName(record) }}</strong><span>{{ record.ip }}</span><span>{{ [record.vendor, record.model].filter(Boolean).join(' · ') }}</span></div></div>
-          </template></a-table-column>
-          <a-table-column data-index="deviceRole" :title="t('networkDelivery.rolePlatform')" :width="180"><template #cell="{ record }"><div class="delivery-identity"><span class="delivery-role-label">{{ roleName(record, t) }}</span><span>{{ platformName(record.connection.profile, t) }}</span></div></template></a-table-column>
-          <a-table-column data-index="connection" :title="t('networkDelivery.availability')" :width="160"><template #cell="{ record }"><span :class="{ 'delivery-available': record.connection.ready }">{{ record.connection.ready ? t('networkDelivery.ready') : t(`networkDelivery.reasons.${reasonKeys.has(record.connection.reason) ? record.connection.reason : 'unavailable'}`) }}</span></template></a-table-column>
-          <template v-if="canConfigure" #actions="{ row }"><a-button type="text" :disabled="disabled || collecting" @click="configure(row)">{{ t(row.connection.profile ? 'networkDelivery.connectionOptions' : 'networkDelivery.identifyPlatform') }}</a-button></template>
-          <template #empty><a-result :status="failed ? 'error' : 'info'" :title="t(failed ? 'networkDelivery.deviceLoadFailed' : 'networkDelivery.deviceEmpty')" :subtitle="t('networkDelivery.deviceEmptyHelp')"><template #extra><a-button @click="table.getList">{{ t('networkDelivery.retry') }}</a-button></template></a-result></template>
-        </ProTable>
-        <a-result v-if="narrow && !table.loading && !table.rows.length" :status="failed ? 'error' : 'info'" :title="t(failed ? 'networkDelivery.deviceLoadFailed' : 'networkDelivery.deviceEmpty')" :subtitle="t('networkDelivery.deviceEmptyHelp')"><template #extra><a-button @click="table.getList">{{ t('networkDelivery.retry') }}</a-button></template></a-result>
+      </template>
+      <a-form :model="searchModel" class="delivery-device-filters" layout="vertical" @submit-success="search">
+        <a-form-item v-if="narrow" v-input-label="t('networkDelivery.selectArea')" :label="t('networkDelivery.area')"><a-select :model-value="table.query.groupId ?? 'all'" allow-search :disabled="collecting" @change="selectArea($event === 'all' ? undefined : Number($event))">
+          <a-option value="all">{{ t('networkDelivery.allDevices') }} · {{ groupTree.totalDeviceCount }}</a-option>
+          <a-option v-for="option in areaOptions" :key="String(option.value)" :value="option.value">{{ option.label }}</a-option>
+          <a-option :value="0">{{ t('network.device.groups.ungrouped') }} · {{ groupTree.ungroupedDeviceCount }}</a-option>
+        </a-select></a-form-item>
+        <a-form-item v-input-label="t('networkDelivery.deviceRoles')" :label="t('networkDelivery.deviceRoles')"><a-select v-model="searchModel.role" :placeholder="t('networkDelivery.allRoles')" allow-clear allow-search :disabled="collecting" @change="search"><a-option v-for="role in roles" :key="role" :value="role">{{ role === '__empty__' ? t('networkDelivery.noRole') : t(`network.device.roleValues.${role}`) }}</a-option></a-select></a-form-item>
+        <a-form-item v-input-label="t('networkDelivery.vendor')" :label="t('networkDelivery.vendor')"><a-select v-model="searchModel.vendor" :placeholder="t('networkDelivery.allVendors')" allow-clear allow-search :disabled="collecting" @change="changeVendor"><a-option v-for="vendor in vendors" :key="vendor" :value="vendor">{{ vendor === '__empty__' ? t('networkDelivery.unknownVendor') : vendor }}</a-option></a-select></a-form-item>
+        <a-form-item v-input-label="t('networkDelivery.model')" :label="t('networkDelivery.model')"><a-select v-model="searchModel.model" :placeholder="t('networkDelivery.allModels')" allow-clear allow-search :disabled="collecting" @change="search"><a-option v-for="model in models" :key="model" :value="model">{{ model }}</a-option></a-select></a-form-item>
+        <div class="delivery-device-search"><a-form-item hide-label :label="t('networkDelivery.deviceSearch')"><a-input v-model="searchModel.keyword" :input-attrs="{ 'aria-label': t('networkDelivery.deviceSearch') }" :placeholder="t('networkDelivery.devicePlaceholder')" allow-clear :disabled="collecting"><template #prefix><icon-search /></template></a-input></a-form-item><a-button html-type="submit" :loading="table.loading" :disabled="collecting">{{ t('common.search') }}</a-button><a-button :disabled="collecting" @click="resetFilters">{{ t('common.reset') }}</a-button></div>
+      </a-form>
+      <div v-if="canSelect" class="delivery-selection-actions">
+        <a-checkbox :model-value="pageSelected" :indeterminate="pagePartial" :disabled="disabled || collecting || table.loading || !selectable.length" @change="selectPage">{{ t('networkDelivery.selectPage') }}</a-checkbox>
+        <a-button type="text" :loading="collecting" :disabled="disabled || table.loading || !table.total" @click="selectResults">{{ t('networkDelivery.selectResults') }}</a-button>
+        <span>{{ t('networkDelivery.matchingDevices', { count: table.total }) }}</span>
       </div>
-    </div>
+      <ProTable :table="table" :panels="false" row-key="id" :actions-width="104" :scroll="{ x: 580 }">
+        <a-table-column data-index="name" :title="t('networkDelivery.device')" :width="240"><template #cell="{ record }">
+          <div class="delivery-device-check"><a-checkbox v-if="canSelect" :model-value="selectedIds.has(record.id)" :aria-label="t('networkDelivery.pick', { name: deviceName(record) })" :disabled="disabled || collecting || (!selectedIds.has(record.id) && (!record.connection.ready || devices.length >= options.maxTargets))" @change="toggle(record)" @click.stop @pointerdown.stop /><div class="delivery-identity"><strong>{{ deviceName(record) }}</strong><span>{{ record.ip }}</span><span>{{ [record.vendor, record.model].filter(Boolean).join(' · ') }}</span></div></div>
+        </template></a-table-column>
+        <a-table-column data-index="deviceRole" :title="t('networkDelivery.rolePlatform')" :width="180"><template #cell="{ record }"><div class="delivery-identity"><span class="delivery-role-label">{{ roleName(record, t) }}</span><span>{{ platformName(record.connection.profile, t) }}</span></div></template></a-table-column>
+        <a-table-column data-index="connection" :title="t('networkDelivery.availability')" :width="160"><template #cell="{ record }"><span :class="{ 'delivery-available': record.connection.ready }">{{ record.connection.ready ? t('networkDelivery.ready') : t(`networkDelivery.reasons.${reasonKeys.has(record.connection.reason) ? record.connection.reason : 'unavailable'}`) }}</span></template></a-table-column>
+        <template v-if="canConfigure" #actions="{ row }"><a-button type="text" :disabled="disabled || collecting" @click="configure(row)">{{ t(row.connection.profile ? 'networkDelivery.connectionOptions' : 'networkDelivery.identifyPlatform') }}</a-button></template>
+        <template #empty><a-result :status="failed ? 'error' : 'info'" :title="t(failed ? 'networkDelivery.deviceLoadFailed' : 'networkDelivery.deviceEmpty')" :subtitle="t('networkDelivery.deviceEmptyHelp')"><template #extra><a-button @click="table.getList">{{ t('networkDelivery.retry') }}</a-button></template></a-result></template>
+      </ProTable>
+    </AsideLayout>
     <Connection v-model:visible="connectionVisible" :device="connectionDevice" :profiles="options.profiles" @saved="connectionSaved" />
   </section>
 </template>
@@ -58,7 +56,8 @@ import { vInputLabel } from '../shared/input-label'
 import Connection from './connection.vue'
 import { deviceName } from './form'
 import { inventoryQuery, mergeSelection, platformName, roleName, snapshotDevice, type InventoryFilters } from './inventory'
-import GroupPanel from '../device/groups/panel.vue'
+import AsideLayout from '@/components/AsideLayout/index.vue'
+import GroupPanel from '../shared/group-panel.vue'
 import { groupOptions } from '../device/groups/tree'
 import { deviceRoles } from '@/types/network'
 import { reasonKeys } from './presentation'

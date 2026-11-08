@@ -34,3 +34,10 @@ export function createIntentKey() {
 }
 
 export function newZoneBinding(): Binding { return { zone: '', scope: '', routingScope: '', domainId: 0, protected: true, networks: [] } }
+
+export function stateTone(state: string) {
+  if (['allowed', 'verified', 'succeeded', 'ready', 'complete'].includes(state)) return 'green'
+  if (['failed', 'denied', 'invalid'].includes(state)) return 'red'
+  if (['running', 'queued'].includes(state)) return 'blue'
+  return 'orange'
+}

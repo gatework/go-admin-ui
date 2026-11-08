@@ -1,5 +1,12 @@
 <template>
   <div class="page-container">
+    <header v-if="title" class="page-container__header">
+      <div class="page-container__heading">
+        <h1>{{ title }}</h1>
+        <p v-if="description">{{ description }}</p>
+      </div>
+      <div v-if="$slots.actions" class="page-container__actions"><slot name="actions" /></div>
+    </header>
     <a-card v-if="card" class="page-container__body">
       <slot />
     </a-card>
@@ -9,7 +16,8 @@
 
 <script setup lang="ts">
 /**
- * Page shell: consistent padding, and a card for the pages that want one.
+ * Page shell: consistent padding, an optional heading, and a card for the
+ * pages that want one.
  *
  * Supersedes BasicLayout, which offered padding through a named `#wrapper` slot
  * -- so every page opened with a template block whose only purpose was to fill
@@ -20,18 +28,25 @@
  * borders. Pages that are a single surface -- a form, a console -- pass `card`
  * and get the panel back.
  *
- * Deliberately has no title or description: the breadcrumb already names the
- * page, and a heading that repeats it costs vertical space on every screen. Add
- * one here when a page actually needs page-level actions, together with the
- * page that needs them.
+ * The heading is opt-in. Admin list pages leave it off: the tab already names
+ * the page. A module whose pages carry page-level actions or need one line of
+ * orientation (network management) passes `title`, `description` and
+ * `#actions`, so every such page opens the same way instead of each drawing its
+ * own header.
  */
 defineOptions({ name: 'PageContainer' })
 
 withDefaults(defineProps<{
   /** Wrap the content in a card. Off by default; pages that draw their own panels need nothing. */
   card?: boolean
+  /** Page heading. Omit for no header. */
+  title?: string
+  /** One line under the heading saying what the page is for. */
+  description?: string
 }>(), {
-  card: false
+  card: false,
+  title: undefined,
+  description: undefined
 })
 </script>
 
@@ -39,6 +54,43 @@ withDefaults(defineProps<{
 .page-container {
   padding: 12px;
   box-sizing: border-box;
+}
+
+.page-container__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px 24px;
+  flex-wrap: wrap;
+  padding: 4px 0 16px;
+}
+
+.page-container__heading {
+  min-width: 0;
+  flex: 1 1 320px;
+
+  h1 {
+    margin: 0;
+    color: var(--color-text-1);
+    font-size: var(--motor-font-size-20);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  p {
+    margin: 4px 0 0;
+    max-width: 72ch;
+    color: var(--color-text-2);
+    font-size: var(--motor-font-size-13);
+    line-height: 1.6;
+  }
+}
+
+.page-container__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 /*
@@ -55,6 +107,15 @@ withDefaults(defineProps<{
  */
 @media (max-width: 767px) {
   .page-container { padding: 0; }
+
+  .page-container__header {
+    align-items: stretch;
+    padding: 12px 12px 12px;
+  }
+
+  .page-container__heading h1 { font-size: var(--motor-font-size-18); }
+
+  .page-container__actions :deep(.arco-btn) { min-height: 36px; }
 
   .page-container__body {
     border: 0;

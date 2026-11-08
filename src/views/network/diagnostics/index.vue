@@ -1,5 +1,5 @@
 <template>
-  <PageContainer class="diagnostics-page">
+  <PageContainer class="diagnostics-page" :title="t('networkDiagnostics.title')" :description="t('networkDiagnostics.description')">
     <a-alert v-if="serverFailed" type="error" :title="t('networkDiagnostics.serverFailed')">
       {{ t('networkDiagnostics.serverFailedHelp') }}
       <template #action><a-button :loading="loading" @click="loadServer">{{ t('networkDiagnostics.reload') }}</a-button></template>

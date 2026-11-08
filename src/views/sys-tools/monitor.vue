@@ -116,9 +116,10 @@ async function refresh() {
     if (!failed.value) schedule()
   }
 }
-function activate() { if (active) return; active = true; if (!info.value || automatic.value) void refresh(); void nextTick(draw) }
+// Returning to the route or the tab resumes polling, but never retries a failed request: that waits for the refresh button.
+function activate() { if (active) return; active = true; if (!failed.value && (!info.value || automatic.value)) void refresh(); void nextTick(draw) }
 function deactivate() { active = false; clearTimeout(timer) }
-function visibilityChanged() { if (document.hidden) clearTimeout(timer); else if (active && automatic.value) void refresh() }
+function visibilityChanged() { if (document.hidden) clearTimeout(timer); else if (active && automatic.value && !failed.value) void refresh() }
 watch(automatic, () => { if (automatic.value) void refresh(); else clearTimeout(timer) })
 watch(() => [preferences.darkMode, preferences.themePreset, preferences.customThemeColor, locale.value], () => nextTick(draw), { flush: 'post' })
 onMounted(() => { observer = new ResizeObserver(() => chart?.resize()); document.addEventListener('visibilitychange', visibilityChanged); activate() })

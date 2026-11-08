@@ -1,6 +1,7 @@
 <template>
-  <PageContainer class="fw-page fw-design-page">
-    <Heading /><a-alert
+  <PageContainer class="fw-page fw-design-page" :title="t('networkFirewall.title')" :description="t('networkFirewall.description')">
+    <template #actions><SectionNav /></template>
+    <a-alert
       v-if="!workspace.allowed('design')"
       type="warning"
     >{{ t('networkFirewall.readRequired') }}</a-alert><template v-else><a-alert
@@ -9,25 +10,25 @@
                                                                        >{{ t('networkFirewall.loadFailed') }}<template #action><a-button
                                                                          @click="load"
                                                                        >{{ t('networkFirewall.retry') }}</a-button></template></a-alert>
-      <div class="fw-layout">
-        <aside class="fw-sidebar"><a-card :title="t('networkFirewall.drafts')"><a-button
-          @click="drafts.getList"
-        >{{ t('networkFirewall.refresh') }}</a-button><a-button
-          v-for="item in drafts.rows"
-          :key="item.id"
-          class="fw-list-button"
-          :type="draftId === item.id ? 'primary' : 'text'"
-          @click="select(item.id)"
-        >{{ item.title || `#${item.id}` }}<br>
-          <StateTag :value="item.status" />
-        </a-button><a-pagination
-          simple
-          :total="drafts.total"
-          :current="drafts.query.pageIndex"
-          :page-size="drafts.query.pageSize"
-          @change="pageIndex => drafts.handlePagination({ page: pageIndex, limit: drafts.query.pageSize })"
-        /></a-card></aside>
-        <main class="fw-main"><a-card
+      <AsideLayout :title="t('networkFirewall.drafts')" collapse="stack">
+        <template #aside>
+          <NavList
+            :title="t('networkFirewall.drafts')"
+            :items="drafts.rows.map(item => ({ key: item.id, title: item.title || `#${item.id}`, status: item.status }))"
+            :selected="draftId"
+            :total="drafts.total"
+            :page="drafts.query.pageIndex"
+            :page-size="drafts.query.pageSize"
+            :loading="drafts.loading"
+            :empty-text="t('networkFirewall.noDrafts')"
+            @page="pageIndex => drafts.handlePagination({ page: pageIndex, limit: drafts.query.pageSize })"
+            @select="key => select(Number(key))"
+          >
+            <template #actions><a-button type="text" size="small" :aria-label="t('networkFirewall.refresh')" :title="t('networkFirewall.refresh')" @click="drafts.getList"><template #icon><icon-refresh /></template></a-button></template>
+            <template #meta="{ item }"><StateTag :value="item.status" /></template>
+          </NavList>
+        </template>
+        <div class="fw-main"><a-card
           v-if="draft"
           :title="`${t('networkFirewall.draftDetail')} #${draft.id}`"
         >
@@ -130,8 +131,8 @@
         </a-card><a-card
           v-else
           :loading="workspace.loading.value"
-        ><a-empty :description="t('networkFirewall.selectDraft')" /></a-card></main>
-      </div>
+        ><a-empty :description="t('networkFirewall.selectDraft')" /></a-card></div>
+      </AsideLayout>
     </template>
   </PageContainer>
 </template>
@@ -144,7 +145,9 @@ import { useTable } from '@/composables/useTable'
 import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import * as api from '@/api/network/firewall'
 import type { Draft } from '@/types/firewall'
-import Heading from './heading.vue'
+import AsideLayout from '@/components/AsideLayout/index.vue'
+import NavList from '@/components/NavList/index.vue'
+import SectionNav from './section-nav.vue'
 import Notices from './notices.vue'
 import StateTag from './state-tag.vue'
 import { createIntentKey, positiveId, running, visibleFields } from './presentation'
