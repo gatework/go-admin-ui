@@ -1,6 +1,6 @@
 /** Copy a verified, local build from the maintained fork; normal UI builds need no sibling checkout. */
 import { cpSync, existsSync, readFileSync, readdirSync, rmSync, mkdirSync } from 'node:fs'
-import { resolve, join, dirname } from 'node:path'
+import { resolve, join, dirname, relative } from 'node:path'
 import { createHash } from 'node:crypto'
 const source = resolve(process.argv[2] ?? '../form-generator/arco/dist')
 const target = resolve(import.meta.dirname, '../public/form-generator')
@@ -14,13 +14,14 @@ for (const [file, hash] of Object.entries(manifest.files)) {
 }
 if (!manifest.files['index.html'] || !manifest.files['LICENSE']) throw new Error('Incomplete designer build')
 if (existsSync(target) && !existsSync(join(target, 'SOURCE.json')) && readdirSync(target).length) throw new Error('Destination is not a managed designer build')
-const previous = existsSync(join(target, 'SOURCE.json')) ? JSON.parse(readFileSync(join(target, 'SOURCE.json'), 'utf8')).files : {}
+const files = new Set([...Object.keys(manifest.files), 'SOURCE.json'])
 mkdirSync(target, { recursive: true })
-for (const file of [...Object.keys(manifest.files), 'SOURCE.json']) {
+for (const file of files) {
   mkdirSync(dirname(join(target, file)), { recursive: true })
   cpSync(join(source, file), join(target, file))
 }
-for (const file of Object.keys(previous)) {
-  if (!file.includes('..') && !file.startsWith('/') && !(file in manifest.files)) rmSync(join(target, file), { force: true })
+for (const entry of readdirSync(target, { recursive: true, withFileTypes: true })) {
+  const path = join(entry.parentPath, entry.name)
+  if (!entry.isDirectory() && !files.has(relative(target, path))) rmSync(path, { force: true })
 }
 console.log(`Synced ${Object.keys(manifest.files).length} verified files from ${manifest.repository} (${manifest.sourceHash})`)
