@@ -1,6 +1,6 @@
 /** Copy a verified, local build from the maintained fork; normal UI builds need no sibling checkout. */
 import { cpSync, existsSync, readFileSync, readdirSync, rmSync, mkdirSync } from 'node:fs'
-import { resolve, join, dirname, relative } from 'node:path'
+import { resolve, join, dirname, relative, normalize } from 'node:path'
 import { createHash } from 'node:crypto'
 const source = resolve(process.argv[2] ?? '../form-generator/arco/dist')
 const target = resolve(import.meta.dirname, '../public/form-generator')
@@ -14,7 +14,7 @@ for (const [file, hash] of Object.entries(manifest.files)) {
 }
 if (!manifest.files['index.html'] || !manifest.files['LICENSE']) throw new Error('Incomplete designer build')
 if (existsSync(target) && !existsSync(join(target, 'SOURCE.json')) && readdirSync(target).length) throw new Error('Destination is not a managed designer build')
-const files = new Set([...Object.keys(manifest.files), 'SOURCE.json'])
+const files = new Set([...Object.keys(manifest.files).map(file => normalize(file)), 'SOURCE.json'])
 mkdirSync(target, { recursive: true })
 for (const file of files) {
   mkdirSync(dirname(join(target, file)), { recursive: true })
