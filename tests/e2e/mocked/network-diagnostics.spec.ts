@@ -182,7 +182,7 @@ test.describe('network diagnostics', () => {
       await page.goto('/#/network/diagnostics')
       await expect(page.getByRole('region', { name: '检查结果', exact: true })).toBeVisible()
       await expect(page.getByText('正在加载系统资源', { exact: true })).not.toBeVisible()
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${width}px overflow`).toBe(true)
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), { message: `${width}px overflow` }).toBe(true)
       const controls = [page.getByRole('combobox', { name: '执行节点', exact: true }).locator('..'), page.getByRole('combobox', { name: '检查工具', exact: true }).locator('..'), page.getByLabel('目标地址', { exact: true }), page.getByRole('combobox', { name: '地址协议', exact: true }).locator('..'), page.getByRole('button', { name: '开始检查', exact: true })]
       const boxes = await Promise.all(controls.map(control => control.boundingBox()))
       for (let index = 1; index < boxes.length; index++) {

@@ -59,7 +59,7 @@ for (const selector of ['#hamburger-container', '#lang-select']) {
     await expect(trigger).toBeVisible()
     const colors = await trigger.evaluate(el => {
       const reference = document.createElement('span')
-      reference.style.color = 'var(--motor-text-2)'
+      reference.style.color = 'var(--ga-text-2)'
       el.append(reference)
       const result = { actual: getComputedStyle(el).color, expected: getComputedStyle(reference).color }
       reference.remove()
