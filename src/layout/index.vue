@@ -41,6 +41,7 @@ import { useAppStore } from '@/stores/app'
 import { useSettingsStore } from '@/stores/settings'
 import { usePreferencesStore } from '@/stores/preferences'
 import { useLockScreenStore } from '@/stores/lock-screen'
+import { requestedPreferencesTab } from '@/components/global-setting/requested-tab'
 import { useTagsViewStore } from '@/stores/tagsView'
 import { useUserStore } from '@/stores/user'
 import { confirmAction } from '@/utils/modal'
@@ -92,6 +93,9 @@ const resize = () => {
   app.toggleDevice(device)
   preferences.updateSettings({ device }, false)
 }
+// Match the shell to the viewport before its first paint. Waiting until mount
+// animates the desktop sidebar margin away while the phone cards already show.
+resize()
 watch(() => route.fullPath, () => {
   if (mobile.value) app.closeSideBar({ withoutAnimation: false })
   if (preferences.tabHistory && !route.path.startsWith('/redirect')) {
@@ -106,11 +110,11 @@ const shortcuts = async(event: KeyboardEvent) => {
   if (target.closest('input, textarea, select, [contenteditable="true"]')) return
   const key = event.code
   if (key === 'Comma' && (event.metaKey || event.ctrlKey) && preferences.shortcutPreferences) { event.preventDefault(); openPreferences() }
-  if (key === 'KeyL' && event.altKey && preferences.shortcutLockScreen) { event.preventDefault(); if (!lock.lock()) { openPreferences(); window.dispatchEvent(new CustomEvent('motor:preferences-tab', { detail: 'extensions' })) } }
+  if (key === 'KeyL' && event.altKey && preferences.shortcutLockScreen) { event.preventDefault(); if (!lock.lock()) { requestedPreferencesTab.value = 'extensions'; openPreferences() } }
   if (key === 'KeyQ' && event.altKey && preferences.shortcutLogout) { event.preventDefault(); try { await confirmAction({ content: t('layout.logoutConfirm'), okText: t('layout.logout') }); await useUserStore().LogOut(); await router.replace('/login') } catch { /* Cancel or reported API error. */ } }
   if (key === 'Escape' && !preferences.globalSettings && !document.querySelector('.arco-modal-wrapper, .arco-drawer-container') && preferences.shortcutCloseTab && !route.meta.affix) { event.preventDefault(); const tabs = useTagsViewStore(); tabs.delView(route); await router.push(tabs.visitedViews.at(-1)?.fullPath || '/') }
 }
-onMounted(() => { resize(); window.addEventListener('resize', resize); window.addEventListener('keydown', shortcuts) })
+onMounted(() => { window.addEventListener('resize', resize); window.addEventListener('keydown', shortcuts) })
 onBeforeUnmount(() => { endResize?.(); window.removeEventListener('resize', resize); window.removeEventListener('keydown', shortcuts) })
 </script>
 <style lang="scss">
@@ -119,11 +123,15 @@ onBeforeUnmount(() => { endResize?.(); window.removeEventListener('resize', resi
   .main-container { margin-left: var(--shell-rail-width); min-height: 100vh; display: flex; flex-direction: column; }
   .sidebar-container { width: var(--shell-rail-width); overflow: visible; display: flex; flex-direction: column; }
   .sidebar-container > #app-navigation { flex: 1; min-height: 0; overflow: hidden; }
-  .sidebar-scroll { height: calc(100% - 54px); }
+  .sidebar-scroll { height: calc(100% - var(--ga-header-h)); }
   .shell-header { position: sticky; top: 0; z-index: 90; }
   .app-main { min-height: 0; flex: 1; padding-top: 0; }
   .app-footer { padding: 12px; background: var(--motor-surface); }
-  .footer-fixed { position: sticky; bottom: 0; z-index: 8; }
+  // Above a table's fixed columns (Arco stacks those at 10), below the header.
+  .footer-fixed { position: sticky; bottom: 0; z-index: 20; }
+  // On a phone the footer is a credit line, not a control: pinning it spends
+  // ~60px of every screen and sits under the list's floating add button.
+  &.mobile .footer-fixed { position: static; }
   .sidebar-collapse { width: 100%; height: 36px; border: 0; border-top: 1px solid var(--rail-border); background: var(--rail-bg); color: var(--rail-text); cursor: pointer; }
   .sidebar-resizer { position: absolute; top: 0; bottom: 0; right: -3px; width: 6px; cursor: col-resize; z-index: 3; }
   .sidebar-resizer:hover, .sidebar-resizer:focus-visible { background: var(--motor-primary); }

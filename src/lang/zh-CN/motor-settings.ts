@@ -201,7 +201,8 @@ export default {
   'settings.lock.password.rule': '锁屏密码长度需为 6 至 64 个字符',
   'settings.lock.password.mismatch': '两次输入的锁屏密码不一致',
   'settings.lock.password.incorrect': '锁屏密码不正确',
-  'settings.lock.crypto.unavailable': '当前浏览器不支持安全锁屏，请升级后重试',
+  'settings.lock.crypto.unavailable':
+    '锁屏需要通过 HTTPS 或 localhost 访问。当前为 HTTP 连接，浏览器不提供所需的加密能力。',
   'settings.lock.logout.title': '退出当前账号？',
   'settings.lock.logout.description':
     '退出后会清除本机锁屏密码，并返回登录页。',

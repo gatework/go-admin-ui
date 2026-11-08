@@ -18,11 +18,18 @@ const base64ToBytes = (value: string) => {
 }
 
 const requireCrypto = () => {
-  if (!globalThis.crypto?.subtle || !globalThis.crypto.getRandomValues) {
+  if (!isLockScreenSupported()) {
     throw new Error('Secure browser cryptography is unavailable')
   }
   return globalThis.crypto
 }
+
+/**
+ * PBKDF2 needs Web Crypto, which browsers expose only in a secure context
+ * (HTTPS or localhost). An intranet host served over plain HTTP has none.
+ */
+export const isLockScreenSupported = () =>
+  Boolean(globalThis.crypto?.subtle && globalThis.crypto.getRandomValues)
 
 export const validateLockPassword = (password: string) =>
   password.length >= LOCK_PASSWORD_MIN_LENGTH &&

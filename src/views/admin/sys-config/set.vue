@@ -16,11 +16,13 @@
             </div>
           </div>
           <div class="sidebar-divider" />
-          <div
+          <button
             v-for="(item, idx) in navItems"
             :key="idx"
+            type="button"
             class="nav-item"
             :class="{ 'is-active': activeSection === idx }"
+            :aria-pressed="activeSection === idx"
             @click="activeSection = idx"
           >
             <div class="nav-item__icon-wrap">
@@ -30,7 +32,7 @@
               <span class="nav-item__label">{{ item.label }}</span>
               <span class="nav-item__sub">{{ item.sub }}</span>
             </div>
-          </div>
+          </button>
         </div>
 
         <!-- ── Main pane ── -->
@@ -452,11 +454,19 @@ const onLogoUploaded = (file: FileItem) => {
 // Nav item
 .nav-item {
   display: flex;
+  width: 100%;
   align-items: center;
   gap: 10px;
   padding: 11px 14px;
   cursor: pointer;
+  border: 0;
   border-left: 2px solid transparent;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+
+  &:focus-visible { outline: 2px solid var(--ga-brand); outline-offset: -2px; }
   transition: all 0.15s;
 
   &:hover:not(.is-active) { background: var(--ga-bg-subtle); }
@@ -604,7 +614,7 @@ const onLogoUploaded = (file: FileItem) => {
   font-size: 11px;
 }
 
-.logo-meta { flex: 1; }
+.logo-meta { flex: 1; min-width: 0; }
 
 .logo-meta__name {
   margin: 0 0 3px;
@@ -712,4 +722,27 @@ const onLogoUploaded = (file: FileItem) => {
 
 .fade-slide-enter-from { opacity: 0; transform: translateY(6px); }
 .fade-slide-leave-to   { opacity: 0; transform: translateY(-6px); }
+
+// ══════════════════════════════
+//  Phone: one column
+// ══════════════════════════════
+// The 188px section list beside the form left the form ~150px on a phone:
+// headings broke after every word and the logo controls ran off screen.
+// Stack them, and lay the sections out as a row of equal tabs.
+@media (max-width: 767px) {
+  .config-wrapper { flex-direction: column; align-items: stretch; gap: 12px; }
+  .config-sidebar { width: auto; display: flex; flex-wrap: wrap; }
+  .sidebar-header, .sidebar-divider { flex: 0 0 100%; }
+  .nav-item {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    &:not(:last-child) { border-bottom: 2px solid transparent; }
+    &.is-active { border-bottom-color: var(--ga-brand); }
+  }
+  .logo-zone { align-items: flex-start; }
+  .theme-row { flex-wrap: wrap; }
+}
 </style>

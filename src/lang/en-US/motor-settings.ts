@@ -223,7 +223,7 @@ export default {
   'settings.lock.password.mismatch': 'The lock passwords do not match',
   'settings.lock.password.incorrect': 'Incorrect lock password',
   'settings.lock.crypto.unavailable':
-    'Secure locking is unavailable in this browser. Please upgrade and retry.',
+    'Locking needs HTTPS or localhost. This page is served over plain HTTP, so the browser withholds the cryptography it requires.',
   'settings.lock.logout.title': 'Sign out now?',
   'settings.lock.logout.description':
     'Signing out clears the local lock password and returns to the login page.',

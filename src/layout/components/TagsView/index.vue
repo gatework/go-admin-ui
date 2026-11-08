@@ -233,7 +233,7 @@ export default {
 </script>
 <style scoped lang="scss">
 .tags-view-container {
-  display: flex; align-items: center; gap: 4px; width: 100%; height: 40px; padding: 6px 12px 0;
+  display: flex; align-items: center; gap: 4px; width: 100%; height: var(--motor-tabs-height); padding: 6px 12px 0;
   background: var(--ga-bg-container); border-bottom: 1px solid var(--ga-border-light);
   overflow: hidden;
   :deep(.arco-tabs) { flex: 1; min-width: 0; }

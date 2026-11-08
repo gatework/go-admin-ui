@@ -37,13 +37,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, nextTick } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { usePreferencesStore } from '@/stores/preferences'
 import { useLockScreenStore } from '@/stores/lock-screen'
+import { requestedPreferencesTab } from '@/components/global-setting/requested-tab'
 import { useTagsViewStore } from '@/stores/tagsView'
 import { usePermissionStore } from '@/stores/permission'
 import { routeTitle } from '@/lang/backend'
@@ -67,11 +68,10 @@ const toggleMenu = () => {
   else if (!preferences.sidebarVisible) preferences.updateSettings({ sidebarVisible: true })
   else { app.toggleSideBar(); preferences.updateSettings({ menuCollapse: !app.sidebar.opened }) }
 }
-const lockNow = async() => {
+const lockNow = () => {
   if (lock.lock()) return
+  requestedPreferencesTab.value = 'extensions'
   preferences.updateSettings({ globalSettings: true }, false)
-  await nextTick()
-  window.dispatchEvent(new CustomEvent('motor:preferences-tab', { detail: 'extensions' }))
 }
 const logout = async() => { try { await confirmAction({ content: t('layout.logoutConfirm'), okText: t('layout.logout') }); await user.LogOut(); await router.replace('/login') } catch { /* Cancel or reported API error. */ } }
 </script>

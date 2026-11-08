@@ -112,6 +112,10 @@ test('layout preferences control real header, breadcrumbs, sidebar width and foo
   await drawer.getByRole('switch', { name: '显示顶栏', exact: true }).click()
   await expect(page.locator('.navbar')).toBeHidden()
   await expect(page.locator('.preferences-recovery')).toBeVisible()
+  // The footer is off by default; the switch turns it on and back off.
+  await expect(page.locator('.main-container > .app-footer')).toBeHidden()
+  await drawer.getByRole('switch', { name: '显示底栏', exact: true }).click()
+  await expect(page.locator('.main-container > .app-footer')).toBeVisible()
   await drawer.getByRole('switch', { name: '显示底栏', exact: true }).click()
   await expect(page.locator('.main-container > .app-footer')).toBeHidden()
   await drawer.getByRole('button', { name: '关闭偏好设置' }).click()
