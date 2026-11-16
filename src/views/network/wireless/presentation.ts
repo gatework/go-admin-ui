@@ -1,0 +1,11 @@
+import type { LocationQuery } from 'vue-router'
+import type { Management, Resource, Tab } from '@/types/network-wireless'
+export const tabs: Tab[] = ['overview', 'access-points', 'radios', 'bsses', 'clients', 'jobs']
+export const positive = (value: unknown) => typeof value === 'string' && /^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value)) ? Number(value) : undefined
+export function parseLocation(query: LocationQuery) { return { controller: positive(query.controller), ap: positive(query.ap), group: query.group === '0' ? 0 : positive(query.group), tab: tabs.includes(query.tab as Tab) ? query.tab as Tab : 'overview' as Tab, issue: typeof query.issue === 'string' ? query.issue : '', keyword: typeof query.keyword === 'string' ? query.keyword : '', ssid: typeof query.ssid === 'string' ? query.ssid : '', band: typeof query.band === 'string' ? query.band : '', apFilter: typeof query.apFilter === 'string' ? query.apFilter : '', vlan: typeof query.vlan === 'string' ? query.vlan : '', status: typeof query.status === 'string' ? query.status : '' } }
+export const management = (r: Management): Management => ({ version: r.version, localAlias: r.localAlias, installationLocation: r.installationLocation, owner: r.owner, notes: r.notes })
+export const dirty = (draft: Management, baseline: Management) => JSON.stringify(draft) !== JSON.stringify(baseline)
+export const isConflict = (error: unknown) => { const e = error as { code?: number, response?: { status?: number, data?: { code?: number }}}; return e?.code === 409 || e?.response?.status === 409 || e?.response?.data?.code === 409 }
+export const colors: Record<string, string> = { affected: 'red', failed: 'red', healthy: 'green', complete: 'green', succeeded: 'green', unknown: 'gray', notApplicable: 'gray', unsupported: 'gray', partial: 'orange', stale: 'orange', interrupted: 'orange', queued: 'blue', running: 'blue' }
+export function downloadCSV(content: string, name: string) { const url = URL.createObjectURL(new Blob(['\ufeff', content], { type: 'text/csv;charset=utf-8' })); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000) }
+export const resourceName = (r: Resource) => r.localAlias || r.fields.name || r.fields.mac || r.fields.apName || String(r.id)
