@@ -413,19 +413,17 @@ e2e 的浏览器语言在 `playwright.config.ts` 里钉死为 `zh-CN`。别去�
 无需 import 即可使用：
 
 - 指令：`v-permisaction` `v-permission`
-- 组件：`<BasicLayout>` `<AppPagination>` `<SvgIcon>` `<CodeEditor>`
-  （前两个是存量页面用的旧写法，新页面用 `PageContainer` / `ProTable`，显式 import）
+- 组件：`<BasicLayout>` `<SvgIcon>`；新页面显式 import `PageContainer` / `ProTable`。
 - Arco 图标已全局注册，例如 `<icon-user />`。
 
-`this.$getDicts` `this.$parseTime` `this.$msgSuccess` 这类挂在 globalProperties 上的
-方法**只在 Options API 组件里可用**。`<script setup>` 没有 `this`，一律改 import：
+工具函数显式 import；字典和表单使用对应 composable：
 
-| 旧 | 新 |
+| 能力 | 用法 |
 |---|---|
-| `this.$msgSuccess` / `this.$msgError` | `import { msgSuccess, msgError } from '@/utils/message'` |
-| `this.$parseTime` | `import { parseTime } from '@/utils/costum'` |
-| `this.getDicts(...)` | `useDict('...')` |
-| `this.resetForm('form')` | `useForm` 的 `reset()`（没有直接的 import 等价物） |
+| 消息提示 | `import { msgSuccess, msgError } from '@/utils/message'` |
+| 时间格式化 | `import { parseTime } from '@/utils/costum'` |
+| 字典选项 | `useDict('...')` |
+| 表单重置 | `useForm` 的 `reset()` |
 
 ## Vue 3 注意事项
 
@@ -437,7 +435,7 @@ e2e 的浏览器语言在 `playwright.config.ts` 里钉死为 `zh-CN`。别去�
 | `slot-scope="scope"` | `#default="scope"` |
 | `:visible.sync` `:page.sync` | `v-model:visible` `v-model:page` |
 | `@keyup.enter.native` | `@keyup.enter` |
-| `filters` 选项 | `$filters.xxx(val)` |
+| `filters` 选项 | 显式 import 格式化函数，在模板中调用 |
 | `this.$set` / `this.$delete` | 直接赋值 |
 | 指令 `bind` / `inserted` / `unbind` | `beforeMount` / `mounted` / `unmounted` |
 
@@ -483,6 +481,7 @@ scope 写改动落在哪一块——组件名、模块名或目录名，例如
 Arco 是唯一的 UI 组件库，不注册 `el-*` 别名，不加载 Element CSS 或字体。主题通过 `body[arco-theme="dark"]` 与 Arco 色阶变量切换；业务色彩沿用映射到 Arco 的 `--ga-*` token。
 
 - 弹窗和抽屉用 `AppModal` / `AppDrawer`，保留原生 Arco API，并提供对话框名称、卸载和关闭后的焦点回归。
+- 列表旁的范围选择用 `AsideLayout`：宽屏左侧 244px 卡片（随页面吸顶），≤1023px 收进抽屉并在触发按钮上显示当前范围；`collapse="stack"` 改为堆叠在内容上方，`"none"` 交给页面自己的窄屏控件。树形导航用 `TreeNav`（搜索保留路径、单一 Tab 停靠与方向键、计数右对齐、加载/失败留在树内，`pinned` 放「全部」「未分组」这类不随搜索消失的入口）；短的可选列表（已保存查询、草稿、控制器）用 `NavList`，只有第二页时才出现分页。状态值标签用 `StatusTag`，各模块只提供 i18n 前缀和颜色映射。网络管理页通过 `PageContainer` 的 `title` / `description` / `#actions` 统一页头；设备分组树统一用 `src/views/network/shared/group-panel.vue`。
 - 下拉操作菜单用 `AppDropdown`，内容仍是 `a-doption`，它补齐菜单语义、方向键与关闭后的焦点回归。
 - 页签用 `AppTabs`，内容仍是 `a-tab-pane`，它补齐 Arco 2.59 的 tab 语义和方向键。新增原生组件时检查键盘和无障碍行为。
 - `useForm` 负责表单会话与重复提交保护；直接使用 Arco 表单的页面调用 `useFormLocale(formRef)`，让已经显示的错误跟随语言切换。

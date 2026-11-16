@@ -48,11 +48,11 @@
 
 ```javascript
 // main.js 中的优化
-app.component('AppPagination', Pagination)  // was: Pagination
-app.component('CodeEditor', Codemirror)     // was: Codemirror
 app.component('SvgIcon', SvgIcon)           // 保持
 app.component('BasicLayout', BasicLayout)   // 保持
 ```
+
+分页和代码编辑器由使用方显式导入。
 
 ## 🔍 Vue 3 兼容性最终检查
 
