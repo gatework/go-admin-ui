@@ -21,22 +21,11 @@ import pinia from './stores'
 import router from './router'
 import permission from './directive/permission'
 
-import { getDicts } from '@/api/admin/dict/data'
-import { getItems, setItems } from '@/api/table'
-import { getConfigKey } from '@/api/admin/sys-config'
-import { parseTime, resetForm, selectDictLabel, /* download,*/ selectItemsLabel } from '@/utils/costum'
-import { msgSuccess, msgError, msgInfo } from '@/utils/message'
 import { setupErrorHandler } from '@/utils/error-log' // error log
 
 import SvgIcon from './icons' // icon
 import './permission' // permission control
 
-// import Viser from 'viser-vue'
-// Note: viser-vue 不支持 Vue 3，需要后续处理
-
-import * as filters from './filters' // global filters
-
-import Pagination from '@/components/Pagination'
 import BasicLayout from '@/layout/BasicLayout'
 
 import 'remixicon/fonts/remixicon.css'
@@ -46,26 +35,6 @@ console.info('欢迎使用 motor')
 // 创建 Vue 应用实例
 const app = createApp(App)
 
-// 全局方法挂载（$前缀版本 + 无前缀版本同时注册，兼容历史代码）
-// Message helpers now live in @/utils/message; this only registers them.
-// New code should import them directly instead.
-const globalMethods = {
-  getDicts, getItems, setItems, getConfigKey,
-  parseTime, resetForm, selectDictLabel, selectItemsLabel,
-  msgSuccess, msgError, msgInfo
-}
-
-Object.entries(globalMethods).forEach(([key, fn]) => {
-  app.config.globalProperties[key] = fn // this.getDicts(...)
-  app.config.globalProperties['$' + key] = fn // this.$getDicts(...)
-})
-
-// 全局过滤器改为全局方法
-app.config.globalProperties.$filters = filters
-
-// 全局组件注册（Pagination 同时注册两个名称兼容历史模板）
-app.component('AppPagination', Pagination)
-app.component('Pagination', Pagination)
 app.component('BasicLayout', BasicLayout)
 app.component('SvgIcon', SvgIcon)
 

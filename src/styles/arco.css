@@ -1,6 +1,9 @@
 /* Application surfaces consume Arco's semantic colours, including teleported
    popups under body. Arco owns the palette and component appearance. */
 body {
+  --border-radius-small: var(--motor-radius-xs);
+  --border-radius-medium: var(--motor-radius-sm);
+  --border-radius-large: var(--motor-radius-md);
   --ga-brand: rgb(var(--primary-6));
   --ga-text-link: rgb(var(--link-6));
   --ga-success: rgb(var(--success-6));
@@ -32,3 +35,8 @@ body {
 .rail-dark { --rail-bg: var(--color-menu-dark-bg); --rail-title: rgba(255, 255, 255, .9); }
 
 body[arco-theme="dark"] { --ga-bg-body: var(--color-bg-1); }
+
+/* Arco breaks table text anywhere (word-break: break-all), which suits IDs and
+   paths in cells but splits the words of an empty-state sentence ("manag-ement").
+   The empty row holds prose, so it wraps between words. */
+.arco-table-tr-empty .arco-table-td { word-break: normal; overflow-wrap: anywhere; }

@@ -1,3 +1,6 @@
+import networkFirewall from './network/firewall'
+import networkWireless from './network/wireless'
+import networkFabric from './network/fabric'
 import accountAccess from './account-access'
 import errorPage from './error-page'
 import motorAccount from './motor-account'
@@ -18,6 +21,10 @@ import dashboard from './dashboard'
 import admin from './admin'
 import composables from './composables'
 import gen from './gen'
+import network from './network'
+import networkDiagnostics from './network/diagnostics'
+import networkCircuit from './network/circuit'
+import networkDelivery from './network/delivery'
 
 /**
  * Chinese, the default and the fallback.
@@ -31,4 +38,4 @@ import gen from './gen'
  * `gen` is not one file but a whole directory the code generator writes into
  * at runtime -- see gen/index.ts.
  */
-export default { accountAccess, errorPage, ...motorSettings, ...motorNavbar, ...motorLogin, ...motorAccount, common, schedule, devTools, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables, gen }
+export default { networkFirewall, networkWireless, networkFabric, networkDelivery, networkCircuit, networkDiagnostics, accountAccess, errorPage, ...motorSettings, ...motorNavbar, ...motorLogin, ...motorAccount, common, schedule, devTools, demo, sysTools, profile, layout, route, components, login, dashboard, admin, composables, gen, network }

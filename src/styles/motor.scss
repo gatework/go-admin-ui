@@ -38,9 +38,6 @@
   --motor-radius-lg: 16px;
   --motor-radius-xs: 4px;
   --motor-radius-xl: 20px;
-  --border-radius-small: var(--motor-radius-xs);
-  --border-radius-medium: var(--motor-radius-sm);
-  --border-radius-large: var(--motor-radius-md);
   --motor-header-height: 54px;
   --motor-tabs-height: 38px;
   --motor-sidebar-width: 232px;
@@ -60,6 +57,7 @@
   --motor-font-size-14: var(--motor-base-font-size);
   --motor-font-size-15: calc(var(--motor-base-font-size) + 1px);
   --motor-font-size-16: calc(var(--motor-base-font-size) + 2px);
+  --motor-navigation-icon-size: var(--motor-font-size-16);
   --motor-font-size-17: calc(var(--motor-base-font-size) + 3px);
   --motor-font-size-18: calc(var(--motor-base-font-size) + 4px);
   --motor-font-size-20: calc(var(--motor-base-font-size) + 6px);
@@ -133,6 +131,6 @@ body {
 
 @media (prefers-reduced-motion: reduce) { .header-action *, .user-identity *, .login-page *, .preferences-drawer * { animation: none !important; transition: none !important; } }
 body { color: var(--motor-text-1); font-size: var(--motor-base-font-size); }
-.arco-btn, .arco-input-wrapper, .arco-select-view, .arco-card { border-radius: var(--motor-radius-sm); }
+.arco-input-wrapper, .arco-select-view, .arco-card { border-radius: var(--motor-radius-sm); }
 .arco-btn, .arco-input, .arco-select-view { font-size: var(--motor-base-font-size); }
 :root { --motor-font-size-32: calc(var(--motor-base-font-size) + 18px); }

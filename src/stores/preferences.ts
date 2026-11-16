@@ -91,7 +91,6 @@ export const usePreferencesStore = defineStore('preferences', {
       root.style.setProperty('--motor-base-font-size', `${this.fontSize}px`)
       root.style.setProperty('--motor-sidebar-width', `${this.menuWidth}px`)
       for (const [size, multiplier] of Object.entries({ xs: 8, sm: 16, md: 24, lg: 32, xl: 40 })) root.style.setProperty(`--motor-radius-${size}`, `${this.radius * multiplier}px`)
-      root.style.setProperty('--ga-header-h', '54px')
       useAppStore().size = this.componentSize
     }
   }

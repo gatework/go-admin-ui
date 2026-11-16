@@ -15,13 +15,14 @@ export interface BackendMenu {
   component: string
   visible: string
   menuName: string
+  menuType?: 'M' | 'C' | 'F'
   title: string
   icon?: string
   noCache?: boolean
   children?: BackendMenu[] | null
 }
 
-type AppRoute = RouteRecordRaw & { hidden?: boolean, children?: AppRoute[] }
+type AppRoute = RouteRecordRaw & { hidden?: boolean, alwaysShow?: boolean, children?: AppRoute[] }
 
 /**
  * Pre-built index of the views directory. Not eager, so each value is a loader
@@ -133,6 +134,8 @@ export function generaMenu(routes: AppRoute[], data: BackendMenu[]) {
       // and anything other than '0' means hidden.
       // eslint-disable-next-line eqeqeq
       hidden: item.visible != '0',
+      // Explicit directories retain their title even with a single page.
+      alwaysShow: item.menuType === 'M',
       children: [] as AppRoute[],
       name: item.menuName,
       meta: {

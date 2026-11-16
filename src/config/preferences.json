@@ -44,7 +44,7 @@
   "widgetTheme": true,
   "widgetFullscreen": true,
   "widgetLock": true,
-  "footerVisible": true,
+  "footerVisible": false,
   "footerFixed": true,
   "footerDescription": "",
   "copyrightEnabled": true,

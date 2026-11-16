@@ -20,7 +20,6 @@
         <div class="preferences-header__actions">
           <HeaderIconButton
             :tooltip="t('settings.preference.reset')"
-            motion="spin"
             @click="resetPreferences"
           >
             <icon-refresh />
@@ -28,7 +27,6 @@
           <HeaderIconButton
             :tooltip="t('settings.pin')"
             :active="appStore.preferencesPinned"
-            motion="pulse"
             @click="
               appStore.updateSettings({
                 preferencesPinned: !appStore.preferencesPinned,
@@ -852,6 +850,7 @@
                 v-else
                 type="primary"
                 long
+                :disabled="!lockSupported"
                 @click="openPasswordDialog('configure')"
               >
                 <template #icon><icon-safe /></template>
@@ -859,7 +858,11 @@
               </a-button>
 
               <p class="lock-setting-card__note">
-                <icon-info-circle />{{ t('settings.lock.notice') }}
+                <icon-info-circle />{{
+                  lockSupported
+                    ? t('settings.lock.notice')
+                    : t('settings.lock.crypto.unavailable')
+                }}
               </p>
             </div>
           </PreferenceSection>
@@ -957,10 +960,9 @@
 import {
   computed,
   nextTick,
-  onBeforeUnmount,
-  onMounted,
   reactive,
-  ref
+  ref,
+  watch
 } from 'vue'
 import type { Component } from 'vue'
 import AppDrawer from '@/components/AppDrawer/index.vue'
@@ -997,7 +999,7 @@ import type {
   ThemeMode,
   TabStyle
 } from '@/types/preferences'
-import { validateLockPassword } from '@/utils/lock-screen'
+import { isLockScreenSupported, validateLockPassword } from '@/utils/lock-screen'
 import { isSafeExternalUrl } from '@/utils/external-url'
 import { i18n, setLocale, LOCALES, fixedLocale, type Locale } from '@/lang'
 import { APP_META } from '@/config/app-meta'
@@ -1006,9 +1008,8 @@ import HeaderIconButton from '@/components/header-icon-button/index.vue'
 import PreferenceSection from './preference-section.vue'
 import SettingSwitch from './setting-switch.vue'
 import ThemeColorGrid from './theme-color-grid.vue'
+import { requestedPreferencesTab, type PreferenceTab } from './requested-tab'
 
-type PreferenceTab =
-    'appearance' | 'layout' | 'shortcuts' | 'general' | 'extensions'
 type PasswordDialogMode = 'configure' | 'change' | 'disable'
 type BooleanPreferenceKey = {
   [Key in keyof AppState]: AppState[Key] extends boolean ? Key : never;
@@ -1016,6 +1017,7 @@ type BooleanPreferenceKey = {
 
 const appStore = useAppStore()
 const lockStore = useLockScreenStore()
+const lockSupported = isLockScreenSupported()
 const { t } = useI18n()
 const route = useRoute()
 const currentLocale = i18n.global.locale
@@ -1278,10 +1280,11 @@ const navigateTabs = async(event: KeyboardEvent, key: PreferenceTab) => {
   await selectTab(tabs[next].key)
   document.getElementById(`preferences-tab-${tabs[next].key}`)?.focus()
 }
-const handleRequestedTab = (event: Event) => {
-  const tab = (event as CustomEvent<string>).detail as PreferenceTab
-  if (tabs.some((item) => item.key === tab)) void selectTab(tab)
-}
+watch(requestedPreferencesTab, (tab) => {
+  if (!tab) return
+  void selectTab(tab)
+  requestedPreferencesTab.value = undefined
+}, { immediate: true })
 
 const resetPasswordForm = () => {
   passwordForm.current = ''
@@ -1357,13 +1360,6 @@ const submitPasswordDialog = async() => {
   }
 }
 
-onMounted(() => {
-  window.addEventListener('motor:preferences-tab', handleRequestedTab)
-})
-
-onBeforeUnmount(() =>
-  window.removeEventListener('motor:preferences-tab', handleRequestedTab)
-)
 </script>
 
 <style scoped src="./style.scss" lang="scss"></style>
