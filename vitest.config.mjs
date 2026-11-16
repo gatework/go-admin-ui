@@ -32,6 +32,10 @@ export default defineConfig({
 
   test: {
     environment: 'jsdom',
+    // Node 25+ ships its own `localStorage` global, which is an empty stub
+    // without --localstorage-file and shadows the one jsdom provides. The
+    // storage tests then fail on `localStorage.clear` being undefined.
+    execArgv: ['--no-experimental-webstorage'],
     // Test files use describe/it/expect/vi directly instead of importing each
     globals: true,
 
