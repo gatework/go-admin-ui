@@ -2,10 +2,10 @@
   <div ref="rootRef" class="pro-table" :class="{ 'pro-table--flat': !panels }">
     <div v-if="asCards && $slots.search" class="pro-table__filter-bar">
       <a-button type="text" :aria-expanded="filtersOpen" @click="filtersOpen = !filtersOpen">
-        <icon-search />{{ $t('components.proTable.filters') }}<template v-if="activeFilters"> · {{ activeFilters }}</template>
+        <template #icon><icon-search /></template>{{ $t('components.proTable.filters') }}<template v-if="activeFilters"> · {{ activeFilters }}</template>
       </a-button>
     </div>
-    <a-drawer
+    <AppDrawer
       v-if="asCards && $slots.search"
       v-model:visible="filtersOpen"
       placement="bottom"
@@ -13,13 +13,6 @@
       :footer="false"
       :title="$t('components.proTable.filters')"
       class="pro-table__sheet"
-      role="dialog"
-      aria-modal="true"
-      :aria-label="$t('components.proTable.filters')"
-      unmount-on-close
-      :data-dialog-focus="restoreFilterFocus.id"
-      @open="restoreFilterFocus.open"
-      @close="restoreFilterFocus"
     >
       <a-form :model="table.query" layout="vertical" class="pro-table__sheet-form" @submit-success="submitFilters">
         <slot name="search" />
@@ -28,7 +21,7 @@
           <a-button type="primary" html-type="submit" :loading="table.loading">{{ $t('components.proTable.showResults') }}</a-button>
         </div>
       </a-form>
-    </a-drawer>
+    </AppDrawer>
     <component :is="panelTag" v-if="$slots.search && !asCards" class="pro-table__search-panel">
       <a-form :model="table.query" layout="inline" class="pro-table__search" :style="{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, '--wide-span': Math.min(2, cols) }" :data-visible="collapsed ? collapsible() : 0" @submit-success="table.search">
         <slot name="search" />
@@ -46,7 +39,7 @@
       <div class="pro-table__data">
         <div v-if="$slots.toolbar && !asCards" class="pro-table__toolbar">
           <slot name="toolbar" />
-          <a-button class="pro-table__refresh" :loading="table.loading" shape="circle" :title="$t('common.refresh')" :aria-label="$t('common.refresh')" @click="table.getList"><icon-refresh /></a-button>
+          <a-button class="pro-table__refresh" :loading="table.loading" shape="circle" :title="$t('common.refresh')" :aria-label="$t('common.refresh')" @click="table.getList"><template #icon><icon-refresh /></template></a-button>
         </div>
         <MobileCards
           v-if="asCards"
@@ -64,7 +57,8 @@
         >
           <template v-if="$slots.actions" #actions="scope"><slot name="actions" v-bind="scope" /></template>
         </MobileCards>
-        <a-empty v-if="asCards && !table.loading && !stack.length" :description="$t('common.empty')" />
+        <!-- Same #empty slot as the table, so a page's own empty state stays inside its card on a phone. -->
+        <template v-if="asCards && !table.loading && !stack.length"><slot name="empty"><a-empty :description="$t('common.empty')" /></slot></template>
         <a-table
           v-if="!asCards"
           ref="tableRef"
@@ -89,7 +83,7 @@
         <div v-if="asCards && $slots.toolbar" class="pro-table__fab">
           <div v-show="fabOpen" class="pro-table__fab-menu">
             <slot name="toolbar" />
-            <a-button class="pro-table__fab-refresh" :loading="table.loading" @click="table.getList"><icon-refresh />{{ $t('common.refresh') }}</a-button>
+            <a-button class="pro-table__fab-refresh" :loading="table.loading" @click="table.getList"><template #icon><icon-refresh /></template>{{ $t('common.refresh') }}</a-button>
           </div>
           <button type="button" class="pro-table__fab-btn" :class="{ 'is-open': fabOpen }" :aria-expanded="fabOpen" :aria-label="$t('components.proTable.pageActions')" @click="fabOpen = !fabOpen"><icon-plus /></button>
         </div>
@@ -103,13 +97,13 @@
 import { nextTick, ref, computed, watch, useSlots, type Ref } from 'vue'
 import { Card as ACard, type TableData } from '@arco-design/web-vue'
 import { IconDown, IconPlus, IconRefresh, IconSearch } from '@arco-design/web-vue/es/icon'
+import AppDrawer from '@/components/AppDrawer/index.vue'
 import Pagination from '@/components/Pagination/index.vue'
 import MobileCards from './MobileCards.vue'
 import { readCardColumns } from './columns'
 import { searchFieldSpans, colsFor, collapseTo } from './search'
 import { useElementWidth } from '@/composables/useElementWidth'
 import { useNarrowScreen } from '@/composables/useNarrowScreen'
-import { useDialogFocus } from '@/composables/useDialogFocus'
 import type { UseTableReturn } from '@/composables/useTable'
 
 /**
@@ -289,7 +283,6 @@ const collapsed = ref(true)
 const collapsible = () => collapseTo(searchFieldSpans(slots.search), cols.value)
 
 const filtersOpen = ref(false)
-const restoreFilterFocus = useDialogFocus(() => filtersOpen.value)
 const fabOpen = ref(false)
 
 // The sheet closes on submit: on a phone the result *is* the feedback, and a
@@ -606,9 +599,9 @@ defineExpose({
  */
 :global(.pro-table__sheet) {
   border-radius: 16px 16px 0 0;
-
-  .arco-drawer-body { padding: 0 16px 16px; }
 }
+
+:global(.pro-table__sheet .arco-drawer-body) { padding: 0 16px 16px; }
 
 .pro-table__sheet-grip {
   width: 36px;
@@ -678,18 +671,6 @@ defineExpose({
   margin-bottom: 12px;
 }
 
-/*
- * One step down from the page's default button. These are secondary to the
- * table -- the row is chrome above the data, not the point of the screen --
- * and at the default 32px with 14px text they carried more weight than the
- * rows they act on.
- */
-.pro-table__toolbar :deep(.arco-btn) {
-  height: 28px;
-  padding: 0 12px;
-  font-size: 13px;
-}
-
 .pro-table__toolbar :deep(.pro-table__refresh) {
   flex-shrink: 0;
   /*
@@ -703,10 +684,6 @@ defineExpose({
   /* It re-reads what is on screen rather than changing it, so it sits slightly
      apart from the actions instead of in the same run. */
   margin-left: 4px;
-  /* Square: overrides the toolbar's button padding, which would stretch a
-     circular icon button into a lozenge. */
-  width: 28px;
-  padding: 0;
 }
 
 /* a-table renders the cell, so this needs :deep to reach it. Lives with the

@@ -139,3 +139,34 @@ test.describe('a search panel with room for every filter', () => {
     await expect(searchToggle(page)).toHaveCount(0)
   })
 })
+
+test.describe('mobile filter sheets', () => {
+  for (const width of [320, 390]) {
+    test(`keeps the drawer and its controls inside a ${width}px viewport`, async({ page, context }) => {
+      await authenticate(context)
+      await installApiMocks(page)
+      await page.setViewportSize({ width, height: 844 })
+      await page.goto('/#/admin/sys-oper-log')
+      await page.getByRole('button', { name: /^筛选/ }).click()
+      await expect(page.getByRole('dialog', { name: '筛选', exact: true })).toBeVisible()
+
+      // Container padding once shifted the 100%-wide drawer 16px to the right.
+      // Check the rendered boundaries, including the controls users need.
+      await expect.poll(async() => page.locator('.pro-table__sheet').evaluate(sheet => {
+        const elements = sheet.querySelectorAll(
+          '.arco-drawer, .arco-picker, .arco-input-wrapper, .arco-select-view, .pro-table__sheet-actions'
+        )
+        return Math.max(
+          sheet.scrollWidth - sheet.clientWidth,
+          ...Array.from(elements, element => {
+            const box = element.getBoundingClientRect()
+            return Math.max(-box.left, box.right - window.innerWidth)
+          })
+        )
+      })).toBeLessThanOrEqual(1)
+      await expect(page.getByRole('textbox', { name: '开始日期', exact: true })).toBeVisible()
+      await expect(page.getByRole('textbox', { name: '结束日期', exact: true })).toBeVisible()
+      await expect(page.getByRole('button', { name: '查看结果', exact: true })).toBeVisible()
+    })
+  }
+})
