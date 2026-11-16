@@ -26,6 +26,7 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
+import { migrationMenus } from './lib/migration-menus.mjs'
 
 const UI = join(dirname(fileURLToPath(import.meta.url)), '..')
 const GO = process.env.GO_ADMIN_PATH ?? join(UI, '..', 'go-admin')
@@ -94,6 +95,21 @@ if (!menus.length || !dictData.length || !dictTypes.length) {
   process.exit(1)
 }
 
+// New modules are added by migrations, not by rewriting already-applied SQL.
+// Read their literal host-seeder declarations using the same name convention.
+const migrations = join(GO, 'cmd/migrate/migration/version')
+if (existsSync(migrations)) {
+  for (const file of readdirSync(migrations).filter(name => name.endsWith('.go') && !name.endsWith('_test.go'))) {
+    for (const { name, title } of migrationMenus(readFileSync(join(migrations, file), 'utf8'))) {
+      if (menus.some(row => row[MENU_NAME] === name)) continue
+      const row = []
+      row[MENU_NAME] = name
+      row[MENU_TITLE] = title
+      menus.push(row)
+    }
+  }
+}
+
 // ── The language-pack side ────────────────────────────────────────
 
 /**
@@ -137,7 +153,7 @@ for (const language of languages) {
 
     if (unknown.length) {
       failed = true
-      console.error(`${language}/${label}: ${unknown.length} key(s) with no row in db.sql -- ${unknown.join(', ')}`)
+      console.error(`${language}/${label}: ${unknown.length} key(s) with no row in seed data or migrations -- ${unknown.join(', ')}`)
     }
     if (untranslated.length) {
       console.log(`${language}/${label}: ${untranslated.length} untranslated, falls back to Chinese -- ${untranslated.join(', ')}`)
