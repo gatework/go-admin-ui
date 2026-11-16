@@ -39,13 +39,20 @@
         </a-button>
       </template>
 
+      <!--
+        The whole tree renders expanded (~125 rows), so per-cell cost adds up:
+        Arco's `tooltip` mounts an observed tooltip in every cell, ~130ms of
+        main-thread time at 4x CPU throttling across these three columns. A
+        native title shows the same full text on hover for nothing.
+      -->
       <a-table-column
         data-index="title"
         :title="$t('admin.sysMenu.menuName')"
         :width="180"
         ellipsis
-        tooltip
-      />
+      >
+        <template #cell="{ record: row }"><span :title="row.title">{{ row.title }}</span></template>
+      </a-table-column>
       <a-table-column data-index="icon" :title="$t('admin.sysMenu.icon')" :width="70">
         <template #cell="{ record: row }">
           <!-- Button permissions never appear in navigation, even if older rows retain an icon. -->
@@ -59,10 +66,10 @@
         :title="$t('admin.sysMenu.permission')"
         :width="150"
         ellipsis
-        tooltip
       >
         <template #cell="{ record: row }">
-          <a-popover v-if="row.sysApi && row.sysApi.length" trigger="hover" position="top" :content-style="{ width: 'min(520px, 90vw)' }">
+          <!-- A popover per row cost ~55ms on load; mount it for the row the pointer reaches, already open. -->
+          <a-popover v-if="row.sysApi && row.sysApi.length && apiPeek === row.menuId" trigger="hover" position="top" default-popup-visible :content-style="{ width: 'min(520px, 90vw)' }">
             <template #content><a-table :data="row.sysApi" size="small" :pagination="false" :scroll="{ y: 260 }"><template #columns>
               <a-table-column data-index="title" :title="$t('admin.sysMenu.api')" :width="200">
                 <template #cell="{ record: api }">
@@ -79,9 +86,9 @@
                 </template>
               </a-table-column>
             </template></a-table></template>
-            <template #default><span>{{ row.permission || '-' }}</span></template>
+            <template #default><span :title="row.permission">{{ row.permission || '—' }}</span></template>
           </a-popover>
-          <span v-else>{{ row.permission || '-' }}</span>
+          <span v-else :title="row.permission" @mouseenter="apiPeek = row.sysApi?.length ? row.menuId : apiPeek">{{ row.permission || '—' }}</span>
         </template>
       </a-table-column>
       <a-table-column
@@ -89,14 +96,13 @@
         :title="$t('admin.sysMenu.componentPath')"
         :width="160"
         ellipsis
-        tooltip
       >
-        <template #cell="{ record: row }">{{ row.menuType === 'A' ? row.path : row.component }}</template>
+        <template #cell="{ record: row }"><span :title="row.menuType === 'A' ? row.path : row.component">{{ row.menuType === 'A' ? row.path : row.component }}</span></template>
       </a-table-column>
       <a-table-column data-index="visible" :title="$t('admin.sysMenu.visible')" :width="90">
         <template #cell="{ record: row }">
           <!-- A button-level entry is never in the menu, so visibility is moot -->
-          <span v-if="row.menuType === 'F'">--</span>
+          <span v-if="row.menuType === 'F'">—</span>
           <a-tag v-else :color="row.visible === '1' ? 'red' : 'green'">
             {{ dictLabel(sys_show_hide, row.visible) }}
           </a-tag>
@@ -336,6 +342,8 @@ const { t } = useI18n()
 
 const { sys_show_hide } = useDict('sys_show_hide')
 
+/** The row whose permission popover is mounted; see the permission column. */
+const apiPeek = ref<number>()
 const table = useTable<SysMenu, SysMenuQuery>({
   api: listMenu,
   idKey: 'menuId',

@@ -32,15 +32,6 @@ const EXCLUDED = [/^src\/lang\//]
  * want to re-derive.
  */
 const KNOWN: Record<string, number> = {
-  // The form designer, which no batch has touched: the largest piece of
-  // untranslated interface left, and what dev-tools/build renders.
-
-  // Ships its own utils/language.js and was always meant to be configurable --
-  // wiring that file to the language pack is the whole job.
-  'src/components/ImageCropper/utils/language.js': 36,
-  'src/components/ImageCropper/index.vue': 20,
-  'src/components/ImageCropper/utils/effectRipple.js': 3,
-
   // Weekday names -- date localisation rather than copy.
   'src/utils/index.js': 9,
   'src/utils/costum.js': 1,
@@ -58,12 +49,7 @@ const KNOWN: Record<string, number> = {
   'src/main.js': 1,
   'src/directive/permission/permisaction.js': 1,
   'src/directive/waves/waves.js': 3,
-  'src/utils/request.ts': 2,
-
-  // Trailing `//` comments, mostly: SCSS design notes on the login page and
-  // Chinese notes after code elsewhere. Overcounted rather than missed, which
-  // is the safe direction for a ratchet.
-  'src/components/Share/DropdownMenu.vue': 1
+  'src/utils/request.ts': 2
 }
 
 const CJK = /[一-鿿]/

@@ -7,19 +7,28 @@
       :actions-width="90"
     >
       <template #search>
-        <!--
-          First, and two columns wide. A datetime range needs about 340px, half
-          of a row; declaring it first is what keeps it on screen when the panel
-          is collapsed, and on an audit log the time range is the filter people
-          come here to use.
-        -->
-        <a-form-item :label="$t('admin.sysOperLog.operTime')" class="is-wide">
-          <a-range-picker
-            v-model="operatedBetween"
-            show-time
-            :placeholder="[$t('admin.sysOperLog.startDate'), $t('admin.sysOperLog.endDate')]"
-            value-format="YYYY-MM-DD HH:mm:ss"
-          />
+        <!-- Keep the primary filter visible when the search panel collapses. -->
+        <a-form-item
+          :label="$t('admin.sysOperLog.operTime')"
+          :label-attrs="{ for: 'oper-log-start-time' }"
+          class="is-wide"
+        >
+          <div ref="dateRangeElement" class="oper-log-time-range">
+            <a-range-picker
+              v-model="operatedBetween"
+              show-time
+              :placeholder="[$t('admin.sysOperLog.startDate'), $t('admin.sysOperLog.endDate')]"
+              :input-props="[
+                { id: 'oper-log-start-time', 'aria-label': $t('admin.sysOperLog.startDate') },
+                { 'aria-label': $t('admin.sysOperLog.endDate') }
+              ]"
+              :trigger-props="datePopupProps"
+              :position="datePopupPosition"
+              :separator="$t('admin.sysOperLog.rangeSeparator')"
+              value-format="YYYY-MM-DD HH:mm:ss"
+              @popup-visible-change="updateDatePopup"
+            />
+          </div>
         </a-form-item>
         <a-form-item :label="$t('admin.sysOperLog.operUrl')">
           <a-input
@@ -158,8 +167,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { TriggerProps } from '@arco-design/web-vue'
 import { confirmAction } from '@/utils/modal'
 
 import AppModal from '@/components/AppModal/index.vue'
@@ -178,6 +188,45 @@ import type { SysOperaLog, SysOperaLogQuery } from '@/types/admin'
 defineOptions({ name: 'OperLog' })
 
 const { t } = useI18n()
+const dateRangeElement = ref<HTMLElement>()
+const datePopupVisible = ref(false)
+const datePopupPosition = ref<'tl' | 'bl'>('bl')
+const datePopupHeight = ref(0)
+
+const measureDatePopup = () => {
+  if (!datePopupVisible.value || !dateRangeElement.value) return
+  const bounds = dateRangeElement.value.getBoundingClientRect()
+  const viewport = window.visualViewport
+  const top = viewport?.offsetTop ?? 0
+  const bottom = top + (viewport?.height ?? window.innerHeight)
+  const above = bounds.top - top - 16
+  const below = bottom - bounds.bottom - 16
+  datePopupPosition.value = above >= below ? 'tl' : 'bl'
+  datePopupHeight.value = Math.max(0, Math.floor(Math.max(above, below)))
+}
+
+const updateDatePopup = (visible: boolean) => {
+  datePopupVisible.value = visible
+  if (visible) void nextTick(measureDatePopup)
+}
+
+onMounted(() => {
+  window.addEventListener('resize', measureDatePopup)
+  window.visualViewport?.addEventListener('resize', measureDatePopup)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', measureDatePopup)
+  window.visualViewport?.removeEventListener('resize', measureDatePopup)
+})
+
+const datePopupProps = computed<TriggerProps>(() => ({
+  contentClass: 'oper-log-time-popup',
+  // Leave both inputs reachable while editing an existing range. Arco still
+  // positions the popup; only the available scrolling height is constrained.
+  contentStyle: datePopupHeight.value
+    ? { '--oper-log-popup-height': `${datePopupHeight.value}px` }
+    : undefined
+}))
 
 // sys_oper_type has no column of its own -- the table shows 模块 instead --
 // but the export has always carried the field, and carried it as the raw 1/2/3
@@ -298,6 +347,82 @@ const handleExport = () => exportExcel({
 </script>
 
 <style lang="scss" scoped>
+.oper-log-time-range {
+  container-type: inline-size;
+  width: 100%;
+  max-width: 32em;
+  min-width: 0;
+}
+
+/* The two complete timestamps need more room than a narrow filter sheet. */
+@container (max-width: 27em) {
+  .oper-log-time-range :deep(.arco-picker) {
+    display: grid;
+    height: auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    row-gap: 4px;
+  }
+
+  .oper-log-time-range :deep(.arco-picker-input) {
+    grid-column: 2;
+    min-width: 0;
+  }
+
+  .oper-log-time-range :deep(.arco-picker-separator) {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0;
+  }
+
+  .oper-log-time-range :deep(.arco-picker-suffix) {
+    grid-column: 3;
+    grid-row: 1 / 3;
+  }
+}
+
+@media (max-width: 767px) {
+  .oper-log-time-range :deep(.arco-picker) {
+    height: auto;
+  }
+
+  .oper-log-time-range :deep(input) {
+    min-height: 44px;
+    font-size: max(16px, var(--motor-base-font-size));
+  }
+}
+
+:global(.oper-log-time-popup .arco-picker-range-container) {
+  max-height: min(var(--oper-log-popup-height, 50dvh), calc(100dvh - 32px));
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+:global(.oper-log-time-popup .arco-picker-footer) {
+  position: sticky;
+  bottom: 0;
+  background: var(--color-bg-popup);
+}
+
+/* Arco renders both calendars in a fixed-width row inside a body teleport. */
+@media (max-width: 575px) {
+  :global(.oper-log-time-popup .arco-picker-range-container) {
+    width: min(320px, calc(100vw - 32px));
+  }
+
+  :global(.oper-log-time-popup .arco-picker-range-wrapper) {
+    flex-direction: column;
+  }
+
+  :global(.oper-log-time-popup .arco-panel-date),
+  :global(.oper-log-time-popup .arco-panel-date-inner) {
+    width: 100%;
+  }
+
+  :global(.oper-log-time-popup .arco-picker-btn-confirm) {
+    min-height: 44px;
+  }
+}
+
 .log-payload {
   margin: 0;
   max-height: 160px;

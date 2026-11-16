@@ -22,5 +22,5 @@ onMounted(load)
 <style scoped>
 .registration-policy { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--motor-border); }
 h3 { margin: 0 0 8px; } p { color: var(--motor-text-2); line-height: 1.7; }
-.policy-controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; }
+.policy-controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px;  flex-wrap: wrap; }
 </style>

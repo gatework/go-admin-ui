@@ -168,6 +168,53 @@ test.describe('sys-oper-log', () => {
     expect(calls.operLog.listQueries.at(-1) ?? '').toContain('endTime=2026-08-31')
   })
 
+  test('a narrow date popup leaves both bounds reachable in one edit', async({ page }) => {
+    const { calls } = await installApiMocks(page)
+    await page.setViewportSize({ width: 320, height: 844 })
+    await page.goto('/#/admin/sys-oper-log')
+    await page.getByRole('button', { name: /^筛选/ }).click()
+
+    const start = page.getByRole('textbox', { name: '开始日期', exact: true })
+    const end = page.getByRole('textbox', { name: '结束日期', exact: true })
+    const popup = page.locator('.oper-log-time-popup .arco-picker-range-container')
+    const confirm = popup.getByRole('button', { name: '确定', exact: true })
+    await start.click()
+    await start.fill('2026-08-01 00:00:00')
+    // A real pointer click must reach the second input with the popup open.
+    await end.click()
+    await end.fill('2026-08-31 23:59:59')
+    await confirm.click()
+    await expect.poll(() => calls.operLog.listQueries.at(-1)).toContain('endTime=2026-08-31')
+
+    await start.click()
+    const firstMonth = popup.locator('.arco-panel-date').first()
+    await firstMonth.locator('.arco-picker-cell-in-view').filter({ hasText: /^5$/ }).click()
+    await end.click()
+    await firstMonth.locator('.arco-picker-cell-in-view').filter({ hasText: /^28$/ }).click()
+    await firstMonth.locator('.arco-panel-date-view-tab-pane').nth(1).click()
+    for (const [panel, time] of [['08', '09', '10'], ['17', '18', '19']].entries()) {
+      const columns = popup.locator('.arco-panel-date').nth(panel).locator('.arco-timepicker-column')
+      for (const [column, value] of time.entries()) {
+        await columns.nth(column).getByText(value, { exact: true }).click()
+      }
+    }
+    await confirm.click()
+    await expect.poll(() => new URLSearchParams(calls.operLog.listQueries.at(-1)).get('beginTime'))
+      .toBe('2026-08-05 08:09:10')
+    expect(new URLSearchParams(calls.operLog.listQueries.at(-1)).get('endTime')).toBe('2026-08-28 17:18:19')
+
+    await start.click()
+    await page.setViewportSize({ width: 390, height: 568 })
+    await expect.poll(async() => popup.evaluate(element => {
+      const popupBox = element.getBoundingClientRect()
+      const rangeBox = document.querySelector('.oper-log-time-range')!.getBoundingClientRect()
+      const overlap = Math.min(popupBox.bottom, rangeBox.bottom) - Math.max(popupBox.top, rangeBox.top)
+      return Math.max(-popupBox.left, popupBox.right - innerWidth, -popupBox.top, popupBox.bottom - innerHeight, overlap)
+    })).toBeLessThanOrEqual(0)
+    await end.click()
+    await confirm.click()
+  })
+
   // The picker writes into the query and the query writes back into the picker.
   // Without a guard on the way back, reset's own reload and the echo through the
   // picker both fire, and one of the two round trips is thrown away.

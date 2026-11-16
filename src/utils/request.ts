@@ -23,6 +23,8 @@ import type { ApiResponse } from '@/types/api'
 /** An error this file has already put in front of the user. */
 export interface ReportedError extends Error {
   reported?: true
+  /** Business status from an HTTP 200 envelope, or an Axios transport code. */
+  code?: number | string
 }
 
 const reported = <E extends Error>(error: E): E & { reported: true } =>
@@ -104,7 +106,7 @@ service.interceptors.response.use(
         // 400/403 carry a message worth reading twice as long
         duration: code === 400 || code === 403 ? 5 * 1000 : 3 * 1000
       })
-      return Promise.reject(reported(new Error(message)))
+      return Promise.reject(reported(Object.assign(new Error(message), { code })))
     }
 
     // The one place the axios contract is deliberately bent: callers receive the
@@ -114,6 +116,8 @@ service.interceptors.response.use(
     return response.data as unknown as AxiosResponse
   },
   (error: AxiosError) => {
+    // Closing a drawer or replacing a search is an intentional cancellation.
+    if (axios.isCancel(error)) return Promise.reject(error)
     const message = error.message === 'Network Error'
       ? i18n.global.t('common.networkError')
       : error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT'
