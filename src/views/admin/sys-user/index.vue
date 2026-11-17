@@ -73,7 +73,7 @@
 
         <!-- min-width, not width: width is rigid and overflows the container,
              min-width lets el-table fit and redistribute. See AGENTS.md. -->
-        <a-table-column :title="$t('admin.sysUser.userId')" data-index="userId" :width="70" :sortable="{ sortDirections: ['ascend', 'descend'] }" />
+        <a-table-column :title="$t('admin.sysUser.userId')" data-index="userId" :width="88" :sortable="{ sortDirections: ['ascend', 'descend'] }" />
         <a-table-column
           :title="$t('admin.sysUser.loginName')"
           data-index="username"
@@ -96,7 +96,7 @@
           ellipsis
           tooltip
         />
-        <a-table-column :title="$t('admin.sysUser.phoneColumn')" data-index="phone" :width="110" />
+        <a-table-column :title="$t('admin.sysUser.phoneColumn')" data-index="phone" :width="128" />
         <a-table-column :title="$t('admin.sysUser.status')" data-index="status" :width="96" :sortable="{ sortDirections: ['ascend', 'descend'] }">
           <template #cell="{ record: row }">
             <a-switch
