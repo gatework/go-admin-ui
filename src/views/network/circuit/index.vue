@@ -42,14 +42,14 @@
 <script setup lang="ts">
 import { datedFilename, downloadBlob } from '@/utils/download'
 import { usePermission } from '@/composables/usePermission'
-import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { IconMore } from '@arco-design/web-vue/es/icon'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import AppDropdown from '@/components/AppDropdown/index.vue'
-import { useRemove, useTable } from '@/composables'
+import { usePageSession, useRemove, useTable } from '@/composables'
 import { useUserStore } from '@/stores/user'
 import { circuitFilters, delCircuit, exportCircuit, getCircuitOptions, listCircuit } from '@/api/network/circuit'
 import { circuitCategories, circuitStatuses } from '@/types/network-circuit'
@@ -79,29 +79,38 @@ const exporting = ref(false)
 const listFailed = ref(false)
 const removeFailed = ref(false)
 const appliedFilters = ref<CircuitQuery>({})
-let active = true
-let generation = 0
 let optionsVersion = 0
 let listController: AbortController | undefined
 let optionsController: AbortController | undefined
 let exportController: AbortController | undefined
 let removalTarget: { id: number, version: number, name: string, token: string } | undefined
+/** The page left the screen or the account changed: stop in-flight work and close what is open. */
+function closeTransient() {
+  optionsVersion++
+  listController?.abort()
+  optionsController?.abort()
+  exportController?.abort()
+  detailVisible.value = false
+  editorVisible.value = false
+  trafficVisible.value = false
+  trafficRecord.value = undefined
+}
+const session = usePageSession({ onSuspend: closeTransient, onResume: () => { void reload() } })
 const table = useTable<Circuit, CircuitQuery>({
   idKey: 'id', defaultQuery: () => ({ keyword: '', status: undefined, category: undefined, provider: '', region: '', organization: '', monitored: undefined }),
   api: async query => {
-    const current = generation
-    const token = user.token
+    const current = session.guard()
     listController?.abort()
     listController = new AbortController()
     const request = listController
     listFailed.value = false
     const filters = circuitFilters(query)
     const response = await listCircuit({ ...filters, pageIndex: query.pageIndex, pageSize: query.pageSize }, listController.signal)
-    if (request.signal.aborted || !active || current !== generation || token !== user.token) return { code: 200, msg: '', data: { list: [], count: 0 }}
+    if (request.signal.aborted || !current()) return { code: 200, msg: '', data: { list: [], count: 0 }}
     appliedFilters.value = filters
     return response
   },
-  onError: () => { if (active) listFailed.value = true }
+  onError: () => { if (session.active) listFailed.value = true }
 })
 const hasFilters = computed(() => Object.values(appliedFilters.value).some(Boolean))
 const emptyKey = computed(() => listFailed.value ? 'loadFailed' : hasFilters.value ? 'noResults' : 'empty')
@@ -111,7 +120,7 @@ const hasMonitoring = (record: Circuit) => [record.aEndpoint, record.zEndpoint].
 const { remove, removing } = useRemove({
   api: async() => {
     const target = removalTarget
-    if (!target || target.token !== user.token || !active || !allowed('remove')) throw new Error('Inactive circuit session')
+    if (!target || target.token !== user.token || !session.active || !allowed('remove')) throw new Error('Inactive circuit session')
     return delCircuit(target.id, target.version)
   },
   confirmText: () => t('networkCircuit.removeConfirm', { name: removalTarget?.name || '' }),
@@ -132,40 +141,25 @@ async function loadOptions() {
   optionsController = new AbortController()
   try {
     const response = await getCircuitOptions(optionsController.signal)
-    if (active && current === optionsVersion) { options.value = response.data; optionsFailed.value = false }
-  } catch { if (active && current === optionsVersion) { options.value = undefined; optionsFailed.value = true } }
+    if (session.active && current === optionsVersion) { options.value = response.data; optionsFailed.value = false }
+  } catch { if (session.active && current === optionsVersion) { options.value = undefined; optionsFailed.value = true } }
 }
 async function reload() { removeFailed.value = false; await Promise.all([table.getList(), loadOptions()]) }
 async function download() {
   if (exporting.value || table.loading || !table.total || !allowed('export')) return
-  const current = generation
-  const token = user.token
+  const current = session.guard()
   exportController = new AbortController()
   exporting.value = true
   try {
     const response = await exportCircuit({ ...appliedFilters.value }, exportController.signal)
-    if (!active || current !== generation || token !== user.token) return
+    if (!current()) return
     downloadBlob(response.data, datedFilename('circuit-inventory', 'csv'), 'text/csv;charset=utf-8')
   } catch { /* The shared client reports server errors. */ } finally { exporting.value = false }
 }
-function invalidate() {
-  active = false
-  generation++
-  optionsVersion++
-  listController?.abort()
-  optionsController?.abort()
-  exportController?.abort()
-  detailVisible.value = false
-  editorVisible.value = false
-  trafficVisible.value = false
-  trafficRecord.value = undefined
-}
 onBeforeRouteLeave(async() => !editorVisible.value || await editor.value?.requestClose())
-watch(() => user.token, () => { invalidate(); table.rows = []; table.total = 0; options.value = undefined; optionsFailed.value = false })
+// Another account's circuits must not stay on screen while the new one loads.
+watch(() => user.token, () => { table.rows = []; table.total = 0; options.value = undefined; optionsFailed.value = false })
 onMounted(loadOptions)
-onActivated(() => { if (!active) { active = true; void reload() } })
-onDeactivated(invalidate)
-onBeforeUnmount(invalidate)
 </script>
 
 <style scoped>

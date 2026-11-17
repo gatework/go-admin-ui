@@ -23,15 +23,14 @@
 </template>
 <script setup lang="ts">
 import { usePermission } from '@/composables/usePermission'
-import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import AppDrawer from '@/components/AppDrawer/index.vue'
-import { useTable } from '@/composables'
-import { useUserStore } from '@/stores/user'
+import { usePageSession, useTable } from '@/composables'
 import { listFabric } from '@/api/network/fabric'
 import type { Fabric, FabricQuery } from '@/types/network-fabric'
 import { parseLocation, type FabricTab } from './presentation'
@@ -43,7 +42,6 @@ import './style.scss'
 
 defineOptions({ name: 'NetworkFabricManage' })
 const { t } = useI18n()
-const user = useUserStore()
 const route = useRoute()
 const router = useRouter()
 const location = computed(() => parseLocation(route.query))
@@ -52,21 +50,19 @@ const canReadDetail = computed(() => allowed(...['query', 'edit', 'collect', 'pr
 const failed = ref(false)
 const rulesVisible = ref(false)
 const endpointVisible = ref(false)
-let active = true
 let controller: AbortController | undefined
+const session = usePageSession({
+  onSuspend: () => { controller?.abort(); rulesVisible.value = false; endpointVisible.value = false },
+  onResume: () => { void table.getList() }
+})
 const table = useTable<Fabric, FabricQuery>({ idKey: 'id', immediate: false, defaultQuery: () => ({ keyword: '' }), api: async query => {
   controller?.abort(); controller = new AbortController()
   const response = await listFabric({ ...query }, controller.signal)
-  if (!active) throw new Error('Inactive Fabric page')
+  if (!session.active) throw new Error('Inactive Fabric page')
   failed.value = false
   return response
-}, onError: () => { if (active) failed.value = true } })
+}, onError: () => { if (session.active) failed.value = true } })
 function select(id?: number) { if (id && !canReadDetail.value) return; void router.push({ query: { ...route.query, fabric: id, tab: id ? 'overview' : undefined, issue: undefined, device: undefined, issueStatus: undefined, issueScope: undefined, nodeStatus: undefined, kind: undefined, direction: undefined, targets: undefined, vrf: undefined, vni: undefined }}) }
 function setTab(tab: FabricTab) { void router.push({ query: { ...route.query, tab, device: undefined }}) }
-function suspend() { active = false; controller?.abort(); rulesVisible.value = false; endpointVisible.value = false }
-watch(() => user.token, suspend)
 onMounted(() => { void table.getList() })
-onActivated(() => { if (!active) { active = true; void table.getList() } })
-onDeactivated(suspend)
-onBeforeUnmount(suspend)
 </script>
