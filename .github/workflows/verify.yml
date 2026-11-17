@@ -5,6 +5,7 @@
 name: Verify
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master ]
   pull_request:
@@ -25,25 +26,30 @@ jobs:
       - name: checkout go-admin
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: go-admin-team/go-admin
+          repository: gatework/go-admin
+          # The backend master this frontend was verified against (app/net
+          # layout, motor-core). Move it forward together with the UI.
+          ref: 32287d531f5d16dbda36350873b261277281f076
           path: go-admin
 
       # The bases every model embeds -- id, createdAt, createBy and the rest --
-      # are declared in go-admin-core now, and common/models only aliases them.
-      # Read at the version go-admin actually depends on rather than the tip of
-      # the default branch: the fields this compares against are the ones the
-      # running server sends, which is the pinned release.
-      - name: resolve the go-admin-core version
+      # are declared in the core module the backend pins: motor-core on the
+      # current backend, go-admin-core before the rename. Read at the version
+      # go.mod requires, because those are the fields the running server sends.
+      - name: resolve the core module
         id: core
         run: |
-          ref=$(grep -oE 'go-admin-core/v2 v[0-9]+\.[0-9]+\.[0-9]+' go-admin/go.mod | head -1 | awk '{print $2}')
-          test -n "$ref" || { echo "no go-admin-core/v2 requirement in go-admin/go.mod"; exit 1; }
+          pin=$(grep -oE '(github\.com/gatework/motor-core|github\.com/go-admin-team/go-admin-core/v2) v[0-9]+\.[0-9]+\.[0-9]+' go-admin/go.mod | head -1)
+          test -n "$pin" || { echo "no core module requirement in go-admin/go.mod"; exit 1; }
+          module=${pin%% *}; ref=${pin##* }
+          repo=${module#github.com/}; repo=${repo%/v2}
+          echo "repository=$repo" >> "$GITHUB_OUTPUT"
           echo "ref=$ref" >> "$GITHUB_OUTPUT"
 
-      - name: checkout go-admin-core
+      - name: checkout the core module
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: go-admin-team/go-admin-core
+          repository: ${{ steps.core.outputs.repository }}
           ref: ${{ steps.core.outputs.ref }}
           path: go-admin-core
 
