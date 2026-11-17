@@ -17,18 +17,7 @@
           />
         </a-form-item>
         <a-form-item :label="$t('admin.dict.type.status')">
-          <a-select
-            v-model="table.query.status"
-            :placeholder="$t('admin.dict.type.statusPlaceholder')"
-            allow-clear
-          >
-            <a-option
-              v-for="item in sys_normal_disable"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </a-select>
+          <DictSelect v-model="table.query.status" type="sys_normal_disable" :placeholder="$t('admin.dict.type.statusPlaceholder')" allow-clear />
         </a-form-item>
       </template>
 
@@ -71,9 +60,7 @@
       </a-table-column>
       <a-table-column :title="$t('admin.dict.type.status')" data-index="status" :width="90">
         <template #cell="{ record: row }">
-          <a-tag :color="Number(row.status) === 2 ? 'green' : 'red'">
-            {{ dictLabel(sys_normal_disable, row.status) }}
-          </a-tag>
+          <DictTag type="sys_normal_disable" :value="row.status" :tones="ENABLED_TONES" />
         </template>
       </a-table-column>
       <a-table-column
@@ -101,44 +88,32 @@
       </template>
     </ProTable>
 
-    <AppModal v-model:visible="form.visible" :title="form.title" width="500px" :mask-closable="false">
-      <a-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" layout="vertical">
-        <a-form-item :label="$t('admin.dict.type.dictName')" field="dictName">
-          <a-input
-            v-model="form.model.dictName"
-            :placeholder="$t('admin.dict.type.dictNamePlaceholder')"
-            :disabled="form.isEdit"
-          />
-        </a-form-item>
-        <a-form-item :label="$t('admin.dict.type.dictType')" field="dictType">
-          <a-input
-            v-model="form.model.dictType"
-            :placeholder="$t('admin.dict.type.dictTypePlaceholder')"
-            :disabled="form.isEdit"
-          />
-        </a-form-item>
-        <a-form-item :label="$t('admin.dict.type.status')" field="status">
-          <a-radio-group v-model="form.model.status">
-            <a-radio v-for="item in sys_normal_disable" :key="item.value" :value="item.value">
-              {{ item.label }}
-            </a-radio>
-          </a-radio-group>
-        </a-form-item>
-        <a-form-item :label="$t('admin.dict.type.remark')" field="remark">
-          <a-textarea
-            v-model="form.model.remark"
+    <FormModal :form="form" :width="500">
+      <a-form-item :label="$t('admin.dict.type.dictName')" field="dictName">
+        <a-input
+          v-model="form.model.dictName"
+          :placeholder="$t('admin.dict.type.dictNamePlaceholder')"
+          :disabled="form.isEdit"
+        />
+      </a-form-item>
+      <a-form-item :label="$t('admin.dict.type.dictType')" field="dictType">
+        <a-input
+          v-model="form.model.dictType"
+          :placeholder="$t('admin.dict.type.dictTypePlaceholder')"
+          :disabled="form.isEdit"
+        />
+      </a-form-item>
+      <a-form-item :label="$t('admin.dict.type.status')" field="status">
+        <DictRadio v-model="form.model.status" type="sys_normal_disable" />
+      </a-form-item>
+      <a-form-item :label="$t('admin.dict.type.remark')" field="remark">
+        <a-textarea
+          v-model="form.model.remark"
 
-            :placeholder="$t('admin.dict.type.remarkPlaceholder')"
-          />
-        </a-form-item>
-      </a-form>
-      <template #footer>
-        <a-button @click="form.close()">{{ $t('common.dialogCancel') }}</a-button>
-        <a-button type="primary" :loading="form.submitting" @click="form.submit()">
-          {{ $t('common.dialogConfirm') }}
-        </a-button>
-      </template>
-    </AppModal>
+          :placeholder="$t('admin.dict.type.remarkPlaceholder')"
+        />
+      </a-form-item>
+    </FormModal>
   </PageContainer>
 </template>
 
@@ -147,12 +122,16 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FormRules } from '@/types/ui'
 
-import AppModal from '@/components/AppModal/index.vue'
+import FormModal from '@/components/FormModal/index.vue'
+import DictSelect from '@/components/DictSelect/index.vue'
+import DictRadio from '@/components/DictRadio/index.vue'
+import DictTag from '@/components/DictTag/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
+import { ENABLED_TONES } from '@/config/status-tones'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import { STATUS_NORMAL } from '@/api/status'
-import { useTable, useForm, useRemove, useDict, useExport, dictLabel } from '@/composables'
+import { useTable, useForm, useRemove, useExport } from '@/composables'
 
 import { listType, getTypeForForm, addType, updateType, delType } from '@/api/admin/dict/type'
 import type { SysDictType, SysDictTypeQuery } from '@/types/admin'
@@ -161,8 +140,6 @@ import type { SysDictType, SysDictTypeQuery } from '@/types/admin'
 defineOptions({ name: 'Dict' })
 
 const { t } = useI18n()
-
-const { sys_normal_disable } = useDict('sys_normal_disable')
 
 const table = useTable<SysDictType, SysDictTypeQuery>({
   api: listType,

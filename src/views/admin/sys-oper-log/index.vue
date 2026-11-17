@@ -38,18 +38,7 @@
           />
         </a-form-item>
         <a-form-item :label="$t('admin.sysOperLog.status')">
-          <a-select
-            v-model="table.query.status"
-            :placeholder="$t('admin.sysOperLog.statusPlaceholder')"
-            allow-clear
-          >
-            <a-option
-              v-for="item in sys_common_status"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </a-select>
+          <DictSelect v-model="table.query.status" type="sys_common_status" :placeholder="$t('admin.sysOperLog.statusPlaceholder')" allow-clear />
         </a-form-item>
       </template>
 
@@ -99,9 +88,7 @@
       />
       <a-table-column :title="$t('admin.sysOperLog.status')" data-index="status" :width="90">
         <template #cell="{ record: row }">
-          <a-tag :color="Number(row.status) === 2 ? 'green' : 'red'">
-            {{ dictLabel(sys_common_status, row.status) }}
-          </a-tag>
+          <DictTag type="sys_common_status" :value="row.status" :tones="RESULT_TONES" />
         </template>
       </a-table-column>
       <!-- prop is createdAt because createdAtOrder is the only order key
@@ -148,9 +135,7 @@
           {{ detail.title || '-' }}
         </a-descriptions-item>
         <a-descriptions-item :label="$t('admin.sysOperLog.operStatus')">
-          <a-tag :color="Number(detail.status) === 2 ? 'green' : 'red'">
-            {{ dictLabel(sys_common_status, detail.status) }}
-          </a-tag>
+          <DictTag type="sys_common_status" :value="detail.status" :tones="RESULT_TONES" />
         </a-descriptions-item>
         <a-descriptions-item :label="$t('admin.sysOperLog.operParam')" :span="2">
           <pre class="log-payload">{{ detail.operParam || '-' }}</pre>
@@ -173,7 +158,10 @@ import type { TriggerProps } from '@arco-design/web-vue'
 import { confirmAction } from '@/utils/modal'
 
 import AppModal from '@/components/AppModal/index.vue'
+import DictSelect from '@/components/DictSelect/index.vue'
+import DictTag from '@/components/DictTag/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
+import { RESULT_TONES } from '@/config/status-tones'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import MethodTag from '@/components/MethodTag/index.vue'

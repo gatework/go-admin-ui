@@ -17,18 +17,7 @@
           />
         </a-form-item>
         <a-form-item :label="$t('admin.sysRole.status')">
-          <a-select
-            v-model="table.query.status"
-            :placeholder="$t('admin.sysRole.statusPlaceholder')"
-            allow-clear
-          >
-            <a-option
-              v-for="item in sys_normal_disable"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </a-select>
+          <DictSelect v-model="table.query.status" type="sys_normal_disable" :placeholder="$t('admin.sysRole.statusPlaceholder')" allow-clear />
         </a-form-item>
       </template>
 
@@ -93,71 +82,47 @@
     </ProTable>
 
     <!-- Create / edit, with the menu tree -->
-    <AppModal
-      v-model:visible="roleForm.visible"
-      :title="roleForm.title"
-      width="560px"
-      :mask-closable="false"
-      @close="roleForm.reset"
-    >
-      <a-form
-        :ref="roleForm.bindFormRef"
-        :disabled="roleForm.loading"
-        :model="roleForm.model"
-        :rules="roleForm.rules"
-        layout="vertical"
-      >
-        <a-form-item :label="$t('admin.sysRole.roleName')" field="roleName">
-          <a-input
-            v-model="roleForm.model.roleName"
-            :placeholder="$t('admin.sysRole.roleNamePlaceholder')"
-            :disabled="roleForm.isEdit"
-          />
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysRole.roleKey')" field="roleKey">
-          <a-input
-            v-model="roleForm.model.roleKey"
-            :placeholder="$t('admin.sysRole.roleKeyPlaceholder')"
-            :disabled="roleForm.isEdit"
-          />
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysRole.roleSort')" field="roleSort">
-          <a-input-number v-model="roleForm.model.roleSort" :min="0" />
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysRole.status')" field="status">
-          <a-radio-group v-model="roleForm.model.status">
-            <a-radio
-              v-for="item in sys_normal_disable"
-              :key="item.value"
-              :value="item.value"
-            >{{ item.label }}</a-radio>
-          </a-radio-group>
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysRole.menuPermission')">
-          <a-empty v-if="superAdminOnly || !menuOptions.length" :description="menuEmptyText" />
-          <a-tree
-            v-else
-            v-model:checked-keys="menuChecked"
-            :data="superAdminOnly ? [] : menuOptions"
-            checkable
-            checked-strategy="all"
-            :field-names="{ key: 'id', title: 'label', children: 'children' }"
-            class="permission-tree"
-          ><template #empty>{{ menuEmptyText }}</template></a-tree>
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysRole.remark')" field="remark">
-          <a-textarea
-            v-model="roleForm.model.remark"
+    <FormModal :form="roleForm" :width="560">
+      <a-form-item :label="$t('admin.sysRole.roleName')" field="roleName">
+        <a-input
+          v-model="roleForm.model.roleName"
+          :placeholder="$t('admin.sysRole.roleNamePlaceholder')"
+          :disabled="roleForm.isEdit"
+        />
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysRole.roleKey')" field="roleKey">
+        <a-input
+          v-model="roleForm.model.roleKey"
+          :placeholder="$t('admin.sysRole.roleKeyPlaceholder')"
+          :disabled="roleForm.isEdit"
+        />
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysRole.roleSort')" field="roleSort">
+        <a-input-number v-model="roleForm.model.roleSort" :min="0" />
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysRole.status')" field="status">
+        <DictRadio v-model="roleForm.model.status" type="sys_normal_disable" />
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysRole.menuPermission')">
+        <a-empty v-if="superAdminOnly || !menuOptions.length" :description="menuEmptyText" />
+        <a-tree
+          v-else
+          v-model:checked-keys="menuChecked"
+          :data="superAdminOnly ? [] : menuOptions"
+          checkable
+          checked-strategy="all"
+          :field-names="{ key: 'id', title: 'label', children: 'children' }"
+          class="permission-tree"
+        ><template #empty>{{ menuEmptyText }}</template></a-tree>
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysRole.remark')" field="remark">
+        <a-textarea
+          v-model="roleForm.model.remark"
 
-            :placeholder="$t('admin.sysRole.remarkPlaceholder')"
-          />
-        </a-form-item>
-      </a-form>
-      <template #footer>
-        <a-button @click="roleForm.close">{{ $t('common.dialogCancel') }}</a-button>
-        <a-button type="primary" :loading="roleForm.submitting" @click="roleForm.submit">{{ $t('common.dialogConfirm') }}</a-button>
-      </template>
-    </AppModal>
+          :placeholder="$t('admin.sysRole.remarkPlaceholder')"
+        />
+      </a-form-item>
+    </FormModal>
 
     <!--
       Data scope, with the department tree. Its own useForm, so it has its own
@@ -165,52 +130,35 @@
       dialog on one flag while binding its visibility to the other form's, so it
       never appeared at all.
     -->
-    <AppModal
-      v-model:visible="scopeForm.visible"
-      :title="$t('admin.sysRole.dataScopeTitle')"
-      width="560px"
-      :mask-closable="false"
-      @close="scopeForm.reset"
-    >
-      <a-form
-        :ref="scopeForm.bindFormRef"
-        :disabled="scopeForm.loading"
-        :model="scopeForm.model"
-        layout="vertical"
-      >
-        <a-form-item :label="$t('admin.sysRole.roleName')">
-          <a-input :model-value="scopeForm.model.roleName" disabled />
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysRole.roleKey')">
-          <a-input :model-value="scopeForm.model.roleKey" disabled />
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysRole.scope')">
-          <a-select v-model="scopeForm.model.dataScope" style="width: 100%">
-            <a-option
-              v-for="item in dataScopes"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </a-select>
-        </a-form-item>
-        <a-form-item v-show="scopeForm.model.dataScope === CUSTOM_SCOPE" :label="$t('admin.sysRole.dataScope')">
-          <a-tree
-            v-model:checked-keys="deptChecked"
-            :data="deptOptions"
-            checkable
-            checked-strategy="all"
-            default-expand-all
-            :field-names="{ key: 'id', title: 'label', children: 'children' }"
-            class="permission-tree"
-          ><template #empty>{{ $t('admin.sysRole.treeLoading') }}</template></a-tree>
-        </a-form-item>
-      </a-form>
-      <template #footer>
-        <a-button @click="scopeForm.close">{{ $t('common.dialogCancel') }}</a-button>
-        <a-button type="primary" :loading="scopeForm.submitting" @click="scopeForm.submit">{{ $t('common.dialogConfirm') }}</a-button>
-      </template>
-    </AppModal>
+    <FormModal :form="scopeForm" :title="$t('admin.sysRole.dataScopeTitle')" :width="560">
+      <a-form-item :label="$t('admin.sysRole.roleName')">
+        <a-input :model-value="scopeForm.model.roleName" disabled />
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysRole.roleKey')">
+        <a-input :model-value="scopeForm.model.roleKey" disabled />
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysRole.scope')">
+        <a-select v-model="scopeForm.model.dataScope" style="width: 100%">
+          <a-option
+            v-for="item in dataScopes"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </a-select>
+      </a-form-item>
+      <a-form-item v-show="scopeForm.model.dataScope === CUSTOM_SCOPE" :label="$t('admin.sysRole.dataScope')">
+        <a-tree
+          v-model:checked-keys="deptChecked"
+          :data="deptOptions"
+          checkable
+          checked-strategy="all"
+          default-expand-all
+          :field-names="{ key: 'id', title: 'label', children: 'children' }"
+          class="permission-tree"
+        ><template #empty>{{ $t('admin.sysRole.treeLoading') }}</template></a-tree>
+      </a-form-item>
+    </FormModal>
   </PageContainer>
 </template>
 
@@ -220,7 +168,9 @@ import { useI18n } from 'vue-i18n'
 import { confirmAction } from '@/utils/modal'
 import type { FormRules } from '@/types/ui'
 
-import AppModal from '@/components/AppModal/index.vue'
+import FormModal from '@/components/FormModal/index.vue'
+import DictSelect from '@/components/DictSelect/index.vue'
+import DictRadio from '@/components/DictRadio/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'

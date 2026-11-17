@@ -1,5 +1,5 @@
 <template>
-  <a-select v-model="model" :placeholder="placeholder ?? $t('common.selectPlaceholder')" allow-clear>
+  <a-select v-model="model" :placeholder="placeholder ?? $t('common.selectPlaceholder')">
     <a-option v-for="option in options" :key="option.value" :value="option.value" :label="option.label" />
   </a-select>
 </template>

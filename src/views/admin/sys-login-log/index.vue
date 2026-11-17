@@ -15,18 +15,7 @@
           />
         </a-form-item>
         <a-form-item :label="$t('admin.sysLoginLog.status')">
-          <a-select
-            v-model="table.query.status"
-            :placeholder="$t('admin.sysLoginLog.statusPlaceholder')"
-            allow-clear
-          >
-            <a-option
-              v-for="item in sys_common_status"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </a-select>
+          <DictSelect v-model="table.query.status" type="sys_common_status" :placeholder="$t('admin.sysLoginLog.statusPlaceholder')" allow-clear />
         </a-form-item>
         <a-form-item :label="$t('admin.sysLoginLog.ipaddr')">
           <a-input
@@ -62,9 +51,7 @@
       />
       <a-table-column :title="$t('admin.sysLoginLog.status')" data-index="status" :width="90">
         <template #cell="{ record: row }">
-          <a-tag :color="Number(row.status) === 2 ? 'green' : 'red'">
-            {{ dictLabel(sys_common_status, row.status) }}
-          </a-tag>
+          <DictTag type="sys_common_status" :value="row.status" :tones="RESULT_TONES" />
         </template>
       </a-table-column>
       <a-table-column :title="$t('admin.sysLoginLog.ipaddr')" data-index="ipaddr" :width="130">
@@ -108,10 +95,13 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
+import DictSelect from '@/components/DictSelect/index.vue'
+import DictTag from '@/components/DictTag/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
+import { RESULT_TONES } from '@/config/status-tones'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
-import { useTable, useRemove, useDict, dictLabel } from '@/composables'
+import { useTable, useRemove } from '@/composables'
 
 import { listSysLoginlog, delSysLoginlog } from '@/api/admin/sys-login-log'
 import type { SysLoginLog, SysLoginLogQuery } from '@/types/admin'
@@ -120,8 +110,6 @@ import type { SysLoginLog, SysLoginLogQuery } from '@/types/admin'
 defineOptions({ name: 'SysLoginLogManage' })
 
 const { t } = useI18n()
-
-const { sys_common_status } = useDict('sys_common_status')
 
 /**
  * An audit trail: read and delete, nothing writes it. No useForm here, which is

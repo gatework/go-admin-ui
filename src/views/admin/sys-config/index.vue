@@ -22,18 +22,7 @@
           />
         </a-form-item>
         <a-form-item :label="$t('admin.sysConfig.builtIn')">
-          <a-select
-            v-model="table.query.configType"
-            :placeholder="$t('admin.sysConfig.builtInPlaceholder')"
-            allow-clear
-          >
-            <a-option
-              v-for="item in sys_yes_no"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </a-select>
+          <DictSelect v-model="table.query.configType" type="sys_yes_no" :placeholder="$t('admin.sysConfig.builtInPlaceholder')" allow-clear />
         </a-form-item>
       </template>
 
@@ -107,74 +96,50 @@
       </template>
     </ProTable>
 
-    <AppModal
-      v-model:visible="form.visible"
-      :title="form.title"
-      width="500px"
-      :mask-closable="false"
-      @close="form.reset"
-    >
-      <a-form
-        :ref="form.bindFormRef"
-        :disabled="form.loading"
-        :model="form.model"
-        :rules="form.rules"
-        layout="vertical"
-      >
-        <!-- Name and key identify the setting that code looks up, so they are
-             fixed once created -->
-        <a-form-item :label="$t('admin.sysConfig.configName')" field="configName">
-          <a-input
-            v-model="form.model.configName"
-            :placeholder="$t('admin.sysConfig.namePlaceholder')"
-            :disabled="form.isEdit"
-          />
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysConfig.configKey')" field="configKey">
-          <a-input
-            v-model="form.model.configKey"
-            :placeholder="$t('admin.sysConfig.keyPlaceholder')"
-            :disabled="form.isEdit"
-          />
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysConfig.configValue')" field="configValue">
-          <a-input
-            v-model="form.model.configValue"
-            :placeholder="$t('admin.sysConfig.configValuePlaceholder')"
-          />
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysConfig.configType')" field="configType">
-          <a-radio-group v-model="form.model.configType">
-            <a-radio
-              v-for="item in sys_yes_no"
-              :key="item.value"
-              :value="item.value"
-            >{{ item.label }}</a-radio>
-          </a-radio-group>
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysConfig.isFrontend')" field="isFrontend">
-          <a-select
-            v-model="form.model.isFrontend"
-            :placeholder="$t('admin.sysConfig.isFrontendPlaceholder')"
-            style="width: 100%"
-          >
-            <a-option :label="$t('admin.sysConfig.yes')" value="1" />
-            <a-option :label="$t('admin.sysConfig.no')" value="2" />
-          </a-select>
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysConfig.remark')" field="remark">
-          <a-textarea
-            v-model="form.model.remark"
+    <FormModal :form="form" :width="500">
+      <!-- Name and key identify the setting that code looks up, so they are
+           fixed once created -->
+      <a-form-item :label="$t('admin.sysConfig.configName')" field="configName">
+        <a-input
+          v-model="form.model.configName"
+          :placeholder="$t('admin.sysConfig.namePlaceholder')"
+          :disabled="form.isEdit"
+        />
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysConfig.configKey')" field="configKey">
+        <a-input
+          v-model="form.model.configKey"
+          :placeholder="$t('admin.sysConfig.keyPlaceholder')"
+          :disabled="form.isEdit"
+        />
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysConfig.configValue')" field="configValue">
+        <a-input
+          v-model="form.model.configValue"
+          :placeholder="$t('admin.sysConfig.configValuePlaceholder')"
+        />
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysConfig.configType')" field="configType">
+        <DictRadio v-model="form.model.configType" type="sys_yes_no" />
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysConfig.isFrontend')" field="isFrontend">
+        <a-select
+          v-model="form.model.isFrontend"
+          :placeholder="$t('admin.sysConfig.isFrontendPlaceholder')"
+          style="width: 100%"
+        >
+          <a-option :label="$t('admin.sysConfig.yes')" value="1" />
+          <a-option :label="$t('admin.sysConfig.no')" value="2" />
+        </a-select>
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysConfig.remark')" field="remark">
+        <a-textarea
+          v-model="form.model.remark"
 
-            :placeholder="$t('admin.sysConfig.remarkPlaceholder')"
-          />
-        </a-form-item>
-      </a-form>
-      <template #footer>
-        <a-button @click="form.close">{{ $t('common.dialogCancel') }}</a-button>
-        <a-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</a-button>
-      </template>
-    </AppModal>
+          :placeholder="$t('admin.sysConfig.remarkPlaceholder')"
+        />
+      </a-form-item>
+    </FormModal>
   </PageContainer>
 </template>
 
@@ -183,7 +148,9 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FormRules } from '@/types/ui'
 
-import AppModal from '@/components/AppModal/index.vue'
+import FormModal from '@/components/FormModal/index.vue'
+import DictSelect from '@/components/DictSelect/index.vue'
+import DictRadio from '@/components/DictRadio/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'

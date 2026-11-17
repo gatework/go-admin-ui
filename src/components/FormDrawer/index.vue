@@ -8,7 +8,7 @@
     @update:visible="open => open || form.close()"
     @close="form.reset"
   >
-    <a-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" :layout="layout" :disabled="form.loading" @submit-success="form.submit">
+    <a-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" :layout="layout" :class="formClass" :disabled="form.loading" @submit-success="form.submit">
       <slot :model="form.model" :is-edit="form.isEdit" />
     </a-form>
     <template #footer>
@@ -36,5 +36,7 @@ withDefaults(defineProps<{
   size?: DrawerSize
   layout?: 'vertical' | 'horizontal'
   okText?: string
-}>(), { title: undefined, size: 'md', layout: 'vertical', okText: undefined })
+  /** Class for the inner a-form; other attributes land on the dialog itself. */
+  formClass?: string
+}>(), { formClass: undefined, title: undefined, size: 'md', layout: 'vertical', okText: undefined })
 </script>

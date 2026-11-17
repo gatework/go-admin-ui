@@ -1,6 +1,7 @@
 export default {
   deptNamePlaceholder: 'Search department',
   dept: 'Department',
+  allDepts: 'All departments',
   deptPlaceholder: 'Select department',
   username: 'Username',
   usernamePlaceholder: 'Enter username',

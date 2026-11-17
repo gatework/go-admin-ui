@@ -56,44 +56,26 @@
     </ProTable>
 
     <!-- One dialog for both modes; useForm tells them apart by the primary key -->
-    <AppModal
-      v-model:visible="form.visible"
-      :title="form.title"
-      width="500px"
-      :mask-closable="false"
-      @close="form.reset"
-    >
-      <a-form
-        :ref="form.bindFormRef"
-        :model="form.model"
-        :rules="form.rules"
-        layout="vertical"
-        :disabled="form.loading"
-      >
-        <a-form-item :label="$t('demo.name')" field="name">
-          <a-input v-model="form.model.name" :placeholder="$t('demo.namePlaceholder')" />
-        </a-form-item>
-        <a-form-item :label="$t('demo.code')" field="code">
-          <a-input v-model="form.model.code" :placeholder="$t('demo.codePlaceholder')" />
-        </a-form-item>
-        <a-form-item :label="$t('demo.price')" field="price">
-          <a-input-number v-model="form.model.price" :min="0" :precision="2" />
-        </a-form-item>
-        <a-form-item :label="$t('demo.status')" field="status">
-          <a-radio-group v-model="form.model.status">
-            <a-radio value="1">{{ $t('demo.normal') }}</a-radio>
-            <a-radio value="2">{{ $t('demo.disabled') }}</a-radio>
-          </a-radio-group>
-        </a-form-item>
-        <a-form-item :label="$t('demo.remark')" field="remark">
-          <a-textarea v-model="form.model.remark" :placeholder="$t('demo.remarkPlaceholder')" />
-        </a-form-item>
-      </a-form>
-      <template #footer>
-        <a-button @click="form.close">{{ $t('common.dialogCancel') }}</a-button>
-        <a-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</a-button>
-      </template>
-    </AppModal>
+    <FormModal :form="form" :width="500">
+      <a-form-item :label="$t('demo.name')" field="name">
+        <a-input v-model="form.model.name" :placeholder="$t('demo.namePlaceholder')" />
+      </a-form-item>
+      <a-form-item :label="$t('demo.code')" field="code">
+        <a-input v-model="form.model.code" :placeholder="$t('demo.codePlaceholder')" />
+      </a-form-item>
+      <a-form-item :label="$t('demo.price')" field="price">
+        <a-input-number v-model="form.model.price" :min="0" :precision="2" />
+      </a-form-item>
+      <a-form-item :label="$t('demo.status')" field="status">
+        <a-radio-group v-model="form.model.status">
+          <a-radio value="1">{{ $t('demo.normal') }}</a-radio>
+          <a-radio value="2">{{ $t('demo.disabled') }}</a-radio>
+        </a-radio-group>
+      </a-form-item>
+      <a-form-item :label="$t('demo.remark')" field="remark">
+        <a-textarea v-model="form.model.remark" :placeholder="$t('demo.remarkPlaceholder')" />
+      </a-form-item>
+    </FormModal>
   </PageContainer>
 </template>
 
@@ -110,7 +92,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FormRules } from '@/types/ui'
 
-import AppModal from '@/components/AppModal/index.vue'
+import FormModal from '@/components/FormModal/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'

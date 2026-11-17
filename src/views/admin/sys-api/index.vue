@@ -92,46 +92,38 @@
       A drawer rather than a dialog: this form sits beside the row it edits, and
       the page is scanned route by route. Kept from the version this replaces.
     -->
-    <AppDrawer v-model:visible="form.visible" :title="form.title" placement="right" :width="420">
-      <a-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" layout="vertical">
-        <a-form-item label="Handle" field="handle">
-          <a-input v-model="form.model.handle" placeholder="handle" />
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysApi.title')" field="title">
-          <a-input v-model="form.model.title" :placeholder="$t('admin.sysApi.title')" />
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysApi.type')" field="type">
-          <a-select
-            v-model="form.model.type"
-            :placeholder="$t('admin.sysApi.typePlaceholder')"
-            style="width: 100%"
-          >
-            <a-option value="SYS" label="SYS" />
-            <a-option value="BUS" label="BUS" />
-          </a-select>
-        </a-form-item>
-        <a-form-item label="Method" field="action">
-          <a-select
-            v-model="form.model.action"
-            :placeholder="$t('admin.sysApi.actionPlaceholder')"
-            style="width: 100%"
-          >
-            <a-option v-for="method in METHODS" :key="method" :value="method" :label="method" />
-          </a-select>
-        </a-form-item>
-        <a-form-item :label="$t('admin.sysApi.path')" field="path">
-          <!-- The path identifies the route; the backend registers it, so it is
-               shown for confirmation rather than offered for editing. -->
-          <a-input v-model="form.model.path" disabled :placeholder="$t('admin.sysApi.path')" />
-        </a-form-item>
-      </a-form>
-      <template #footer>
-        <a-button @click="form.close()">{{ $t('common.dialogCancel') }}</a-button>
-        <a-button type="primary" :loading="form.submitting" @click="form.submit()">
-          {{ $t('common.dialogConfirm') }}
-        </a-button>
-      </template>
-    </AppDrawer>
+    <FormDrawer :form="form" size="sm">
+      <a-form-item label="Handle" field="handle">
+        <a-input v-model="form.model.handle" placeholder="handle" />
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysApi.title')" field="title">
+        <a-input v-model="form.model.title" :placeholder="$t('admin.sysApi.title')" />
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysApi.type')" field="type">
+        <a-select
+          v-model="form.model.type"
+          :placeholder="$t('admin.sysApi.typePlaceholder')"
+          style="width: 100%"
+        >
+          <a-option value="SYS" label="SYS" />
+          <a-option value="BUS" label="BUS" />
+        </a-select>
+      </a-form-item>
+      <a-form-item label="Method" field="action">
+        <a-select
+          v-model="form.model.action"
+          :placeholder="$t('admin.sysApi.actionPlaceholder')"
+          style="width: 100%"
+        >
+          <a-option v-for="method in METHODS" :key="method" :value="method" :label="method" />
+        </a-select>
+      </a-form-item>
+      <a-form-item :label="$t('admin.sysApi.path')" field="path">
+        <!-- The path identifies the route; the backend registers it, so it is
+             shown for confirmation rather than offered for editing. -->
+        <a-input v-model="form.model.path" disabled :placeholder="$t('admin.sysApi.path')" />
+      </a-form-item>
+    </FormDrawer>
   </PageContainer>
 </template>
 
@@ -140,7 +132,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FormRules } from '@/types/ui'
 
-import AppDrawer from '@/components/AppDrawer/index.vue'
+import FormDrawer from '@/components/FormDrawer/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'

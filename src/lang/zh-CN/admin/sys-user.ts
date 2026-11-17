@@ -12,6 +12,7 @@ export default {
   // ── Department pane and search ──────────────────────────────────
   deptNamePlaceholder: '请输入部门名称',
   dept: '部门',
+  allDepts: '全部部门',
   deptPlaceholder: '选择部门',
   username: '用户名称',
   usernamePlaceholder: '请输入用户名称',

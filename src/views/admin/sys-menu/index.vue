@@ -18,18 +18,7 @@
           />
         </a-form-item>
         <a-form-item :label="$t('admin.sysMenu.status')">
-          <a-select
-            v-model="table.query.visible"
-            :placeholder="$t('admin.sysMenu.statusPlaceholder')"
-            allow-clear
-          >
-            <a-option
-              v-for="item in sys_show_hide"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </a-select>
+          <DictSelect v-model="table.query.visible" type="sys_show_hide" :placeholder="$t('admin.sysMenu.statusPlaceholder')" allow-clear />
         </a-form-item>
       </template>
 
@@ -103,9 +92,7 @@
         <template #cell="{ record: row }">
           <!-- A button-level entry is never in the menu, so visibility is moot -->
           <span v-if="row.menuType === 'F'">—</span>
-          <a-tag v-else :color="row.visible === '1' ? 'red' : 'green'">
-            {{ dictLabel(sys_show_hide, row.visible) }}
-          </a-tag>
+          <DictTag v-else type="sys_show_hide" :value="row.visible" :tones="VISIBILITY_TONES" />
         </template>
       </a-table-column>
       <a-table-column :title="$t('common.createdAt')" data-index="createdAt" :width="110">
@@ -135,183 +122,157 @@
       </template>
     </ProTable>
 
-    <AppModal
-      v-model:visible="form.visible"
-      :title="form.title"
-      :width="880"
-      modal-class="menu-editor"
-      :mask-closable="false"
-      @close="form.reset"
-    >
-      <a-form
-        :ref="form.bindFormRef"
-        class="menu-editor-form"
-        :disabled="form.loading"
-        :model="form.model"
-        :rules="form.rules"
-        layout="vertical"
-      >
-        <section class="menu-form-section">
-          <header><h3>{{ $t('admin.sysMenu.sections.basic') }}</h3><p>{{ $t('admin.sysMenu.sections.basicHint') }}</p></header>
-          <a-row :gutter="[20, 0]">
-            <a-col :xs="24" :sm="12">
-              <a-form-item :label="$t('admin.sysMenu.menuType')" field="menuType">
-                <a-radio-group v-model="form.model.menuType">
-                  <a-radio value="M">{{ $t('admin.sysMenu.typeDirectory') }}</a-radio>
-                  <a-radio value="C">{{ $t('admin.sysMenu.typeMenu') }}</a-radio>
-                  <a-radio value="F">{{ $t('admin.sysMenu.typeButton') }}</a-radio>
-                </a-radio-group>
-              </a-form-item>
-            </a-col>
-            <a-col :xs="24" :sm="12">
-              <a-form-item :label="$t('admin.sysMenu.parent')" field="parentId">
-                <a-tree-select
-                  v-model="form.model.parentId"
-                  :data="parentOptions"
+    <FormModal :form="form" :width="880" modal-class="menu-editor" form-class="menu-editor-form">
+      <section class="menu-form-section">
+        <header><h3>{{ $t('admin.sysMenu.sections.basic') }}</h3><p>{{ $t('admin.sysMenu.sections.basicHint') }}</p></header>
+        <a-row :gutter="[20, 0]">
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysMenu.menuType')" field="menuType">
+              <a-radio-group v-model="form.model.menuType">
+                <a-radio value="M">{{ $t('admin.sysMenu.typeDirectory') }}</a-radio>
+                <a-radio value="C">{{ $t('admin.sysMenu.typeMenu') }}</a-radio>
+                <a-radio value="F">{{ $t('admin.sysMenu.typeButton') }}</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysMenu.parent')" field="parentId">
+              <a-tree-select
+                v-model="form.model.parentId"
+                :data="parentOptions"
 
-                  :placeholder="$t('admin.sysMenu.parentPlaceholder')"
+                :placeholder="$t('admin.sysMenu.parentPlaceholder')"
 
-                  style="width: 100%"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysMenu.title')" field="title">
+              <a-input v-model="form.model.title" :placeholder="$t('admin.sysMenu.titlePlaceholder')" />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="12">
+            <a-form-item :label="$t('admin.sysMenu.displaySort')" field="sort">
+              <a-input-number v-model="form.model.sort" style="width: 100%" :min="0" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </section>
+      <section v-if="!isButton" class="menu-form-section">
+        <header><h3>{{ $t('admin.sysMenu.sections.routing') }}</h3><p>{{ $t('admin.sysMenu.sections.routingHint') }}</p></header>
+        <a-row :gutter="[20, 0]">
+          <a-col :xs="24" :sm="12">
+            <a-form-item v-if="!isButton" :label="$t('admin.sysMenu.menuIcon')">
+              <IconSelect v-model="form.model.icon" />
+            </a-form-item>
+          </a-col>
+          <a-col v-if="!isButton" :xs="24" :sm="12">
+            <a-form-item>
+              <template #label>
+                <FieldLabel
+                  :label="$t('admin.sysMenu.menuStatus')"
+                  :tip="$t('admin.sysMenu.menuStatusTip')"
                 />
-              </a-form-item>
-            </a-col>
-            <a-col :xs="24" :sm="12">
-              <a-form-item :label="$t('admin.sysMenu.title')" field="title">
-                <a-input v-model="form.model.title" :placeholder="$t('admin.sysMenu.titlePlaceholder')" />
-              </a-form-item>
-            </a-col>
-            <a-col :xs="24" :sm="12">
-              <a-form-item :label="$t('admin.sysMenu.displaySort')" field="sort">
-                <a-input-number v-model="form.model.sort" style="width: 100%" :min="0" />
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </section>
-        <section v-if="!isButton" class="menu-form-section">
-          <header><h3>{{ $t('admin.sysMenu.sections.routing') }}</h3><p>{{ $t('admin.sysMenu.sections.routingHint') }}</p></header>
-          <a-row :gutter="[20, 0]">
-            <a-col :xs="24" :sm="12">
-              <a-form-item v-if="!isButton" :label="$t('admin.sysMenu.menuIcon')">
-                <IconSelect v-model="form.model.icon" />
-              </a-form-item>
-            </a-col>
-            <a-col v-if="!isButton" :xs="24" :sm="12">
-              <a-form-item>
-                <template #label>
-                  <FieldLabel
-                    :label="$t('admin.sysMenu.menuStatus')"
-                    :tip="$t('admin.sysMenu.menuStatusTip')"
-                  />
-                </template>
-                <a-radio-group v-model="form.model.visible">
-                  <a-radio
-                    v-for="item in sys_show_hide"
-                    :key="item.value"
-                    :value="item.value"
-                  >{{ item.label }}</a-radio>
-                </a-radio-group>
-              </a-form-item>
-            </a-col>
-            <a-col v-if="!isButton" :xs="24" :sm="12">
-              <a-form-item field="menuName">
-                <template #label>
-                  <FieldLabel
-                    :label="$t('admin.sysMenu.routeName')"
-                    :tip="$t('admin.sysMenu.routeNameTip')"
-                  />
-                </template>
-                <a-input
-                  v-model="form.model.menuName"
-                  :placeholder="$t('admin.sysMenu.routeNamePlaceholder')"
+              </template>
+              <DictRadio v-model="form.model.visible" type="sys_show_hide" />
+            </a-form-item>
+          </a-col>
+          <a-col v-if="!isButton" :xs="24" :sm="12">
+            <a-form-item field="menuName">
+              <template #label>
+                <FieldLabel
+                  :label="$t('admin.sysMenu.routeName')"
+                  :tip="$t('admin.sysMenu.routeNameTip')"
                 />
-              </a-form-item>
-            </a-col>
-            <a-col v-if="!isButton" :xs="24" :sm="12">
-              <a-form-item field="path">
-                <template #label>
-                  <FieldLabel
-                    :label="$t('admin.sysMenu.routePath')"
-                    :tip="$t('admin.sysMenu.routePathTip')"
-                  />
-                </template>
-                <a-input
-                  v-model="form.model.path"
-                  :placeholder="$t('admin.sysMenu.routePathPlaceholder')"
+              </template>
+              <a-input
+                v-model="form.model.menuName"
+                :placeholder="$t('admin.sysMenu.routeNamePlaceholder')"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col v-if="!isButton" :xs="24" :sm="12">
+            <a-form-item field="path">
+              <template #label>
+                <FieldLabel
+                  :label="$t('admin.sysMenu.routePath')"
+                  :tip="$t('admin.sysMenu.routePathTip')"
                 />
-              </a-form-item>
-            </a-col>
-            <a-col v-if="!isButton" :xs="24" :sm="12">
-              <a-form-item field="component">
-                <template #label>
-                  <FieldLabel
-                    :label="$t('admin.sysMenu.componentPath')"
-                    :tip="$t('admin.sysMenu.componentPathTip')"
-                  />
-                </template>
-                <a-input
-                  v-model="form.model.component"
-                  :placeholder="$t('admin.sysMenu.componentPathPlaceholder')"
+              </template>
+              <a-input
+                v-model="form.model.path"
+                :placeholder="$t('admin.sysMenu.routePathPlaceholder')"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col v-if="!isButton" :xs="24" :sm="12">
+            <a-form-item field="component">
+              <template #label>
+                <FieldLabel
+                  :label="$t('admin.sysMenu.componentPath')"
+                  :tip="$t('admin.sysMenu.componentPathTip')"
                 />
-              </a-form-item>
-            </a-col>
-            <a-col v-if="!isButton" :xs="24" :sm="12">
-              <a-form-item>
-                <template #label>
-                  <FieldLabel :label="$t('admin.sysMenu.isFrame')" :tip="$t('admin.sysMenu.isFrameTip')" />
-                </template>
-                <a-radio-group v-model="form.model.isFrame">
-                  <a-radio value="0">{{ $t('admin.sysMenu.yes') }}</a-radio>
-                  <a-radio value="1">{{ $t('admin.sysMenu.no') }}</a-radio>
-                </a-radio-group>
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </section>
-        <section v-if="hasPermission" class="menu-form-section">
-          <header><h3>{{ $t('admin.sysMenu.sections.access') }}</h3><p>{{ $t('admin.sysMenu.sections.accessHint') }}</p></header>
-          <a-row :gutter="[20, 0]">
-            <a-col v-if="hasPermission" :xs="24" :sm="12">
-              <a-form-item>
-                <template #label>
-                  <FieldLabel
-                    :label="$t('admin.sysMenu.permission')"
-                    :tip="$t('admin.sysMenu.permissionTip')"
-                  />
-                </template>
-                <a-input
-                  v-model="form.model.permission"
-                  :placeholder="$t('admin.sysMenu.permissionPlaceholder')"
-                  maxlength="50"
+              </template>
+              <a-input
+                v-model="form.model.component"
+                :placeholder="$t('admin.sysMenu.componentPathPlaceholder')"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col v-if="!isButton" :xs="24" :sm="12">
+            <a-form-item>
+              <template #label>
+                <FieldLabel :label="$t('admin.sysMenu.isFrame')" :tip="$t('admin.sysMenu.isFrameTip')" />
+              </template>
+              <a-radio-group v-model="form.model.isFrame">
+                <a-radio value="0">{{ $t('admin.sysMenu.yes') }}</a-radio>
+                <a-radio value="1">{{ $t('admin.sysMenu.no') }}</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </section>
+      <section v-if="hasPermission" class="menu-form-section">
+        <header><h3>{{ $t('admin.sysMenu.sections.access') }}</h3><p>{{ $t('admin.sysMenu.sections.accessHint') }}</p></header>
+        <a-row :gutter="[20, 0]">
+          <a-col v-if="hasPermission" :xs="24" :sm="12">
+            <a-form-item>
+              <template #label>
+                <FieldLabel
+                  :label="$t('admin.sysMenu.permission')"
+                  :tip="$t('admin.sysMenu.permissionTip')"
                 />
-              </a-form-item>
-            </a-col>
-            <a-col v-if="hasPermission" :span="24">
-              <a-form-item>
-                <template #label>
-                  <FieldLabel
-                    :label="$t('admin.sysMenu.apiPermission')"
-                    :tip="$t('admin.sysMenu.apiPermissionTip')"
-                  />
-                </template>
-                <a-transfer
-                  v-model="grantedApiIds"
-                  show-search
+              </template>
+              <a-input
+                v-model="form.model.permission"
+                :placeholder="$t('admin.sysMenu.permissionPlaceholder')"
+                maxlength="50"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col v-if="hasPermission" :span="24">
+            <a-form-item>
+              <template #label>
+                <FieldLabel
+                  :label="$t('admin.sysMenu.apiPermission')"
+                  :tip="$t('admin.sysMenu.apiPermissionTip')"
+                />
+              </template>
+              <a-transfer
+                v-model="grantedApiIds"
+                show-search
 
-                  :titles="[$t('admin.sysMenu.unauthorized'), $t('admin.sysMenu.authorized')]"
+                :titles="[$t('admin.sysMenu.unauthorized'), $t('admin.sysMenu.authorized')]"
 
-                  :data="apiOptions.map(api => ({ value: String(api.id), label: api.title || api.path || '', disabled: false }))"
-                  class="api-transfer"
-                />
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </section>
-      </a-form>
-      <template #footer>
-        <a-button @click="form.close">{{ $t('common.dialogCancel') }}</a-button>
-        <a-button type="primary" :loading="form.submitting" @click="form.submit">{{ $t('common.dialogConfirm') }}</a-button>
-      </template>
-    </AppModal>
+                :data="apiOptions.map(api => ({ value: String(api.id), label: api.title || api.path || '', disabled: false }))"
+                class="api-transfer"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </section>
+    </FormModal>
   </PageContainer>
 </template>
 
@@ -321,15 +282,19 @@ import { useI18n } from 'vue-i18n'
 import type { FormRules } from '@/types/ui'
 import type { TreeNodeData } from '@arco-design/web-vue'
 
-import AppModal from '@/components/AppModal/index.vue'
+import FormModal from '@/components/FormModal/index.vue'
+import DictSelect from '@/components/DictSelect/index.vue'
+import DictRadio from '@/components/DictRadio/index.vue'
+import DictTag from '@/components/DictTag/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
+import { VISIBILITY_TONES } from '@/config/status-tones'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import MethodTag from '@/components/MethodTag/index.vue'
 import FieldLabel from '@/components/FieldLabel/index.vue'
 import MenuIcon from '@/components/MenuIcon/index.vue'
 import IconSelect from '@/components/IconSelect/index.vue'
-import { useTable, useForm, useRemove, useDict, useTreePicker, dictLabel } from '@/composables'
+import { useTable, useForm, useRemove, useTreePicker } from '@/composables'
 
 import { listMenu, getMenu, addMenu, updateMenu, delMenu } from '@/api/admin/sys-menu'
 import { listSysApi } from '@/api/admin/sys-api'
@@ -339,8 +304,6 @@ import type { SysApi, SysMenu, SysMenuQuery } from '@/types/admin'
 defineOptions({ name: 'SysMenuManage' })
 
 const { t } = useI18n()
-
-const { sys_show_hide } = useDict('sys_show_hide')
 
 /** The row whose permission popover is mounted; see the permission column. */
 const apiPeek = ref<number>()

@@ -7,11 +7,14 @@
  */
 export type Tone = 'green' | 'orange' | 'red' | 'arcoblue' | 'gray'
 
-/** `sys_normal_disable`: 2 is normal, 1 is disabled (see api/status.ts). */
+/** `sys_normal_disable` and `sys_job_status`: 2 is normal, 1 is disabled (see api/status.ts). Off is not a failure, so it is grey. */
 export const ENABLED_TONES: Record<string, Tone> = { 2: 'green', 1: 'gray' }
 
-/** `sys_common_status` and other 成功/失败 pairs keyed 0/1 and 1/2. */
-export const RESULT_TONES: Record<string, Tone> = { 0: 'green', 1: 'red' }
+/** `sys_common_status`: 2 succeeded, 1 failed. */
+export const RESULT_TONES: Record<string, Tone> = { 2: 'green', 1: 'red' }
+
+/** `sys_show_hide`: 0 is shown, 1 is hidden. */
+export const VISIBILITY_TONES: Record<string, Tone> = { 0: 'green', 1: 'gray' }
 
 /** `sys_yes_no`. */
 export const YES_NO_TONES: Record<string, Tone> = { Y: 'arcoblue', N: 'gray' }

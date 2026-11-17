@@ -10,22 +10,10 @@
           />
         </a-form-item>
         <a-form-item :label="$t('schedule.jobGroup')">
-          <a-select
-            v-model="table.query.jobGroup"
-            :placeholder="$t('schedule.jobGroup')"
-            allow-clear
-          >
-            <a-option v-for="item in sys_job_group" :key="item.value" :label="item.label" :value="item.value" />
-          </a-select>
+          <DictSelect v-model="table.query.jobGroup" type="sys_job_group" :placeholder="$t('schedule.jobGroup')" allow-clear />
         </a-form-item>
         <a-form-item :label="$t('schedule.status')">
-          <a-select
-            v-model="table.query.status"
-            :placeholder="$t('schedule.statusPlaceholder')"
-            allow-clear
-          >
-            <a-option v-for="item in sys_job_status" :key="item.value" :label="item.label" :value="item.value" />
-          </a-select>
+          <DictSelect v-model="table.query.status" type="sys_job_status" :placeholder="$t('schedule.statusPlaceholder')" allow-clear />
         </a-form-item>
       </template>
 
@@ -83,9 +71,7 @@
       </a-table-column>
       <a-table-column :title="$t('schedule.status')" data-index="status" :width="90">
         <template #cell="{ record: row }">
-          <a-tag :color="Number(row.status) === 2 ? 'green' : 'red'">
-            {{ dictLabel(sys_job_status, String(row.status)) }}
-          </a-tag>
+          <DictTag type="sys_job_status" :value="row.status" :tones="ENABLED_TONES" />
         </template>
       </a-table-column>
 
@@ -126,97 +112,77 @@
       </template>
     </ProTable>
 
-    <AppModal v-model:visible="form.visible" :title="form.title" width="700px" :mask-closable="false">
-      <a-form :ref="form.bindFormRef" :model="form.model" :rules="form.rules" layout="vertical">
-        <a-row :gutter="16">
-          <a-col :xs="24" :sm="12">
-            <a-form-item :label="$t('schedule.name')" field="jobName">
-              <a-input v-model="form.model.jobName" :placeholder="$t('schedule.name')" />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :sm="12">
-            <a-form-item :label="$t('schedule.jobGroup')" field="jobGroup">
-              <a-select
-                v-model="form.model.jobGroup"
-                :placeholder="$t('common.selectPlaceholder')"
-                style="width: 100%"
-              >
-                <a-option v-for="item in sys_job_group" :key="item.value" :label="item.label" :value="item.value" />
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :span="24">
-            <a-form-item field="invokeTarget">
-              <template #label>
-                <FieldLabel
-                  :label="$t('schedule.invokeTarget')"
-                  :tip="$t('schedule.invokeTargetTip')"
-                />
-              </template>
-              <a-input v-model="form.model.invokeTarget" :placeholder="$t('schedule.invokeTarget')" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="24">
-            <a-form-item field="args">
-              <template #label>
-                <FieldLabel
-                  :label="$t('schedule.args')"
-                  :tip="$t('schedule.argsTip')"
-                />
-              </template>
-              <a-input v-model="form.model.args" :placeholder="$t('schedule.args')" />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :sm="12">
-            <a-form-item :label="$t('schedule.cronExpression')" field="cronExpression">
-              <a-input v-model="form.model.cronExpression" :placeholder="$t('schedule.cronExpression')" />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :sm="12">
-            <a-form-item :label="$t('schedule.concurrent')" field="concurrent">
-              <a-radio-group v-model="form.model.concurrent" type="button">
-                <a-radio :value="0">{{ $t('schedule.allow') }}</a-radio>
-                <a-radio :value="1">{{ $t('schedule.forbid') }}</a-radio>
-              </a-radio-group>
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :sm="12">
-            <a-form-item :label="$t('schedule.jobType')" field="jobType">
-              <a-radio-group v-model="form.model.jobType" type="button">
-                <a-radio :value="1">{{ $t('schedule.jobTypeApi') }}</a-radio>
-                <a-radio :value="2">{{ $t('schedule.jobTypeFunc') }}</a-radio>
-              </a-radio-group>
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :sm="12">
-            <a-form-item :label="$t('schedule.status')" field="status">
-              <a-select
-                v-model="form.model.status"
-                :placeholder="$t('common.selectPlaceholder')"
-                style="width: 100%"
-              >
-                <a-option v-for="item in sys_job_status" :key="item.value" :label="item.label" :value="item.value" />
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :span="24">
-            <a-form-item :label="$t('schedule.misfirePolicy')" field="misfirePolicy">
-              <a-radio-group v-model="form.model.misfirePolicy" type="button">
-                <a-radio v-for="(label, value) in MISFIRE" :key="value" :value="Number(value)">
-                  {{ label }}
-                </a-radio>
-              </a-radio-group>
-            </a-form-item>
-          </a-col>
-        </a-row>
-      </a-form>
-      <template #footer>
-        <a-button @click="form.close()">{{ $t('common.dialogCancel') }}</a-button>
-        <a-button type="primary" :loading="form.submitting" @click="form.submit()">
-          {{ $t('common.dialogConfirm') }}
-        </a-button>
-      </template>
-    </AppModal>
+    <FormModal :form="form" :width="700">
+      <a-row :gutter="16">
+        <a-col :xs="24" :sm="12">
+          <a-form-item :label="$t('schedule.name')" field="jobName">
+            <a-input v-model="form.model.jobName" :placeholder="$t('schedule.name')" />
+          </a-form-item>
+        </a-col>
+        <a-col :xs="24" :sm="12">
+          <a-form-item :label="$t('schedule.jobGroup')" field="jobGroup">
+            <DictSelect v-model="form.model.jobGroup" type="sys_job_group" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="24">
+          <a-form-item field="invokeTarget">
+            <template #label>
+              <FieldLabel
+                :label="$t('schedule.invokeTarget')"
+                :tip="$t('schedule.invokeTargetTip')"
+              />
+            </template>
+            <a-input v-model="form.model.invokeTarget" :placeholder="$t('schedule.invokeTarget')" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="24">
+          <a-form-item field="args">
+            <template #label>
+              <FieldLabel
+                :label="$t('schedule.args')"
+                :tip="$t('schedule.argsTip')"
+              />
+            </template>
+            <a-input v-model="form.model.args" :placeholder="$t('schedule.args')" />
+          </a-form-item>
+        </a-col>
+        <a-col :xs="24" :sm="12">
+          <a-form-item :label="$t('schedule.cronExpression')" field="cronExpression">
+            <a-input v-model="form.model.cronExpression" :placeholder="$t('schedule.cronExpression')" />
+          </a-form-item>
+        </a-col>
+        <a-col :xs="24" :sm="12">
+          <a-form-item :label="$t('schedule.concurrent')" field="concurrent">
+            <a-radio-group v-model="form.model.concurrent" type="button">
+              <a-radio :value="0">{{ $t('schedule.allow') }}</a-radio>
+              <a-radio :value="1">{{ $t('schedule.forbid') }}</a-radio>
+            </a-radio-group>
+          </a-form-item>
+        </a-col>
+        <a-col :xs="24" :sm="12">
+          <a-form-item :label="$t('schedule.jobType')" field="jobType">
+            <a-radio-group v-model="form.model.jobType" type="button">
+              <a-radio :value="1">{{ $t('schedule.jobTypeApi') }}</a-radio>
+              <a-radio :value="2">{{ $t('schedule.jobTypeFunc') }}</a-radio>
+            </a-radio-group>
+          </a-form-item>
+        </a-col>
+        <a-col :xs="24" :sm="12">
+          <a-form-item :label="$t('schedule.status')" field="status">
+            <DictSelect v-model="form.model.status" type="sys_job_status" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="24">
+          <a-form-item :label="$t('schedule.misfirePolicy')" field="misfirePolicy">
+            <a-radio-group v-model="form.model.misfirePolicy" type="button">
+              <a-radio v-for="(label, value) in MISFIRE" :key="value" :value="Number(value)">
+                {{ label }}
+              </a-radio>
+            </a-radio-group>
+          </a-form-item>
+        </a-col>
+      </a-row>
+    </FormModal>
   </PageContainer>
 </template>
 
@@ -228,8 +194,11 @@ import { confirmAction } from '@/utils/modal'
 
 import type { FormRules } from '@/types/ui'
 
-import AppModal from '@/components/AppModal/index.vue'
+import FormModal from '@/components/FormModal/index.vue'
+import DictSelect from '@/components/DictSelect/index.vue'
+import DictTag from '@/components/DictTag/index.vue'
 import PageContainer from '@/components/PageContainer/index.vue'
+import { ENABLED_TONES } from '@/config/status-tones'
 import ProTable from '@/components/ProTable/index.vue'
 import FieldLabel from '@/components/FieldLabel/index.vue'
 import { STATUS_NORMAL } from '@/api/status'
@@ -246,7 +215,7 @@ defineOptions({ name: 'ScheduleManage' })
 
 const { t } = useI18n()
 const router = useRouter()
-const { sys_job_group, sys_job_status } = useDict('sys_job_group', 'sys_job_status')
+const { sys_job_group } = useDict('sys_job_group')
 
 /**
  * What the scheduler does with a run it missed.
