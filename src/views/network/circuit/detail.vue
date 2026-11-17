@@ -9,28 +9,28 @@
           <a-descriptions-item :label="t('networkCircuit.bandwidth')">{{ record.bandwidthMbps === null ? '—' : `${record.bandwidthMbps.toLocaleString()} Mbps` }}</a-descriptions-item>
           <a-descriptions-item :label="t('networkCircuit.category')">{{ t(`networkCircuit.categoryValues.${record.category}`) }}</a-descriptions-item>
           <a-descriptions-item :label="t('networkCircuit.purpose')">{{ t(`networkCircuit.purposeValues.${record.purpose}`) }}</a-descriptions-item>
-          <a-descriptions-item v-for="field in ['region', 'organization'] as const" :key="field" :label="t(`networkCircuit.${field}`)">{{ record[field] || '—' }}</a-descriptions-item>
+          <a-descriptions-item v-for="field in ['region', 'organization'] as const" :key="field" :label="t(`networkCircuit.${field}`)">{{ display(record[field]) }}</a-descriptions-item>
         </a-descriptions>
         <section v-for="side in sides" :key="side" class="circuit-section">
           <h2>{{ t(`networkCircuit.${side}`) }}</h2>
           <a-descriptions :column="narrow ? 1 : 2" bordered>
-            <a-descriptions-item v-for="field in endpointFields" :key="field.key" :label="t(`networkCircuit.${field.label}`)">{{ endpoint(side)[field.key] || '—' }}</a-descriptions-item>
+            <a-descriptions-item v-for="field in endpointFields" :key="field.key" :label="t(`networkCircuit.${field.label}`)">{{ display(endpoint(side)[field.key]) }}</a-descriptions-item>
             <a-descriptions-item :label="t('networkCircuit.device')">{{ endpoint(side).deviceId ? t('networkCircuit.deviceFallback', { id: endpoint(side).deviceId }) : '—' }}</a-descriptions-item>
-            <a-descriptions-item :label="t('networkCircuit.host')">{{ endpoint(side).monitoring.hostName || '—' }}</a-descriptions-item>
-            <a-descriptions-item :label="t('networkCircuit.inItem')">{{ endpoint(side).monitoring.inItemName || '—' }}</a-descriptions-item>
-            <a-descriptions-item :label="t('networkCircuit.outItem')">{{ endpoint(side).monitoring.outItemName || '—' }}</a-descriptions-item>
+            <a-descriptions-item :label="t('networkCircuit.host')">{{ display(endpoint(side).monitoring.hostName) }}</a-descriptions-item>
+            <a-descriptions-item :label="t('networkCircuit.inItem')">{{ display(endpoint(side).monitoring.inItemName) }}</a-descriptions-item>
+            <a-descriptions-item :label="t('networkCircuit.outItem')">{{ display(endpoint(side).monitoring.outItemName) }}</a-descriptions-item>
           </a-descriptions>
         </section>
         <section class="circuit-section">
           <h2>{{ t('networkCircuit.contract') }}</h2>
           <a-descriptions :column="narrow ? 1 : 2" bordered>
-            <a-descriptions-item v-for="field in ['contractNo', 'installedOn', 'expiresOn'] as const" :key="field" :label="t(`networkCircuit.${field}`)">{{ record[field] || '—' }}</a-descriptions-item>
+            <a-descriptions-item v-for="field in ['contractNo', 'installedOn', 'expiresOn'] as const" :key="field" :label="t(`networkCircuit.${field}`)">{{ display(record[field]) }}</a-descriptions-item>
             <a-descriptions-item :label="t('networkCircuit.fee')">{{ record.fee ? `${record.fee} ${record.currency}` : '—' }}</a-descriptions-item>
             <a-descriptions-item :label="t('networkCircuit.billingCycle')">{{ record.billingCycle ? t(`networkCircuit.billingCycleValues.${record.billingCycle}`) : '—' }}</a-descriptions-item>
             <a-descriptions-item :label="t('networkCircuit.payer')">{{ t(`networkCircuit.payerValues.${record.payer}`) }}</a-descriptions-item>
           </a-descriptions>
         </section>
-        <section v-for="field in ['routeNotes', 'notes'] as const" :key="field" class="circuit-section"><h2>{{ t(`networkCircuit.${field}`) }}</h2><p class="circuit-notes">{{ record[field] || '—' }}</p></section>
+        <section v-for="field in ['routeNotes', 'notes'] as const" :key="field" class="circuit-section"><h2>{{ t(`networkCircuit.${field}`) }}</h2><p class="circuit-notes">{{ display(record[field]) }}</p></section>
       </template>
     </a-spin>
     <template #footer>
@@ -42,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+import { display } from '@/utils/format'
 import { onBeforeUnmount, onDeactivated, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppDrawer from '@/components/AppDrawer/index.vue'

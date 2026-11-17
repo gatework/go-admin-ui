@@ -91,9 +91,9 @@
               :label="t('networkFirewall.line')"
             >{{ item.rowKeys?.join(', ') }}</a-descriptions-item><a-descriptions-item
               :label="t('networkFirewall.baseDigest')"
-            >{{ item.baseDigest || '—' }}</a-descriptions-item><a-descriptions-item
+            >{{ display(item.baseDigest) }}</a-descriptions-item><a-descriptions-item
               :label="t('networkFirewall.resultDigest')"
-            >{{ item.resultDigest || '—' }}</a-descriptions-item></a-descriptions>
+            >{{ display(item.resultDigest) }}</a-descriptions-item></a-descriptions>
             <section class="fw-section">
               <h3>{{ t('networkFirewall.proof') }}</h3><a-space wrap><a-tag
                 v-for="field in ['targetSatisfied', 'outsidePreserved', 'natUnchanged'] as const"
@@ -113,7 +113,7 @@
                 :key="changeIndex"
                 class="fw-row"
               >
-                <p><strong>{{ change.kind }}</strong> · {{ t('networkFirewall.ruleId') }}: {{ change.ruleId || '—' }}</p>
+                <p><strong>{{ change.kind }}</strong> · {{ t('networkFirewall.ruleId') }}: {{ display(change.ruleId) }}</p>
                 <p>{{ change.description }}</p>
                 <dl
                   v-if="change.data"
@@ -137,6 +137,7 @@
   </PageContainer>
 </template>
 <script setup lang="ts">
+import { display } from '@/utils/format'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'

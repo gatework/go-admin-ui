@@ -17,9 +17,9 @@
     @change="selectFile"
   ></label><a-descriptions :column="1"><a-descriptions-item
     :label="t('networkFirewall.expectedRevision')"
-  >{{ form.model.expectedRevision || '—' }}</a-descriptions-item><a-descriptions-item
+  >{{ display(form.model.expectedRevision) }}</a-descriptions-item><a-descriptions-item
     :label="t('networkFirewall.filename')"
-  >{{ form.model.filename || '—' }}</a-descriptions-item></a-descriptions><a-checkbox
+  >{{ display(form.model.filename) }}</a-descriptions-item></a-descriptions><a-checkbox
     v-model="form.model.complete"
   >{{ t('networkFirewall.complete') }}</a-checkbox>
   <p class="fw-muted">{{ t('networkFirewall.incompleteHint') }}</p><a-button
@@ -30,6 +30,7 @@
   >{{ t('networkFirewall.import') }}</a-button>
 </a-form></template>
 <script setup lang="ts">
+import { display } from '@/utils/format'
 defineOptions({ name: 'FirewallImporter' })
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'

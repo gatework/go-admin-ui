@@ -12,7 +12,7 @@
       :column="1"
     ><a-descriptions-item :label="t('networkFirewall.nativeId')">{{ object.nativeId }}</a-descriptions-item><a-descriptions-item
       :label="t('networkFirewall.scope')"
-    >{{ object.scope || '—' }}</a-descriptions-item><a-descriptions-item
+    >{{ display(object.scope) }}</a-descriptions-item><a-descriptions-item
       :label="t('networkFirewall.position')"
     >{{ object.position }}</a-descriptions-item><a-descriptions-item
       :label="t('networkFirewall.state')"
@@ -64,6 +64,7 @@
   </template></a-spin></section>
 </template>
 <script setup lang="ts">
+import { display } from '@/utils/format'
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getObject, getReferences } from '@/api/network/firewall'

@@ -75,9 +75,9 @@
                 </template>
               </a-table-column>
             </template></a-table></template>
-            <template #default><span :title="row.permission">{{ row.permission || '—' }}</span></template>
+            <template #default><span :title="row.permission">{{ display(row.permission) }}</span></template>
           </a-popover>
-          <span v-else :title="row.permission" @mouseenter="apiPeek = row.sysApi?.length ? row.menuId : apiPeek">{{ row.permission || '—' }}</span>
+          <span v-else :title="row.permission" @mouseenter="apiPeek = row.sysApi?.length ? row.menuId : apiPeek">{{ display(row.permission) }}</span>
         </template>
       </a-table-column>
       <a-table-column
@@ -275,6 +275,7 @@
 </template>
 
 <script setup lang="ts">
+import { display } from '@/utils/format'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FormRules } from '@/types/ui'

@@ -38,6 +38,8 @@ export function newZoneBinding(): Binding { return { zone: '', scope: '', routin
 export function stateTone(state: string) {
   if (['allowed', 'verified', 'succeeded', 'ready', 'complete'].includes(state)) return 'green'
   if (['failed', 'denied', 'invalid'].includes(state)) return 'red'
-  if (['running', 'queued'].includes(state)) return 'blue'
+  if (['running', 'queued'].includes(state)) return 'arcoblue'
+  if (['cancelled', 'archived', 'pending', 'current'].includes(state)) return 'gray'
+  // Everything else is an evidence caveat (needs_review, final_proof_unknown...): it needs a look.
   return 'orange'
 }

@@ -5,7 +5,7 @@
       <template v-if="order">
         <a-alert v-if="failed || actionFailed" type="warning" class="delivery-notice">{{ t(failed ? 'networkDelivery.refreshFailed' : 'networkDelivery.actionFailed') }}<template #action><a-button :loading="refreshing" @click="refresh">{{ t('common.refresh') }}</a-button></template></a-alert>
         <div class="delivery-detail-heading"><div><h2>{{ order.title || order.requestNo }}</h2><p>{{ order.requestNo }}<span v-if="order.retryOfId"> · {{ t('networkDelivery.retryOf', { id: order.retryOfId }) }}</span></p></div><a-tag :color="statusColors[order.status]">{{ t(`networkDelivery.statuses.${order.status}`) }}</a-tag></div>
-        <dl class="delivery-meta"><div><dt>{{ t('networkDelivery.creator') }}</dt><dd>{{ order.createdByName || '—' }}</dd></div><div><dt>{{ t('networkDelivery.scheduledAt') }}</dt><dd>{{ time(order.scheduledAt) }}</dd></div><div><dt>{{ t('networkDelivery.progress') }}</dt><dd>{{ t('networkDelivery.progressText', { done: order.succeededCount, total: order.deviceCount }) }}</dd></div></dl>
+        <dl class="delivery-meta"><div><dt>{{ t('networkDelivery.creator') }}</dt><dd>{{ display(order.createdByName) }}</dd></div><div><dt>{{ t('networkDelivery.scheduledAt') }}</dt><dd>{{ time(order.scheduledAt) }}</dd></div><div><dt>{{ t('networkDelivery.progress') }}</dt><dd>{{ t('networkDelivery.progressText', { done: order.succeededCount, total: order.deviceCount }) }}</dd></div></dl>
         <a-alert v-if="order.uncertainCount" type="warning" class="delivery-notice">{{ t('networkDelivery.uncertainHelp') }}</a-alert>
         <div class="delivery-output-toolbar"><strong>{{ t('networkDelivery.targets') }} · {{ order.deviceCount }}</strong><a-button type="text" :loading="refreshing" @click="refresh">{{ t('common.refresh') }}</a-button><span v-if="polling" role="status">{{ t('networkDelivery.live') }}</span></div>
         <div class="delivery-workbench">
@@ -44,6 +44,7 @@
 </template>
 
 <script setup lang="ts">
+import { display } from '@/utils/format'
 import { usePermission } from '@/composables/usePermission'
 import { ref, toRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'

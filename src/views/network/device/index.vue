@@ -88,10 +88,10 @@
           <template #cell="{ record }">{{ record.deviceType ? t(`network.device.typeValues.${record.deviceType}`) : '—' }}</template>
         </a-table-column>
         <a-table-column :title="t('network.device.serial')" data-index="serial" :width="158" ellipsis tooltip>
-          <template #cell="{ record }">{{ record.serial || '—' }}</template>
+          <template #cell="{ record }">{{ display(record.serial) }}</template>
         </a-table-column>
         <a-table-column :title="t('network.device.location')" data-index="location" :width="160" ellipsis tooltip>
-          <template #cell="{ record }">{{ record.location || '—' }}</template>
+          <template #cell="{ record }">{{ display(record.location) }}</template>
         </a-table-column>
         <a-table-column :title="t('network.device.status')" data-index="status" :width="112">
           <template #cell="{ record }"><a-tag :color="statusColors[record.status as DeviceStatus]">{{ t(`network.device.statusValues.${record.status}`) }}</a-tag></template>
@@ -128,6 +128,7 @@
 </template>
 
 <script setup lang="ts">
+import { display } from '@/utils/format'
 import { datedFilename, downloadBlob } from '@/utils/download'
 import { usePermission } from '@/composables/usePermission'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
@@ -185,7 +186,7 @@ const selectedId = ref<number>()
 let statusRequest = 0
 let optionsRequest = 0
 let groupsRequest = 0
-const statusColors: Record<DeviceStatus, string> = { pending: 'orange', active: 'green', maintenance: 'blue', disabled: 'gray', retired: 'gray' }
+const statusColors: Record<DeviceStatus, string> = { pending: 'orange', active: 'green', maintenance: 'arcoblue', disabled: 'gray', retired: 'gray' }
 
 const defaultQuery = (): DeviceQuery => ({ keyword: '', vendor: undefined, model: undefined, status: undefined, deviceType: undefined, deviceRole: undefined, groupId: undefined, tag: '' })
 const session = usePageSession({

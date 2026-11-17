@@ -1,7 +1,7 @@
 import type { DeliveryStatus, TargetStatus } from '@/types/network-delivery'
 
 export const statusColors: Record<DeliveryStatus | TargetStatus, string> = {
-  scheduled: 'blue', queued: 'blue', pending: 'gray', running: 'arcoblue', succeeded: 'green', partially_failed: 'orange', failed: 'red', uncertain: 'orange', cancelled: 'gray'
+  scheduled: 'arcoblue', queued: 'arcoblue', pending: 'gray', running: 'arcoblue', succeeded: 'green', partially_failed: 'orange', failed: 'red', uncertain: 'orange', cancelled: 'gray'
 }
 export const isActive = (status: DeliveryStatus) => ['scheduled', 'queued', 'running'].includes(status)
 export const errorKeys = new Set(['device_changed', 'connection_failed', 'execution_unconfirmed', 'cancelled', 'invalid_script', 'persistence_failed', 'receipt_persistence_failed', 'worker_lost', 'close_unconfirmed', 'output_limit'])

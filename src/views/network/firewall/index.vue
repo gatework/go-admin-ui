@@ -57,9 +57,9 @@
               <div>
                 <h2>{{ instance.name }}</h2>
                 <p class="fw-muted">{{ instance.vendor }} · {{ t(`networkFirewall.${instance.mode}`) }} ·
-                  {{ instance.nativeContext || '—' }}
+                  {{ display(instance.nativeContext) }}
                 </p>
-                <p class="fw-muted">{{ t('networkFirewall.currentRevision') }}: {{ instance.currentRevision || '—' }}</p>
+                <p class="fw-muted">{{ t('networkFirewall.currentRevision') }}: {{ display(instance.currentRevision) }}</p>
               </div>
               <a-space wrap>
                 <a-button @click="load">{{ t('networkFirewall.refresh') }}</a-button>
@@ -116,7 +116,7 @@
                     v-for="field in ['sourceDigest', 'semanticDigest', 'parserVersion', 'capturedAt', 'software'] as const"
                     :key="field"
                     :label="t(`networkFirewall.${field}`)"
-                  >{{ selectedSnapshot[field] || '—' }}</a-descriptions-item>
+                  >{{ display(selectedSnapshot[field]) }}</a-descriptions-item>
                 </a-descriptions>
                 <a-alert
                   v-for="(diagnostic, index) in selectedSnapshot?.diagnostics || []"
@@ -317,6 +317,7 @@
   </PageContainer>
 </template>
 <script setup lang="ts">
+import { display } from '@/utils/format'
 import { computed, onActivated, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'

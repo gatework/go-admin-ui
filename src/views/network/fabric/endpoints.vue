@@ -4,19 +4,20 @@
     <a-alert v-if="failed" type="warning">{{ t('networkFabric.loadFailed') }}</a-alert>
     <ProTable :table="table" :panels="false" :scroll="{ x: 1120 }" row-key="positionKey">
       <template #search><a-form-item :label="t('networkFabric.endpointKeyword')"><a-input v-model="table.query.keyword" :input-attrs="{ 'aria-label': t('networkFabric.endpointKeyword') }" allow-clear /></a-form-item><a-form-item :label="t('networkFabric.vrf')"><a-input v-model="table.query.vrf" :input-attrs="{ 'aria-label': t('networkFabric.vrf') }" allow-clear /></a-form-item></template>
-      <a-table-column data-index="ip" :title="t('networkFabric.endpointKeyword')" :width="185"><template #cell="{ record }"><strong>{{ record.ip || '—' }}</strong><a-button v-if="record.ip" type="text" size="mini" :aria-label="t('networkFabric.copyIP')" @click="copy(record.ip)">⧉</a-button><span class="fabric-secondary fabric-mono">{{ record.mac || '—' }}<a-button v-if="record.mac" type="text" size="mini" :aria-label="t('networkFabric.copyMAC')" @click="copy(record.mac)">⧉</a-button></span></template></a-table-column>
+      <a-table-column data-index="ip" :title="t('networkFabric.endpointKeyword')" :width="185"><template #cell="{ record }"><strong>{{ display(record.ip) }}</strong><a-button v-if="record.ip" type="text" size="mini" :aria-label="t('networkFabric.copyIP')" @click="copy(record.ip)">⧉</a-button><span class="fabric-secondary fabric-mono">{{ display(record.mac) }}<a-button v-if="record.mac" type="text" size="mini" :aria-label="t('networkFabric.copyMAC')" @click="copy(record.mac)">⧉</a-button></span></template></a-table-column>
       <a-table-column data-index="vrf" :title="t('networkFabric.vrf')" :width="110" />
       <a-table-column data-index="deviceName" :title="t('networkFabric.device')" :width="180"><template #cell="{ record }"><a-button v-if="canOpen" type="text" @click="navigate(record.fabricId, record.deviceId)">{{ record.deviceName }}</a-button><strong v-else>{{ record.deviceName }}</strong></template></a-table-column>
       <a-table-column data-index="kind" :title="t('networkFabric.kind')" :width="145"><template #cell="{ record }"><StateTag :value="record.kind" /><span v-if="record.vpcGroupKey" class="fabric-secondary">{{ t('networkFabric.vpcConfirmed', { key: record.vpcGroupKey }) }}</span><span v-else-if="record.candidateCount > 1" class="fabric-secondary"><StateTag value="multiple" /> <span>{{ t('networkFabric.candidateCount', { count: record.candidateCount }) }}</span></span></template></a-table-column>
       <a-table-column data-index="interface" :title="t('networkFabric.interface')" :width="140" />
       <a-table-column data-index="remoteVtep" :title="t('networkFabric.remoteVtep')" :width="150" />
-      <a-table-column data-index="fabricId" :title="t('networkFabric.region')" :width="100"><template #cell="{ record }"><a-button v-if="canOpen" type="text" @click="navigate(record.fabricId)">{{ record.fabricCode || `#${record.fabricId}` }}</a-button><span v-else>{{ record.fabricCode || `#${record.fabricId}` }}</span></template></a-table-column><a-table-column data-index="vni" title="VNI / VLAN" :width="135"><template #cell="{ record }">{{ record.vni || '—' }} / {{ record.vlan || '—' }}</template></a-table-column>
+      <a-table-column data-index="fabricId" :title="t('networkFabric.region')" :width="100"><template #cell="{ record }"><a-button v-if="canOpen" type="text" @click="navigate(record.fabricId)">{{ record.fabricCode || `#${record.fabricId}` }}</a-button><span v-else>{{ record.fabricCode || `#${record.fabricId}` }}</span></template></a-table-column><a-table-column data-index="vni" title="VNI / VLAN" :width="135"><template #cell="{ record }">{{ display(record.vni) }} / {{ display(record.vlan) }}</template></a-table-column>
       <a-table-column data-index="state" :title="t('networkFabric.state')" :width="130"><template #cell="{ record }"><StateTag :value="record.state" /></template></a-table-column>
       <a-table-column data-index="observedAt" :title="t('networkFabric.observedAt')" :width="125"><template #cell="{ record }"><DateCell :value="record.observedAt" /></template></a-table-column>
     </ProTable>
   </section>
 </template>
 <script setup lang="ts">
+import { display } from '@/utils/format'
 import { onBeforeUnmount, onDeactivated, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
