@@ -1,0 +1,33 @@
+// The few global helpers list pages still share. Add a component before adding
+// a class here.
+
+// One line per supplementary field inside a list page's popover (location,
+// latency, config value...).
+.peek-line {
+  margin: 4px 0;
+  color: var(--motor-text-2);
+  font-size: var(--motor-font-size-13);
+}
+
+// The third row action, drawn as an icon so the pinned column stays narrow.
+.row-icon-action {
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.link-type,
+.link-type:focus {
+  color: rgb(var(--link-6));
+  cursor: pointer;
+
+  &:hover {
+    color: rgb(var(--link-5));
+  }
+}
+
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: var(--motor-space-4);
+}

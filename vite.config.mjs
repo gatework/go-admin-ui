@@ -1,6 +1,5 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import tailwindcss from '@tailwindcss/vite'
 import { svgSprite } from './build/svg-sprite.mjs'
 import { compression } from 'vite-plugin-compression2'
 import path from 'path'
@@ -105,9 +104,6 @@ export default defineConfig(({ mode }) => {
     plugins: [
       googleAnalytics(env.VUE_APP_GA_ID),
       vue(),
-      // Tailwind v4 needs no config file; source scanning is automatic.
-      // Layer setup lives in src/styles/tailwind.css.
-      tailwindcss(),
       // Bakes src/icons/svg into one sprite of <symbol id="icon-[name]">.
       // Local rather than vite-plugin-svg-icons: see build/svg-sprite.mjs.
       svgSprite({ iconDir: resolve('src/icons/svg') }),
@@ -154,12 +150,6 @@ export default defineConfig(({ mode }) => {
 
     css: {
       preprocessorOptions: {
-        less: {
-          javascriptEnabled: true,
-          modifyVars: {
-            'border-radius-base': '2px'
-          }
-        },
         scss: {
           silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin']
         }

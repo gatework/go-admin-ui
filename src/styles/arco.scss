@@ -1,0 +1,62 @@
+// Adjustments to Arco's own components. Arco owns the palette and component
+// states; this file only sets what the product needs to differ on, and reaches
+// teleported popups because it is not scoped.
+
+.arco-btn,
+.arco-input,
+.arco-select-view,
+.arco-textarea {
+  font-size: var(--motor-base-font-size);
+}
+
+.arco-input-wrapper,
+.arco-select-view,
+.arco-textarea-wrapper,
+.arco-picker,
+.arco-card {
+  border-radius: var(--motor-radius-sm);
+}
+
+.arco-card + .arco-card {
+  margin-top: var(--motor-space-3);
+}
+
+.arco-modal,
+.arco-drawer {
+  max-width: 100vw;
+}
+
+.arco-message-wrapper {
+  z-index: 10010;
+}
+
+// ── Tables ─────────────────────────────────────────────────────────
+// Read down a column far more often than across a row, so figures line up
+// (tabular-nums) and the header steps back to a label rather than a title.
+.arco-table {
+  font-variant-numeric: tabular-nums;
+
+  .arco-table-th {
+    background: var(--motor-surface-soft);
+    color: var(--motor-text-2);
+    font-size: var(--motor-font-size-13);
+    font-weight: 500;
+  }
+
+  .arco-table-tr:hover > .arco-table-td:not(.arco-table-col-fixed-left):not(.arco-table-col-fixed-right) {
+    background: var(--motor-surface-soft);
+  }
+}
+
+// Arco breaks table text anywhere (word-break: break-all), which suits IDs and
+// paths in cells but splits the words of an empty-state sentence ("manag-ement").
+// The empty row holds prose, so it wraps between words.
+.arco-table-tr-empty .arco-table-td {
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+// ── Tags ───────────────────────────────────────────────────────────
+.arco-tag {
+  font-variant-numeric: tabular-nums;
+}

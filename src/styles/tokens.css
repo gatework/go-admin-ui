@@ -1,218 +1,170 @@
 /*
- * Design tokens -- the single source of truth for colour, radius and elevation.
+ * Design tokens.
  *
- * Everything downstream reads from here: Element Plus through its own CSS
- * variables (bridged at the bottom of this file), Tailwind through @theme in
- * tailwind.css, and application styles directly.
+ * Arco owns the palette: every colour here resolves to one of its semantic
+ * variables (--color-*, --primary-*, --success-* ...), so the light/dark switch
+ * and the theme-colour picker reach the whole application without a second set
+ * of values to keep in step.
  *
- * Two rules keep this maintainable:
+ * --motor-* carries only what Arco has no name for: shell metrics, the spacing
+ * and type scales, radius, status tones and the sidebar rail.
  *
- * 1. Only the base colours are literal values. Every tint and shade is derived
- *    with color-mix, so changing --ga-brand recolours the entire application --
- *    buttons, links, focus rings, active menu items, the lot.
- *
- * 2. Light and dark differ only in the token values at the top. The derivation
- *    rules are written once and pick up the right values automatically, because
- *    --ga-mix-toward flips from white to black under .dark.
- *
- * Requires color-mix(), which needs Chrome 111+ / Safari 16.4+. Tailwind v4
- * already sets that floor, so this adds no new constraint.
+ * Two scopes, on purpose. Arco declares its variables on <body>, so anything
+ * that reads one is declared on <body> too -- on :root it would resolve against
+ * an element where the Arco variable does not exist yet. Plain numbers live on
+ * :root, where the preferences store overrides some of them inline
+ * (--motor-base-font-size, --motor-radius-*).
  */
 
 :root {
-  /* ── Brand ────────────────────────────────────────────────────────
-   * Change this one value to retheme the application.
-   *
-   * Ant Design's colorPrimary, verified against antd 6.6.1's computed design
-   * tokens rather than copied from a blog post. The palette below follows the
-   * rest of that system too, because this is a framework people build admin
-   * panels on
-   * and the least surprising thing it can look like is the one every Chinese
-   * admin panel already looks like. It is also what index.html's first-paint
-   * loader has always used, so the two finally agree.
-   */
-  --ga-brand: #1677ff;
-  /* Text actions need more contrast than a filled control's seed colour. */
-  --ga-text-link: color-mix(in srgb, var(--ga-brand), #000 20%);
+  /* ── Shell metrics ───────────────────────────────────────────── */
+  --motor-header-height: 48px;
+  --motor-tabs-height: 36px;
+  --motor-rail-collapsed-width: 56px;
+  --motor-page-gutter: 16px;
 
-  /* Direction tints are mixed toward. Flipped under .dark so the single set of
-   * derivation rules below works for both themes. */
-  --ga-mix-toward: #ffffff;
+  /* ── Spacing ─────────────────────────────────────────────────── */
+  --motor-space-1: 4px;
+  --motor-space-2: 8px;
+  --motor-space-3: 12px;
+  --motor-space-4: 16px;
+  --motor-space-5: 24px;
+  --motor-space-6: 32px;
 
-  /* ── Semantic colours ─────────────────────────────────────────
-   * antd 6's success / warning / error seed tokens. Brighter than the Tailwind ramp
-   * they replace, which is the point: a status column is read at a glance and
-   * these separate at small sizes. */
-  --ga-success: #52c41a;
-  --ga-warning: #faad14;
-  --ga-danger:  #ff4d4f;
-  --ga-info:    #8c8c8c;
+  /* ── Radius. Overridden inline from the radius preference. ───── */
+  --motor-radius-xs: 4px;
+  --motor-radius-sm: 8px;
+  --motor-radius-md: 12px;
+  --motor-radius-lg: 16px;
+  --motor-radius-xl: 20px;
 
-  /* ── Neutrals ──────────────────────────────────────────────────
-   * antd 6's neutral ramp, which is achromatic: text is black at four
-   * opacities, surfaces are true greys. These used to carry a slight brand tint
-   * so they would "read as chosen"; next to a blue accent that tint is what
-   * made the greys look faintly green instead.
-   */
-  --ga-bg-body:      #f2f3f5;  /* colorBgLayout */
-  --ga-bg-container: #ffffff;  /* colorBgContainer */
-  --ga-bg-elevated:  #ffffff;  /* colorBgElevated */
-  --ga-bg-subtle:    #fafafa;  /* table headers, striped rows */
-  --ga-bg-hover:     rgba(0, 0, 0, 0.04);  /* colorFillTertiary */
+  /* ── Type scale. Every step follows the font-size preference. ── */
+  --motor-base-font-size: 14px;
+  --motor-font-size-9: calc(var(--motor-base-font-size) - 5px);
+  --motor-font-size-10: calc(var(--motor-base-font-size) - 4px);
+  --motor-font-size-11: calc(var(--motor-base-font-size) - 3px);
+  --motor-font-size-12: calc(var(--motor-base-font-size) - 2px);
+  --motor-font-size-13: calc(var(--motor-base-font-size) - 1px);
+  --motor-font-size-14: var(--motor-base-font-size);
+  --motor-font-size-15: calc(var(--motor-base-font-size) + 1px);
+  --motor-font-size-16: calc(var(--motor-base-font-size) + 2px);
+  --motor-font-size-17: calc(var(--motor-base-font-size) + 3px);
+  --motor-font-size-18: calc(var(--motor-base-font-size) + 4px);
+  --motor-font-size-20: calc(var(--motor-base-font-size) + 6px);
+  --motor-font-size-24: calc(var(--motor-base-font-size) + 10px);
+  --motor-font-size-28: calc(var(--motor-base-font-size) + 14px);
+  --motor-font-size-32: calc(var(--motor-base-font-size) + 18px);
+  --motor-font-size-42: calc(var(--motor-base-font-size) + 28px);
+  --motor-font-size-64: calc(var(--motor-base-font-size) + 50px);
+  --motor-navigation-icon-size: var(--motor-font-size-18);
 
-  --ga-text-1:        rgba(0, 0, 0, 0.88);
-  --ga-text-2:        rgba(0, 0, 0, 0.65);
-  --ga-text-3:        rgba(0, 0, 0, 0.6);
-  --ga-text-disabled: rgba(0, 0, 0, 0.25);
-  --ga-text-inverse:  #ffffff;
+  --motor-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 
-  --ga-border:       #d9d9d9;  /* colorBorder */
-  --ga-border-light: #f0f0f0;  /* colorBorderSecondary */
+  /* ── Motion ──────────────────────────────────────────────────── */
+  --motor-duration: 180ms;
+  --motor-ease: cubic-bezier(0.2, 0, 0, 1);
 
-  /* ── Sidebar ───────────────────────────────────────────────────
-   * Two sets, chosen by the themeStyle setting. The light one is the default
-   * (src/settings.js) and is what Ant Design Pro does: the navigation is a
-   * white plane like the content, separated by a hairline rather than by
-   * inversion, so the page reads as one surface instead of two.
-   *
-   * The dark set stays for deployments that prefer it, and is now navy rather
-   * than the teal it was -- it has to sit under the same blue accent.
-   */
-  --ga-sidebar-bg:        #001529;
-  --ga-sidebar-bg-sub:    #000c17;
-  --ga-sidebar-hover:     #0a2540;
-  --ga-sidebar-text:      rgba(255, 255, 255, 0.65);
-  --ga-sidebar-text-active: #ffffff;
-  --ga-sidebar-title:     #ffffff;
-
-  --ga-sidebar-light-bg:    #ffffff;
-  --ga-sidebar-light-hover: rgba(0, 0, 0, 0.04);
-  --ga-sidebar-light-title: rgba(0, 0, 0, 0.88);
-
-  /* ── Metrics ───────────────────────────────────────────────────
-   * The page header runs across both columns: the navbar on the right and the
-   * sidebar's logo block on the left. They are two elements in two files, and
-   * the seam under them only reads as one line if they are the same height --
-   * which they were not (64px against 50px, so the two rules sat 14px apart).
-   * One number, referenced by both, makes that structural rather than a
-   * coincidence anyone can undo by editing one file.
-   *
-   * The sidebar's scroll area subtracts it too, so the menu still starts right
-   * below the logo.
-   *
-   * It follows --motor-header-height (motor.scss) rather than holding a number
-   * of its own, so the compact density setting reaches the navbar and the
-   * logo block together. */
-  --ga-header-h: var(--motor-header-height, 54px);
-
-  /* ── Shape ─────────────────────────────────────────────────────── */
-  --ga-radius-sm: 4px;
-  --ga-radius:    6px;
-  --ga-radius-lg: 8px;
-
-  /* ── Elevation ─────────────────────────────────────────────────
-   * Deliberately shallow. Admin surfaces are dense; heavy shadows on every
-   * card turn a table page into a relief map.
-   */
-  --ga-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03);
-  --ga-shadow:    0 1px 2px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.04);
-  --ga-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08);
+  color-scheme: light;
 }
 
-.dark {
-  /* antd 6's darkAlgorithm output: the same hues, pulled down so they do not
-   * glare on a black ground. */
-  --ga-brand: #1668dc;
-  --ga-text-link: color-mix(in srgb, var(--ga-brand), #fff 35%);
-  --ga-mix-toward: #000000;
+:root[data-density='compact'] {
+  --motor-header-height: 44px;
+  --motor-tabs-height: 32px;
+  --motor-page-gutter: 12px;
+  --motor-space-4: 12px;
+  --motor-space-5: 18px;
+  --motor-space-6: 24px;
+}
 
-  --ga-success: #49aa19;
-  --ga-warning: #d89614;
-  --ga-danger:  #dc4446;
-  --ga-info:    #8c8c8c;
+:root.dark { color-scheme: dark; }
 
-  /* Light mode separates the sidebar by inverting it; dark mode cannot, so the
-   * separation has to come from value. These five surfaces climb monotonically
-   * in relative luminance, and the sidebar sits BELOW the page rather than above
-   * it: it is chrome, so it recedes and leaves the content card the brightest
-   * plane. Keep any new surface on the ladder. */
-  /* antd's colorBgLayout is #000000 here. The ladder above needs room *below*
-   * the page for the rail, and pure black leaves none, so this stops one step
-   * short. The only value on this list that is deliberately not antd's. */
-  --ga-bg-body:      #17171a;
-  --ga-bg-container: #141414;  /* colorBgContainer */
-  --ga-bg-elevated:  #1f1f1f;  /* colorBgElevated */
-  /* Lighter than the container here, darker than it in light mode: both mean
-   * "one step off the surface". Also feeds el-fill-color, where a hover in dark
-   * has to lift rather than sink. */
-  --ga-bg-subtle:    #1a1a1a;
-  --ga-bg-hover:     rgba(255, 255, 255, 0.08);
+body {
+  /* Arco's own radius steps follow the radius preference. */
+  --border-radius-small: var(--motor-radius-xs);
+  --border-radius-medium: var(--motor-radius-sm);
+  --border-radius-large: var(--motor-radius-md);
 
-  --ga-text-1:        rgba(255, 255, 255, 0.85);
-  --ga-text-2:        rgba(255, 255, 255, 0.65);
-  --ga-text-3:        rgba(255, 255, 255, 0.6);
-  --ga-text-disabled: rgba(255, 255, 255, 0.25);
-  --ga-text-inverse:  #0a0a0a;
+  /* ── Accent ──────────────────────────────────────────────────── */
+  --motor-primary: rgb(var(--primary-6));
+  --motor-primary-hover: rgb(var(--primary-5));
+  --motor-primary-soft: rgb(var(--primary-1));
+  --motor-primary-gradient: linear-gradient(145deg, rgb(var(--primary-5)), rgb(var(--primary-6)) 58%, rgb(var(--primary-7)));
+  --motor-primary-shadow: rgba(var(--primary-6), 0.24);
 
-  --ga-border:       #424242;  /* colorBorder */
-  --ga-border-light: #303030;  /* colorBorderSecondary */
+  /* ── Surfaces: page < card < overlay ─────────────────────────── */
+  --motor-app-bg: var(--color-fill-2);
+  --motor-surface: var(--color-bg-2);
+  --motor-surface-soft: var(--color-fill-1);
+  --motor-surface-hover: var(--color-fill-2);
+  --motor-overlay: var(--color-bg-popup);
 
-  --ga-sidebar-bg:        #000c17;
-  --ga-sidebar-bg-sub:    #000710;
-  --ga-sidebar-hover:     #0a2540;
-  --ga-sidebar-text:      rgba(255, 255, 255, 0.65);
-  --ga-sidebar-text-active: #ffffff;
-  --ga-sidebar-title:     #ffffff;
+  /* ── Text ────────────────────────────────────────────────────────
+   * text-3 is one step stronger than Arco's own: it carries 12px secondary
+   * detail in table cells, where Arco's placeholder grey is too faint to read. */
+  --motor-text-1: var(--color-text-1);
+  --motor-text-2: var(--color-text-2);
+  --motor-text-3: var(--color-neutral-7);
 
-  --ga-sidebar-light-bg:    #141414;
-  --ga-sidebar-light-hover: rgba(255, 255, 255, 0.08);
-  --ga-sidebar-light-title: rgba(255, 255, 255, 0.85);
+  /* ── Lines ───────────────────────────────────────────────────── */
+  --motor-border: var(--color-border-2);
+  --motor-border-soft: var(--color-border-1);
+  --motor-border-strong: var(--color-border-3);
 
-  --ga-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32);
-  --ga-shadow:    0 1px 2px rgba(0, 0, 0, 0.32), 0 2px 8px rgba(0, 0, 0, 0.28);
-  --ga-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.48);
+  /* ── Elevation. Shallow: a table page is not a relief map. ───── */
+  --motor-shadow-sm: 0 1px 2px rgb(16 24 40 / 4%);
+  --motor-shadow-md: 0 8px 24px rgb(16 24 40 / 10%);
+
+  /* ── Status tones ────────────────────────────────────────────────
+   * One vocabulary for every state shown anywhere: tags, stat tiles, dots.
+   * `-soft` is the tinted ground behind the tone's own text. */
+  --motor-tone-ok: rgb(var(--success-6));
+  --motor-tone-ok-soft: rgb(var(--success-1));
+  --motor-tone-warn: rgb(var(--warning-6));
+  --motor-tone-warn-soft: rgb(var(--warning-1));
+  --motor-tone-danger: rgb(var(--danger-6));
+  --motor-tone-danger-soft: rgb(var(--danger-1));
+  --motor-tone-info: rgb(var(--arcoblue-6));
+  --motor-tone-info-soft: rgb(var(--arcoblue-1));
+  --motor-tone-idle: var(--color-neutral-6);
+  --motor-tone-idle-soft: var(--color-fill-2);
+
+  /* ── Sidebar rail, light surface ─────────────────────────────── */
+  --rail-bg: var(--color-bg-2);
+  --rail-border: var(--color-border-1);
+  --rail-text: var(--color-text-2);
+  --rail-text-strong: var(--color-text-1);
+  --rail-muted: var(--color-text-3);
+  --rail-hover: var(--color-fill-2);
+  --rail-active-bg: rgb(var(--primary-1));
+  --rail-active-text: rgb(var(--primary-6));
+}
+
+body[arco-theme='dark'] {
+  --motor-app-bg: var(--color-bg-1);
+  --motor-primary-soft: rgba(var(--primary-6), 0.16);
+  --motor-shadow-sm: 0 1px 2px rgb(0 0 0 / 24%);
+  --motor-shadow-md: 0 12px 32px rgb(0 0 0 / 36%);
+  --rail-active-bg: rgba(var(--primary-6), 0.18);
+  --rail-active-text: rgb(var(--primary-5));
 }
 
 /*
- * ── Sidebar rail ───────────────────────────────────────────────────
- *
- * The rail comes in two surfaces, chosen by the themeStyle setting, and both
- * exist in either colour scheme -- a light rail under the dark scheme is a dark
- * grey plane, not a white one. Rather than have every rule in styles/sidebar.scss
- * ask which is active, the layout puts `rail-light` or `rail-dark` on the
- * container and those rules read these variables.
- *
- * That indirection is the point. sidebar.scss used to name --ga-sidebar-* (the
- * dark set) directly, with !important, so switching themeStyle turned the
- * container white and left the menu inside it dark -- white text on a white
- * rail. One name per role, resolved here, is what makes both settings render.
+ * The dark rail keeps its own colours in both schemes: it is chrome that sits
+ * beside the content, so under the light scheme it is the one inverted surface
+ * and under the dark scheme it recedes one step below the page.
  */
 .rail-dark {
-  --rail-bg:          var(--ga-sidebar-bg);
-  --rail-bg-sub:      var(--ga-sidebar-bg-sub);
-  --rail-hover:       var(--ga-sidebar-hover);
-  --rail-text:        var(--ga-sidebar-text);
-  --rail-text-active: var(--ga-sidebar-text-active);
-  --rail-title:       var(--ga-sidebar-title);
-  --rail-active-bg:   var(--ga-brand);
-  --rail-active-text: #ffffff;
-  --rail-border:      transparent;
-  --rail-shadow:      2px 0 6px rgba(0, 21, 41, 0.35);
+  --rail-bg: #141a23;
+  --rail-border: #141a23;
+  --rail-text: rgb(255 255 255 / 68%);
+  --rail-text-strong: rgb(255 255 255 / 94%);
+  --rail-muted: rgb(255 255 255 / 42%);
+  --rail-hover: rgb(255 255 255 / 8%);
+  --rail-active-bg: rgba(var(--primary-6), 0.28);
+  --rail-active-text: #fff;
 }
 
-.rail-light {
-  --rail-bg:          var(--ga-sidebar-light-bg);
-  --rail-bg-sub:      var(--ga-sidebar-light-bg);
-  --rail-hover:       var(--ga-sidebar-light-hover);
-  --rail-text:        var(--ga-text-2);
-  --rail-text-active: var(--ga-text-1);
-  --rail-title:       var(--ga-sidebar-light-title);
-  /* Ant Design's controlItemBgActive: the selected row is a tint of the accent,
-   * not a fill of it, so the label stays readable and the rail stays quiet. */
-  --rail-active-bg:   color-mix(in oklab, var(--ga-brand), var(--ga-bg-container) 90%);
-  --rail-active-text: var(--ga-brand);
-  --rail-border:      var(--ga-border-light);
-  /* A hairline does the separating; a drop shadow under a white rail on a
-   * near-white page is a smudge, not an edge. */
-  --rail-shadow:      none;
+body[arco-theme='dark'] .rail-dark {
+  --rail-bg: #101114;
+  --rail-border: var(--color-border-1);
 }

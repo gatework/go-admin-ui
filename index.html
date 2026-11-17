@@ -30,7 +30,7 @@
   <meta name="description"
     content="motor 网络运维管理平台。">
   <style>
-    /* 这两个值必须与 styles/tokens.css 的 --ga-bg-body 一致。写在这里是因为
+    /* 这两个值必须与 styles/tokens.css 的 --motor-app-bg 在亮暗下的取值一致。写在这里是因为
        首屏在样式表加载之前就要有底色；改 token 时要一起改。
        深色分支靠上面那段脚本加的 .dark 生效，所以不会闪一帧浅色。 */
     html,
@@ -39,13 +39,13 @@
       height: 100%;
       margin: 0px;
       padding: 0px;
-      background: var(--ga-bg-body, #f2f3f5);
+      background: #f2f3f5;
     }
 
     html.dark,
     html.dark body,
     html.dark #app {
-      background: var(--ga-bg-body, #17171a);
+      background: #17171a;
     }
 
     /* ============ 首屏加载 ============
