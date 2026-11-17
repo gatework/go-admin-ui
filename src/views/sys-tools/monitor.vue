@@ -1,13 +1,14 @@
 <template>
-  <PageContainer class="server-monitor">
-    <header class="monitor-header">
-      <div><h1>{{ t('sysTools.monitor.title') }}</h1><p>{{ info?.os?.hostName || t('sysTools.monitor.serverInfo') }}<span v-if="info?.os?.goOs"> · {{ info.os.goOs }} / {{ info.os.arch }}</span></p></div>
+  <PageContainer class="server-monitor" :title="t('sysTools.monitor.title')" :description="hostLine">
+    <template #actions>
       <div class="monitor-controls">
         <a-checkbox v-model="automatic">{{ t('sysTools.monitor.autoRefresh') }}</a-checkbox>
         <a-button :loading="loading" @click="refresh"><template #icon><IconRefresh /></template>{{ t('sysTools.monitor.refresh') }}</a-button>
       </div>
-    </header>
-    <a-alert v-if="failed" type="warning" class="monitor-alert">{{ t('sysTools.monitor.failed') }}</a-alert>
+    </template>
+    <template #alerts>
+      <a-alert v-if="failed" type="warning" class="monitor-alert">{{ t('sysTools.monitor.failed') }}</a-alert>
+    </template>
     <a-spin v-if="!info && loading" class="monitor-loading" :tip="t('sysTools.monitor.loading')" />
     <template v-if="info">
       <div class="monitor-overview">
@@ -64,6 +65,12 @@ const valid = (value: unknown): value is number => typeof value === 'number' && 
 const number = (value?: number) => valid(value) ? value.toLocaleString(locale.value, { maximumFractionDigits: 2 }) : '—'
 const percent = (value?: number) => valid(value) ? `${number(value)}%` : '—'
 const capacity = (value: { used?: number; total?: number } | undefined, divisor: number, unit: string) => `${number(valid(value?.used) ? value.used / divisor : undefined)} / ${number(valid(value?.total) ? value.total / divisor : undefined)} ${unit}`
+/** Which machine this is, under the page title. */
+const hostLine = computed(() => {
+  const os = info.value?.os
+  const host = os?.hostName || t('sysTools.monitor.serverInfo')
+  return os?.goOs ? `${host} · ${os.goOs} / ${os.arch}` : host
+})
 const resources = computed(() => [
   { key: 'cpu', name: t('sysTools.monitor.cpu'), value: info.value?.cpu?.percent, detail: `${t('sysTools.monitor.cores')} · ${number(info.value?.cpu?.cpuNum)}` },
   { key: 'memory', name: t('sysTools.monitor.memory'), value: info.value?.mem?.percent, detail: capacity(info.value?.mem, 1, 'MB') },
@@ -130,13 +137,10 @@ onBeforeUnmount(() => { disposed = true; deactivate(); observer?.disconnect(); c
 
 <style scoped lang="scss">
 .server-monitor { color: var(--color-text-1); }
-.monitor-header, .monitor-controls, .panel-heading, .monitor-status { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.monitor-header { padding: 8px 0 20px; }
-h1, h2, p, dl, dd { margin: 0; }
-h1 { font-size: 22px; font-weight: 600; line-height: 1.5; }
+.monitor-controls, .panel-heading, .monitor-status { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+h2, p, dl, dd { margin: 0; }
 h2 { font-size: var(--motor-font-size-16); font-weight: 600; }
-.monitor-header p, .panel-heading span, .monitor-status { color: var(--color-text-2); font-size: var(--motor-font-size-13); }
-.monitor-header p { margin-top: 4px; }
+.panel-heading span, .monitor-status { color: var(--color-text-2); font-size: var(--motor-font-size-13); }
 .monitor-overview { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 16px; }
 .monitor-system { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
 .monitor-panel { min-width: 0; padding: 20px 24px; border: 1px solid var(--color-border-2); border-radius: var(--border-radius-medium); background: var(--color-bg-2); }
@@ -157,13 +161,11 @@ dt { color: var(--color-text-2); font-size: var(--motor-font-size-13); }
 .monitor-details dd { overflow-wrap: anywhere; }
 .network-details { border-top: 1px solid var(--color-border-1); }
 .monitor-status { padding: 16px 0 4px; flex-wrap: wrap; gap: 8px; }
-.monitor-alert { margin-bottom: 16px; }
 .monitor-loading { display: flex; justify-content: center; padding: 100px 0; }
 dd, .monitor-status { font-variant-numeric: tabular-nums; }
 @media (max-width: 1100px) { .monitor-overview { grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr); } .panel-heading { align-items: flex-start; flex-direction: column; gap: 4px; } }
 @media (max-width: 767px) {
   .server-monitor { padding: 12px; }
-  .monitor-header { align-items: flex-start; flex-direction: column; gap: 12px; }
   .monitor-controls { width: 100%; }
   .monitor-overview, .monitor-system { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .monitor-panel { padding: 16px; }
