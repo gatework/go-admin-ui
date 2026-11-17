@@ -64,21 +64,17 @@ describe('usePageSession', () => {
     expect(session.guard()()).toBe(true)
   })
 
-  // Signing out and in again without leaving the page: the response belongs to the previous account.
-  it('rejects a response that started under another account', async() => {
+  // Signing out and in again without leaving the page: the response belongs to the
+  // previous account, and so does everything on screen, so the page stays
+  // suspended until it is next activated.
+  it('rejects a response that started under another account and stays suspended', async() => {
     mountKeptAlive()
     const current = session.guard()
     useUserStore().token = 'second'
     await nextTick()
     expect(current()).toBe(false)
-    expect(session.guard()()).toBe(true)
-  })
-
-  it('stays suspended after sign-out', async() => {
-    mountKeptAlive()
-    useUserStore().token = ''
-    await nextTick()
     expect(session.active).toBe(false)
+    expect(onSuspend).toHaveBeenCalledOnce()
     expect(onResume).not.toHaveBeenCalled()
   })
 })

@@ -55,11 +55,10 @@ export function usePageSession(options: PageSessionOptions = {}): PageSession {
   }
 
   // A new token is a new account as far as any in-flight response is concerned.
-  watch(() => user.token, () => {
-    const wasActive = active
-    suspend()
-    if (wasActive && user.token) resume()
-  })
+  // The page stays suspended until it is next activated: what it shows was the
+  // previous account's, and signing in again navigates, which remounts or
+  // reactivates the page with a clean start.
+  watch(() => user.token, suspend)
   onActivated(resume)
   onDeactivated(suspend)
   onBeforeUnmount(suspend)

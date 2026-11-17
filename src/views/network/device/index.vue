@@ -128,12 +128,12 @@
 <script setup lang="ts">
 import { datedFilename, downloadBlob } from '@/utils/download'
 import { usePermission } from '@/composables/usePermission'
-import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import AppDropdown from '@/components/AppDropdown/index.vue'
-import { useTable } from '@/composables'
+import { usePageSession, useTable } from '@/composables'
 import { useUserStore } from '@/stores/user'
 import { usePreferencesStore } from '@/stores/preferences'
 import { preferenceTime } from '@/utils/preference-time'
@@ -180,26 +180,27 @@ const appliedFilters = ref<DeviceQuery>({})
 const detailVisible = ref(false)
 const editorVisible = ref(false)
 const selectedId = ref<number>()
-let active = true
-let generation = 0
 let statusRequest = 0
 let optionsRequest = 0
 let groupsRequest = 0
 const statusColors: Record<DeviceStatus, string> = { pending: 'orange', active: 'green', maintenance: 'blue', disabled: 'gray', retired: 'gray' }
 
 const defaultQuery = (): DeviceQuery => ({ keyword: '', vendor: undefined, model: undefined, status: undefined, deviceType: undefined, deviceRole: undefined, groupId: undefined, tag: '' })
+const session = usePageSession({
+  onSuspend: closeTransient,
+  onResume: () => { void refreshStatusAndList(); void refreshOptions() }
+})
 const table = useTable<Device, DeviceQuery>({
   idKey: 'id',
   defaultQuery,
   api: async query => {
     table.handleSelectionChange([])
-    const current = generation
-    const token = user.token
+    const current = session.guard()
     listFailed.value = false
     const { pageIndex, pageSize, ...filters } = query
     appliedFilters.value = { ...filters }
     const response = await listDevice({ ...filters, pageIndex, pageSize })
-    return isCurrent(current, token) ? response : { code: 200, msg: '', data: { list: [], count: 0 }}
+    return current() ? response : { code: 200, msg: '', data: { list: [], count: 0 }}
   },
   onError: () => { listFailed.value = true }
 })
@@ -213,7 +214,6 @@ const lastSyncLabel = computed(() => {
   if (!value) return t('network.device.neverSynced')
   return preferenceTime(value, preferences.timeZone) ?? '—'
 })
-const isCurrent = (current: number, token: string) => active && current === generation && user.token === token
 
 function showDetail(id: number) { if (canQuery.value) { selectedId.value = id; detailVisible.value = true } }
 function showEditor(id: number) {
@@ -257,60 +257,56 @@ async function refreshGroupEditor() {
   if (groupEditorRecord.value && !flattenGroups(groups.value.items).some(node => node.id === groupEditorRecord.value?.id)) groupEditorVisible.value = false
 }
 async function refreshGroups() {
-  const current = generation
-  const token = user.token
+  const current = session.guard()
   const request = ++groupsRequest
   groupsLoading.value = true
   try {
     const response = await listDeviceGroup()
-    if (!isCurrent(current, token) || request !== groupsRequest) return
+    if (!current() || request !== groupsRequest) return
     groups.value = response.data
     groupsFailed.value = false
     if (groupEditorRecord.value) groupEditorRecord.value = flattenGroups(response.data.items).find(node => node.id === groupEditorRecord.value?.id) ?? groupEditorRecord.value
-  } catch { if (isCurrent(current, token) && request === groupsRequest) groupsFailed.value = true } finally { if (request === groupsRequest) groupsLoading.value = false }
+  } catch { if (current() && request === groupsRequest) groupsFailed.value = true } finally { if (request === groupsRequest) groupsLoading.value = false }
 }
 async function refreshStatus() {
-  const current = generation
-  const token = user.token
+  const current = session.guard()
   const request = ++statusRequest
   statusLoading.value = true
   try {
     const response = await getDeviceSyncStatus()
-    if (!isCurrent(current, token) || request !== statusRequest) return
+    if (!current() || request !== statusRequest) return
     syncStatus.value = response.data
     statusFailed.value = false
     syncFailed.value = response.data.status === 'failed'
   } catch {
-    if (isCurrent(current, token) && request === statusRequest) statusFailed.value = true
+    if (current() && request === statusRequest) statusFailed.value = true
   } finally {
     if (request === statusRequest) statusLoading.value = false
   }
 }
 async function refreshOptions() {
-  const current = generation
-  const token = user.token
+  const current = session.guard()
   const request = ++optionsRequest
   try {
     const response = await getDeviceOptions()
-    if (isCurrent(current, token) && request === optionsRequest) options.value = response.data
+    if (current() && request === optionsRequest) options.value = response.data
   } catch { /* The request client reports the error; text search remains available. */ }
 }
 async function reloadInventory() { await Promise.all([table.getList(), refreshOptions(), refreshGroups()]) }
 async function refreshStatusAndList() { await Promise.all([refreshStatus(), table.getList(), refreshGroups()]) }
 async function sync() {
   if (syncing.value || !canSync.value || !syncStatus.value?.configured || syncStatus.value.status === 'running') return
-  const current = generation
-  const token = user.token
+  const current = session.guard()
   syncing.value = true
   syncFailed.value = false
   syncResult.value = undefined
   try {
     const response = await syncDevice()
-    if (!isCurrent(current, token)) return
+    if (!current()) return
     syncResult.value = response.data
     await Promise.all([reloadInventory(), refreshStatus()])
   } catch {
-    if (!isCurrent(current, token)) return
+    if (!current()) return
     syncFailed.value = true
     await refreshStatus()
     syncFailed.value = true
@@ -318,18 +314,16 @@ async function sync() {
 }
 async function download() {
   if (exporting.value || table.loading || !canExport.value || !table.total) return
-  const current = generation
-  const token = user.token
+  const current = session.guard()
   exporting.value = true
   try {
     const response = await exportDevice({ ...appliedFilters.value })
-    if (!isCurrent(current, token)) return
+    if (!current()) return
     downloadBlob(response.data, datedFilename('device-inventory', 'csv'), 'text/csv;charset=utf-8')
   } catch { /* The shared request client owns error messages. */ } finally { exporting.value = false }
 }
-function invalidate() {
-  active = false
-  generation++
+/** The page left the screen or the account changed: nothing transient survives that. */
+function closeTransient() {
   detailVisible.value = false
   editorVisible.value = false
   aside.value?.close()
@@ -338,16 +332,9 @@ function invalidate() {
   assignmentRecords.value = []
   table.handleSelectionChange([])
 }
-watch(() => user.token, () => { invalidate(); table.rows = []; table.total = 0; options.value = { vendors: [], models: [] }; groups.value = { items: [], totalDeviceCount: 0, ungroupedDeviceCount: 0 }; syncStatus.value = undefined })
+// Another account's inventory must not stay on screen while the new one loads.
+watch(() => user.token, () => { table.rows = []; table.total = 0; options.value = { vendors: [], models: [] }; groups.value = { items: [], totalDeviceCount: 0, ungroupedDeviceCount: 0 }; syncStatus.value = undefined })
 onMounted(() => { void refreshStatus(); void refreshOptions(); void refreshGroups() })
-onActivated(() => {
-  if (active) return
-  active = true
-  void refreshStatusAndList()
-  void refreshOptions()
-})
-onDeactivated(invalidate)
-onBeforeUnmount(invalidate)
 </script>
 
 <style scoped lang="scss">
