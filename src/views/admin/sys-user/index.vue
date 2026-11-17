@@ -158,8 +158,6 @@
               :data="deptOptions"
               :field-names="{ key: 'id', title: 'label', children: 'children' }"
               :placeholder="$t('admin.sysUser.deptIdPlaceholder')"
-
-              style="width: 100%"
             />
           </a-form-item>
         </a-col>
@@ -214,7 +212,6 @@
             <a-select
               v-model="userForm.model.postId"
               :placeholder="$t('common.selectPlaceholder')"
-              style="width: 100%"
             >
               <a-option
                 v-for="item in postOptions"
@@ -231,7 +228,6 @@
             <a-select
               v-model="userForm.model.roleId"
               :placeholder="$t('common.selectPlaceholder')"
-              style="width: 100%"
             >
               <a-option
                 v-for="item in roleOptions"

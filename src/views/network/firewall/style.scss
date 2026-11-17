@@ -14,7 +14,7 @@
 .fw-muted {
   margin: 4px 0 12px;
   color: var(--color-text-2);
-  font-size: 13px;
+  font-size: var(--motor-font-size-13);
   line-height: 1.6;
 }
 
@@ -99,7 +99,7 @@
 
 .fw-section h2,
 .fw-section h3 {
-  font-size: 16px;
+  font-size: var(--motor-font-size-16);
   margin: 0 0 12px;
   color: var(--color-text-1);
 }
@@ -168,7 +168,7 @@
 
 
 .fw-full-width { width: 100%; }
-.fw-batch-detail h2 { margin: 0; font-size: 16px; }
+.fw-batch-detail h2 { margin: 0; font-size: var(--motor-font-size-16); }
 
 /* PageContainer drops its gutter on a phone so cards can run edge to edge;
    text that is not inside a card would then touch the screen edge. */

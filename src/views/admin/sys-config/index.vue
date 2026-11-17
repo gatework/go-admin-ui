@@ -126,7 +126,6 @@
         <a-select
           v-model="form.model.isFrontend"
           :placeholder="$t('admin.sysConfig.isFrontendPlaceholder')"
-          style="width: 100%"
         >
           <a-option :label="$t('admin.sysConfig.yes')" value="1" />
           <a-option :label="$t('admin.sysConfig.no')" value="2" />

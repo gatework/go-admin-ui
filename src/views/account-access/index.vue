@@ -208,7 +208,7 @@ onBeforeUnmount(() => { generation++; clearInterval(timer) })
 </script>
 
 <style scoped lang="scss">
-.back-to-login { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--motor-radius-sm); color: var(--motor-text-2); font-size: 18px; text-decoration: none; }
+.back-to-login { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--motor-radius-sm); color: var(--motor-text-2); font-size: var(--motor-font-size-18); text-decoration: none; }
 .back-to-login:hover { color: var(--motor-primary); background: var(--motor-surface-soft); }
 .back-to-login:focus-visible { outline: 2px solid var(--motor-primary); outline-offset: 4px; border-radius: 4px; }
 .policy-loader { display: flex; justify-content: center; padding-block: 40px; }

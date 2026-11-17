@@ -37,7 +37,7 @@ onMounted(loadPolicy)
 </script>
 
 <style scoped lang="scss">
-.login-register { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--motor-radius-sm); color: var(--motor-text-2); font-size: 18px; text-decoration: none; }
+.login-register { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--motor-radius-sm); color: var(--motor-text-2); font-size: var(--motor-font-size-18); text-decoration: none; }
 .login-register:hover { color: var(--motor-primary); background: var(--motor-surface-soft); }
 .login-register:focus-visible { outline: 2px solid var(--motor-primary); outline-offset: 3px; }
 .policy-error { margin-bottom: 20px; }

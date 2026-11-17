@@ -125,7 +125,7 @@ onBeforeUnmount(() => {
 <style scoped lang="scss">
 .login-appearance { --login-tool-color: var(--login-chrome-text, var(--motor-text-2)); display: flex; align-items: center; min-width: 0; }
 .login-tools { display: flex; align-items: center; justify-content: flex-end; gap: 4px; width: fit-content; max-width: 100%; min-width: 0; margin-left: auto; }
-.login-tools :deep(:is(.arco-btn, .header-action)) { flex: none; width: 36px; height: 36px; padding: 0; font-size: 18px; color: var(--login-tool-color); background: transparent; border: 0; border-radius: var(--motor-radius-sm); }
+.login-tools :deep(:is(.arco-btn, .header-action)) { flex: none; width: 36px; height: 36px; padding: 0; font-size: var(--motor-font-size-18); color: var(--login-tool-color); background: transparent; border: 0; border-radius: var(--motor-radius-sm); }
 .login-tools :deep(:is(.arco-btn, .header-action):hover) { color: var(--login-tool-color); background: var(--login-chrome-hover, var(--color-fill-2)); }
 .login-tools :deep(:is(.arco-btn, .header-action):focus-visible) { outline: 2px solid currentcolor; outline-offset: 2px; }
 .login-inline-palette { display: grid; grid-template-columns: repeat(7, 32px); gap: 4px; min-width: 0; max-width: 100%; padding: 2px; overflow-x: auto; overscroll-behavior: contain; scrollbar-width: none; }

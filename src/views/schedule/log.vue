@@ -165,7 +165,7 @@ onBeforeUnmount(async() => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--motor-font-size-13);
   color: var(--color-text-2);
 }
 
@@ -181,7 +181,7 @@ onBeforeUnmount(async() => {
 .is-connecting .job-log__dot { background: rgb(var(--warning-6)); }
 
 .job-log__count {
-  font-size: 12px;
+  font-size: var(--motor-font-size-12);
   color: var(--motor-text-3);
   font-variant-numeric: tabular-nums;
 }
@@ -202,7 +202,7 @@ onBeforeUnmount(async() => {
   border: 1px solid var(--color-border-2);
   background: #0f1720;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--motor-font-size-12);
   line-height: 1.7;
 }
 

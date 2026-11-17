@@ -417,7 +417,7 @@ const handleExport = () => exportExcel({
   overflow: auto;
   white-space: pre-wrap;
   word-break: break-all;
-  font-size: 12px;
+  font-size: var(--motor-font-size-12);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 </style>

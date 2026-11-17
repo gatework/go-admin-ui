@@ -333,7 +333,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
 
 .pro-cards__end {
   padding: 12px 0 4px;
-  font-size: 13px;
+  font-size: var(--motor-font-size-13);
   color: var(--motor-text-3);
   text-align: center;
 }
@@ -360,7 +360,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
     height: auto;
     margin: 0 !important;
     padding: 0 20px;
-    font-size: 15px;
+    font-size: var(--motor-font-size-15);
     border: none;
     border-radius: 0;
   }
@@ -401,7 +401,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
 
 .pro-card__title {
   overflow: hidden;
-  font-size: 17px;
+  font-size: var(--motor-font-size-17);
   font-weight: 600;
   line-height: 1.4;
   color: var(--color-text-1);
@@ -414,7 +414,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   flex-wrap: wrap;
   align-items: baseline;
   margin-top: 2px;
-  font-size: 13px;
+  font-size: var(--motor-font-size-13);
   color: var(--motor-text-3);
 }
 
@@ -449,7 +449,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   justify-content: space-between;
   gap: 16px;
   padding: 8px 0;
-  font-size: 13px;
+  font-size: var(--motor-font-size-13);
   border-top: 1px solid var(--color-border-1);
 }
 
@@ -484,7 +484,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   min-height: 44px;
   padding: 0;
   font-family: inherit;
-  font-size: 13px;
+  font-size: var(--motor-font-size-13);
   color: rgb(var(--link-6));
   cursor: pointer;
   background: none;

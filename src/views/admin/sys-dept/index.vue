@@ -84,7 +84,6 @@
               :field-names="{ key: 'deptId', title: 'deptName', children: 'children' }"
               :placeholder="$t('admin.sysDept.parentPlaceholder')"
               :disabled="form.isEdit"
-              style="width: 100%"
             />
           </a-form-item>
         </a-col>

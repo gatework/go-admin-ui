@@ -138,7 +138,7 @@
         <a-input :model-value="scopeForm.model.roleKey" disabled />
       </a-form-item>
       <a-form-item :label="$t('admin.sysRole.scope')">
-        <a-select v-model="scopeForm.model.dataScope" style="width: 100%">
+        <a-select v-model="scopeForm.model.dataScope">
           <a-option
             v-for="item in dataScopes"
             :key="item.value"

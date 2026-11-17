@@ -218,7 +218,7 @@ onMounted(reload)
     &:hover { border-color: var(--motor-primary); box-shadow: var(--motor-shadow-sm); }
   }
 
-  &__module-icon { flex-shrink: 0; margin-top: 2px; color: var(--motor-primary); font-size: 20px; }
+  &__module-icon { flex-shrink: 0; margin-top: 2px; color: var(--motor-primary); font-size: var(--motor-font-size-20); }
   &__module-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 4px; strong { color: var(--motor-text-1); font-weight: 600; } small { color: var(--motor-text-3); font-size: var(--motor-font-size-12); line-height: 1.6; } }
   &__module-caret { flex-shrink: 0; margin-top: 4px; color: var(--motor-text-3); }
 }

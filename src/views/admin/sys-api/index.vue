@@ -103,7 +103,6 @@
         <a-select
           v-model="form.model.type"
           :placeholder="$t('admin.sysApi.typePlaceholder')"
-          style="width: 100%"
         >
           <a-option value="SYS" label="SYS" />
           <a-option value="BUS" label="BUS" />
@@ -113,7 +112,6 @@
         <a-select
           v-model="form.model.action"
           :placeholder="$t('admin.sysApi.actionPlaceholder')"
-          style="width: 100%"
         >
           <a-option v-for="method in METHODS" :key="method" :value="method" :label="method" />
         </a-select>

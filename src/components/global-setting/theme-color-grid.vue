@@ -54,7 +54,7 @@ const pickCustom = (event: Event) => emit('customColor', (event.target as HTMLIn
   border-radius: 50%;
   background: var(--swatch);
   color: #fff;
-  font-size: 14px;
+  font-size: var(--motor-font-size-14);
   cursor: pointer;
   transition: box-shadow var(--motor-duration);
 

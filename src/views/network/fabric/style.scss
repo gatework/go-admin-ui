@@ -1,11 +1,11 @@
 .fabric-page {
   min-width: 0;
-  h1 { font-size: 20px; margin: 0 0 6px; font-weight: 600; }
-  h2 { font-size: 16px; margin: 0; font-weight: 600; }
+  h1 { font-size: var(--motor-font-size-20); margin: 0 0 6px; font-weight: 600; }
+  h2 { font-size: var(--motor-font-size-16); margin: 0; font-weight: 600; }
   p { margin: 6px 0; }
 }
 .fabric-hint { color: var(--color-text-2); line-height: 1.6; margin: 0 0 16px; }
-.fabric-secondary { display: block; color: var(--color-text-2); font-size: 12px; margin-top: 4px; overflow-wrap: anywhere; }
+.fabric-secondary { display: block; color: var(--color-text-2); font-size: var(--motor-font-size-12); margin-top: 4px; overflow-wrap: anywhere; }
 .fabric-mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
 .fabric-section { margin-top: 20px; min-width: 0; }
 .fabric-section-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
@@ -18,7 +18,7 @@
 .fabric-drawer .arco-form-item-content { min-width: 0; }
 .fabric-rule-row { display: grid; grid-template-columns: 145px minmax(160px, 1fr) auto auto; align-items: center; gap: 10px; margin-bottom: 10px; }
 .fabric-matrix { width: 100%; overflow-x: auto; }
-.fabric-matrix table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.fabric-matrix table { border-collapse: collapse; width: 100%; font-size: var(--motor-font-size-13); }
 .fabric-matrix th, .fabric-matrix td { border: 1px solid var(--color-border-2); padding: 12px; text-align: left; min-width: 150px; vertical-align: top; }
 .fabric-matrix th { background: var(--color-fill-1); font-weight: 500; }
 .fabric-matrix tr > :first-child { position: sticky; left: 0; z-index: 1; background: var(--color-bg-2); }
@@ -49,7 +49,7 @@
 .fabric-issue-row { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(240px, .8fr) auto; align-items: center; gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--color-border-2); }
 .fabric-issue-name .arco-btn, .fabric-comparison-device .arco-btn { height: auto; white-space: normal; text-align: start; padding: 0; font-weight: 500; }
 .fabric-issue-name .arco-btn-content { white-space: normal; text-align: start; }
-.fabric-issue-totals { display: flex; flex-wrap: wrap; gap: 12px; color: var(--color-text-2); font-size: 13px; }
+.fabric-issue-totals { display: flex; flex-wrap: wrap; gap: 12px; color: var(--color-text-2); font-size: var(--motor-font-size-13); }
 .fabric-affected { color: rgb(var(--danger-6)); }
 .fabric-issue-counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; border-block: 1px solid var(--color-border-2); padding: 16px 0; }
 .fabric-issue-counts span { display: block; color: var(--color-text-2); margin-bottom: 6px; }

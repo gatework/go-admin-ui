@@ -127,7 +127,7 @@ const submit = async() => {
 <style lang="scss" scoped>
 .import-table__count {
   margin-right: auto;
-  font-size: 13px;
+  font-size: var(--motor-font-size-13);
   color: var(--color-text-2);
 }
 </style>

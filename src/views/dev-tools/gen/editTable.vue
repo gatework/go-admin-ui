@@ -158,8 +158,8 @@
                   :label="dictTypeName(dict)"
                   :value="dict.dictType"
                 >
-                  <span style="float: left">{{ dictTypeName(dict) }}</span>
-                  <span style="float: right; color: #8492a6; font-size: 13px">{{ dict.dictType }}</span>
+                  <span>{{ dictTypeName(dict) }}</span>
+                  <span class="option-note">{{ dict.dictType }}</span>
                 </a-option>
               </a-select>
             </template>
@@ -179,8 +179,8 @@
                   :label="table.tableName"
                   :value="table.tableName"
                 >
-                  <span style="float: left">{{ table.tableName }}</span>
-                  <span style="float: right; color: #8492a6; font-size: 13px">{{ table.tableComment }}</span>
+                  <span>{{ table.tableName }}</span>
+                  <span class="option-note">{{ table.tableComment }}</span>
                 </a-option>
               </a-select>
             </template>
@@ -199,8 +199,8 @@
                   :label="column.columnName"
                   :value="column.jsonField"
                 >
-                  <span style="float: left">{{ column.jsonField }}</span>
-                  <span style="float: right; color: #8492a6; font-size: 13px">{{ column.columnComment }}</span>
+                  <span>{{ column.jsonField }}</span>
+                  <span class="option-note">{{ column.columnComment }}</span>
                 </a-option>
               </a-select>
             </template>
@@ -219,8 +219,8 @@
                   :label="column.columnName"
                   :value="column.jsonField"
                 >
-                  <span style="float: left">{{ column.jsonField }}</span>
-                  <span style="float: right; color: #8492a6; font-size: 13px">{{ column.columnComment }}</span>
+                  <span>{{ column.jsonField }}</span>
+                  <span class="option-note">{{ column.columnComment }}</span>
                 </a-option>
               </a-select>
             </template>
@@ -384,3 +384,13 @@ const submit = async() => {
   }
 }
 </script>
+
+<style scoped>
+/* The identifier beside an option's readable name: dictionary type, table or column comment. */
+.option-note {
+  float: right;
+  margin-left: 16px;
+  color: var(--motor-text-3);
+  font-size: var(--motor-font-size-13);
+}
+</style>

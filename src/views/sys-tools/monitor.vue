@@ -134,23 +134,23 @@ onBeforeUnmount(() => { disposed = true; deactivate(); observer?.disconnect(); c
 .monitor-header { padding: 8px 0 20px; }
 h1, h2, p, dl, dd { margin: 0; }
 h1 { font-size: 22px; font-weight: 600; line-height: 1.5; }
-h2 { font-size: 16px; font-weight: 600; }
-.monitor-header p, .panel-heading span, .monitor-status { color: var(--color-text-2); font-size: 13px; }
+h2 { font-size: var(--motor-font-size-16); font-weight: 600; }
+.monitor-header p, .panel-heading span, .monitor-status { color: var(--color-text-2); font-size: var(--motor-font-size-13); }
 .monitor-header p { margin-top: 4px; }
 .monitor-overview { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 16px; }
 .monitor-system { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
 .monitor-panel { min-width: 0; padding: 20px 24px; border: 1px solid var(--color-border-2); border-radius: var(--border-radius-medium); background: var(--color-bg-2); }
 .resource-chart { height: 220px; width: 100%; margin-top: 12px; }
 .resource-values { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; border-top: 1px solid var(--color-border-1); padding-top: 16px; }
-dt { color: var(--color-text-2); font-size: 13px; }
+dt { color: var(--color-text-2); font-size: var(--motor-font-size-13); }
 .resource-values dd { display: grid; gap: 4px; margin-top: 6px; }
-.resource-values strong { font-size: 20px; font-weight: 600; }
-.resource-values dd span { color: var(--color-text-2); font-size: 12px; overflow-wrap: anywhere; }
+.resource-values strong { font-size: var(--motor-font-size-20); font-weight: 600; }
+.resource-values dd span { color: var(--color-text-2); font-size: var(--motor-font-size-12); overflow-wrap: anywhere; }
 .network-values { margin-top: 24px; }
 .network-values > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0; }
 .network-values dt { display: flex; align-items: center; gap: 8px; }
-.network-values dd { font-size: 24px; font-weight: 600; }
-.network-values dd span { font-size: 12px; font-weight: 400; color: var(--color-text-2); }
+.network-values dd { font-size: var(--motor-font-size-24); font-weight: 600; }
+.network-values dd span { font-size: var(--motor-font-size-12); font-weight: 400; color: var(--color-text-2); }
 .monitor-details { margin-top: 16px; }
 .monitor-details > div { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--color-border-1); line-height: 1.6; }
 .monitor-details > div:last-child { border-bottom: 0; }
@@ -168,7 +168,7 @@ dd, .monitor-status { font-variant-numeric: tabular-nums; }
   .monitor-overview, .monitor-system { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .monitor-panel { padding: 16px; }
   .resource-values { gap: 10px; }
-  .resource-values strong { font-size: 18px; }
+  .resource-values strong { font-size: var(--motor-font-size-18); }
   .monitor-system { margin-top: 12px; }
   .network-values { margin-top: 8px; }
 }

@@ -130,7 +130,6 @@
                         <a-select
                           v-model="form.sys_index_skinName"
                           :placeholder="$t('admin.sysConfig.set.skinPlaceholder')"
-                          style="width:100%"
                         >
                           <a-option v-for="(item, i) in skinOptions" :key="i" :label="item.label" :value="item.value" />
                         </a-select>
@@ -141,7 +140,6 @@
                         <a-select
                           v-model="form.sys_index_sideTheme"
                           :placeholder="$t('admin.sysConfig.set.sideThemePlaceholder')"
-                          style="width:100%"
                         >
                           <a-option v-for="(item, i) in sideThemeOptions" :key="i" :label="item.label" :value="item.value" />
                         </a-select>
@@ -432,7 +430,7 @@ const onLogoUploaded = (file: FileItem) => {
 
 .sidebar-header__title {
   margin: 0 0 2px;
-  font-size: 14px;
+  font-size: var(--motor-font-size-14);
   font-weight: 600;
   color: var(--color-text-1);
   line-height: 1;
@@ -440,7 +438,7 @@ const onLogoUploaded = (file: FileItem) => {
 
 .sidebar-header__sub {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--motor-font-size-11);
   color: var(--color-text-2);
   line-height: 1;
 }
@@ -502,14 +500,14 @@ const onLogoUploaded = (file: FileItem) => {
 }
 
 .nav-item__label {
-  font-size: 13px;
+  font-size: var(--motor-font-size-13);
   color: var(--color-text-1);
   font-weight: 500;
   line-height: 1.3;
 }
 
 .nav-item__sub {
-  font-size: 11px;
+  font-size: var(--motor-font-size-11);
   color: var(--motor-text-3);
   line-height: 1;
 }
@@ -557,7 +555,7 @@ const onLogoUploaded = (file: FileItem) => {
 
 .section-head__title {
   margin: 0 0 2px;
-  font-size: 14px;
+  font-size: var(--motor-font-size-14);
   font-weight: 600;
   color: var(--color-text-1);
   line-height: 1;
@@ -565,7 +563,7 @@ const onLogoUploaded = (file: FileItem) => {
 
 .section-head__desc {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--motor-font-size-12);
   color: var(--color-text-2);
   line-height: 1;
 }
@@ -611,21 +609,21 @@ const onLogoUploaded = (file: FileItem) => {
   align-items: center;
   gap: 4px;
   color: var(--motor-text-3);
-  font-size: 11px;
+  font-size: var(--motor-font-size-11);
 }
 
 .logo-meta { flex: 1; min-width: 0; }
 
 .logo-meta__name {
   margin: 0 0 3px;
-  font-size: 13px;
+  font-size: var(--motor-font-size-13);
   font-weight: 500;
   color: var(--color-text-1);
 }
 
 .logo-meta__hint {
   margin: 0 0 10px;
-  font-size: 12px;
+  font-size: var(--motor-font-size-12);
   color: var(--color-text-2);
   line-height: 1.5;
 }
@@ -633,7 +631,7 @@ const onLogoUploaded = (file: FileItem) => {
 // ── Theme picker ──────────────────────────────────────────
 .theme-label {
   margin: 12px 0 10px;
-  font-size: 12px;
+  font-size: var(--motor-font-size-12);
   color: var(--color-text-2);
 }
 
@@ -696,7 +694,7 @@ const onLogoUploaded = (file: FileItem) => {
   align-items: center;
   justify-content: space-between;
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: var(--motor-font-size-12);
   color: var(--color-text-1);
   background: var(--color-bg-2);
   border-top: 1px solid var(--color-border-1);

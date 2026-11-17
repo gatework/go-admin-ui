@@ -558,7 +558,7 @@ defineExpose({
   box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
   transition: transform 0.2s ease;
 
-  .arco-icon { font-size: 24px; }
+  .arco-icon { font-size: var(--motor-font-size-24); }
 
   &.is-open { transform: rotate(45deg); }
 }

@@ -107,7 +107,7 @@ const run = (key: unknown) => {
   white-space: nowrap;
 }
 
-.user-menu__caret { flex-shrink: 0; color: var(--motor-text-3); font-size: 12px; }
+.user-menu__caret { flex-shrink: 0; color: var(--motor-text-3); font-size: var(--motor-font-size-12); }
 
 .user-menu__head {
   min-width: 200px;

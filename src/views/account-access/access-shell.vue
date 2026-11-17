@@ -148,14 +148,14 @@ function setPosition(value: LoginFormPosition) {
   .login-brand {
     flex: none;
     align-self: center;
-    font-size: 18px;
+    font-size: var(--motor-font-size-18);
     color: var(--color-white);
     text-decoration: none;
   }
 
   .login-brand :deep(.brand__name) {
     color: inherit;
-    font-size: 18px;
+    font-size: var(--motor-font-size-18);
     font-weight: 600;
     letter-spacing: normal;
   }

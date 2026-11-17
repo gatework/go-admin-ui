@@ -85,7 +85,7 @@ onMounted(load)
 </script>
 <style scoped lang="scss">
 .account-page { padding: 24px; }
-.account-heading { margin-bottom: 20px; h1 { font-size: 24px; margin: 0 0 8px; } p { margin: 0; color: var(--motor-text-2); } }
+.account-heading { margin-bottom: 20px; h1 { font-size: var(--motor-font-size-24); margin: 0 0 8px; } p { margin: 0; color: var(--motor-text-2); } }
 .account-loading { width: 100%; }
 .account-workspace { display: grid; grid-template-columns: 252px minmax(0, 1fr); align-items: start; gap: 16px; }
 .account-sidebar { border: 1px solid var(--motor-border); border-radius: var(--motor-radius-lg); overflow: hidden; background: var(--motor-surface); }
@@ -96,6 +96,6 @@ onMounted(load)
 .account-main { min-width: 0; }
 .account-section :deep(.arco-form-item-extra) { color: var(--color-text-2); }
 .account-section { max-width: 760px; padding: 24px; border: 1px solid var(--motor-border); border-radius: var(--motor-radius-lg); background: var(--motor-surface); header { margin-bottom: 24px; h3 { margin: 0 0 8px; } p { margin: 0; color: var(--motor-text-2); } } }
-.account-differences { max-width: 760px; color: var(--motor-text-2); font-size: 12px; line-height: 1.7; }
+.account-differences { max-width: 760px; color: var(--motor-text-2); font-size: var(--motor-font-size-12); line-height: 1.7; }
 @media (max-width: 767px) { .account-page { padding: 16px; } .account-workspace { grid-template-columns: 1fr; } .account-hero { flex-direction: row; flex-wrap: wrap; align-items: center; } .account-navigation { display: flex; button { justify-content: center; padding: 12px 8px; span { flex: initial; } > svg:last-child { display: none; } } } .account-section { padding: 16px; } }
 </style>
