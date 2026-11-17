@@ -112,7 +112,7 @@
       <a-empty v-else-if="!loading && !failed" :description="t('common.empty')" />
     </a-spin>
     <CollectionPanel v-if="record?.completeScope && collectionVisible" v-model:visible="collectionVisible" :fabric="record" @changed="load" />
-    <AppDrawer :visible="evidenceVisible" :title="t('networkFabric.evidence')" :width="narrow ? '100%' : 760" :footer="false" @update:visible="setEvidenceVisible">
+    <AppDrawer :visible="evidenceVisible" :title="t('networkFabric.evidence')" :width="760" :footer="false" @update:visible="setEvidenceVisible">
       <template v-if="selectedNode">
         <div class="fabric-section-heading">
           <div><span class="fabric-secondary">{{ record?.code }} / {{ t('networkFabric.problem.investigate') }}</span><h2>{{ selectedNode.name }}</h2></div>
@@ -138,6 +138,7 @@
   </a-card>
 </template>
 <script setup lang="ts">
+import { usePermission } from '@/composables/usePermission'
 import { computed, provide, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -172,7 +173,8 @@ const issueLocation = computed(() => parseIssueLocation(route.query))
 const router = useRouter()
 const narrow = useNarrowScreen()
 const { record, loading, failed, load } = useFabricDetail(() => props.id)
-const tasks = useFabricTasks(() => props.id, load, () => Boolean(record.value?.id === props.id && record.value.completeScope && user.permisaction.some(value => value === '*:*:*' || ['query', 'edit', 'collect', 'preview', 'execute'].some(action => value === `network:fabric:${action}`))))
+const { can: allowed } = usePermission('network:fabric')
+const tasks = useFabricTasks(() => props.id, load, () => Boolean(record.value?.id === props.id && record.value.completeScope && allowed('query', 'edit', 'collect', 'preview', 'execute')))
 provide('fabricTasks', tasks)
 provide('refreshFabric', load)
 const collectionVisible = ref(false)
@@ -184,7 +186,6 @@ const ownIssues = computed(() => selectedNode.value ? deviceIssues(record.value?
 const nodeOutcome = (group: IssueGroup) => group.devices.find(item => item.deviceId === selectedNode.value?.deviceId)
 const nodeFilter = computed(() => ['affected', 'unknown'].includes(route.query.nodeStatus as string) ? route.query.nodeStatus as string : '')
 const filteredNodes = computed(() => record.value?.nodes.filter(node => !nodeFilter.value || record.value?.issueGroups?.some(group => group.devices.some(device => device.deviceId === node.deviceId && device.status === nodeFilter.value))) || [])
-const allowed = (action: string) => user.permisaction.some(value => value === '*:*:*' || value === `network:fabric:${action}`)
 const leaves = computed(() => record.value?.nodes.filter(node => ['leaf', 'leaf_switch', 'LEF'].includes(node.role)) || [])
 const nodeName = (id?: number) => record.value?.nodes.find(node => node.deviceId === id)?.name || (id ? `#${id}` : '')
 const aclName = (name?: string) => !name || name === 'unbound' ? t('networkFabric.unbound') : name

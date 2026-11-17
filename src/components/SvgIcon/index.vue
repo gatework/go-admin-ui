@@ -1,60 +1,44 @@
 <template>
-  <div v-if="isExternal" :style="styleExternalIcon" class="svg-external-icon svg-icon" />
-  <svg v-else :class="svgClass" aria-hidden="true">
-    <use :href="iconName" />
+  <div v-if="external" :style="maskStyle" class="svg-external-icon svg-icon" />
+  <svg v-else :class="['svg-icon', className]" aria-hidden="true">
+    <use :href="`#icon-${iconClass}`" />
   </svg>
 </template>
 
-<script>
-// doc: https://panjiachen.github.io/vue-element-admin-site/feature/component/svg-icon.html#usage
+<script setup lang="ts">
+/**
+ * One icon from the sprite built out of src/icons/svg, by file name, or an
+ * external image used as a mask so it still takes the text colour.
+ */
+import { computed } from 'vue'
 import { isExternal } from '@/utils/validate'
-export default {
-  name: 'SvgIcon',
-  props: {
-    iconClass: {
-      type: String,
-      required: true
-    },
-    className: {
-      type: String,
-      default: ''
-    }
-  },
-  computed: {
-    isExternal() {
-      return isExternal(this.iconClass)
-    },
-    iconName() {
-      return `#icon-${this.iconClass}`
-    },
-    svgClass() {
-      if (this.className) {
-        return 'svg-icon ' + this.className
-      } else {
-        return 'svg-icon'
-      }
-    },
-    styleExternalIcon() {
-      return {
-        mask: `url(${this.iconClass}) no-repeat 50% 50%`,
-        '-webkit-mask': `url(${this.iconClass}) no-repeat 50% 50%`
-      }
-    }
-  }
-}
+
+defineOptions({ name: 'SvgIcon' })
+const props = withDefaults(defineProps<{
+  /** File name under src/icons/svg, without the extension; or a URL. */
+  iconClass: string
+  className?: string
+}>(), { className: '' })
+
+const external = computed(() => isExternal(props.iconClass))
+const maskStyle = computed(() => {
+  const mask = `url(${props.iconClass}) no-repeat 50% 50%`
+  return { mask, '-webkit-mask': mask }
+})
 </script>
 
 <style scoped>
 .svg-icon {
   width: 1em;
   height: 1em;
+  overflow: hidden;
   vertical-align: -0.15em;
   fill: currentColor;
-  overflow: hidden;
 }
+
 .svg-external-icon {
-  background-color: currentColor;
-  mask-size: cover!important;
   display: inline-block;
+  background-color: currentColor;
+  mask-size: cover !important;
 }
 </style>

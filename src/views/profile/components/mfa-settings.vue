@@ -34,6 +34,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import { downloadBlob } from '@/utils/download'
 import { onMounted, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { Message, type FormInstance } from '@arco-design/web-vue'
@@ -74,7 +75,7 @@ async function submit() {
 }
 async function enable() { if (busy.value) return; busy.value = true; try { const result = await changeMFA('enable', { code: form.code }); codes.value = result.data.recoveryCodes || []; enrollment.value = undefined; form.code = '' } catch { /* Shared request reports failures. */ } finally { busy.value = false } }
 async function cancel() { if (busy.value) return; busy.value = true; try { await changeMFA('cancel'); enrollment.value = undefined; form.code = '' } catch { /* Shared request reports failures. */ } finally { busy.value = false } }
-function download() { const url = URL.createObjectURL(new Blob([codes.value.join('\n') + '\n'], { type: 'text/plain' })); const link = document.createElement('a'); link.href = url; link.download = 'motor-recovery-codes.txt'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000) }
+const download = () => downloadBlob(codes.value.join('\n') + '\n', 'motor-recovery-codes.txt', 'text/plain')
 onMounted(() => { window.addEventListener('beforeunload', protectUnload); void load() })
 </script>
 <style scoped lang="scss">

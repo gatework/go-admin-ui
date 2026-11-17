@@ -41,6 +41,7 @@
 </template>
 
 <script setup lang="ts">
+import { usePermission } from '@/composables/usePermission'
 import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -65,7 +66,7 @@ import './style.scss'
 defineOptions({ name: 'NetworkDeliveryManage' })
 const { t } = useI18n()
 const user = useUserStore()
-const allowed = (action: string) => user.permisaction.some(p => p === '*:*:*' || p === `network:delivery:${action}`)
+const { can: allowed } = usePermission('network:delivery')
 const options = ref<DeliveryOptions>()
 const optionsFailed = ref(false)
 const failed = ref(false)

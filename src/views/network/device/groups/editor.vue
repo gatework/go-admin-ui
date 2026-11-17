@@ -1,5 +1,5 @@
 <template>
-  <AppDrawer class="network-drawer" :visible="visible" :title="t(record ? 'network.device.groups.edit' : 'network.device.groups.add')" :width="narrow ? '100%' : 520" :mask-closable="false" :closable="!saving" @update:visible="close">
+  <AppDrawer class="network-drawer" :visible="visible" :title="t(record ? 'network.device.groups.edit' : 'network.device.groups.add')" :width="520" :mask-closable="false" :closable="!saving" @update:visible="close">
     <a-alert v-if="conflict" type="warning" class="group-editor__notice" :title="t('network.device.groups.conflict')">
       {{ t('network.device.groups.conflictHelp') }}
       <template #action><a-button :loading="reloading" @click="reload">{{ t('network.device.reload') }}</a-button></template>
@@ -23,12 +23,12 @@
 </template>
 
 <script setup lang="ts">
+import { hasPermission } from '@/utils/permission'
 import { computed, nextTick, onBeforeUnmount, onDeactivated, ref, watch } from 'vue'
 import { isAxiosError } from 'axios'
 import { useI18n } from 'vue-i18n'
 import AppDrawer from '@/components/AppDrawer/index.vue'
 import { useForm } from '@/composables'
-import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import { addDeviceGroup, updateDeviceGroup } from '@/api/network/device'
 import { useUserStore } from '@/stores/user'
 import type { DeviceGroupDraft, DeviceGroupNode } from '@/types/network'
@@ -42,7 +42,6 @@ defineOptions({ name: 'DeviceGroupEditor' })
 const emit = defineEmits<{ 'update:visible': [visible: boolean], saved: [] }>()
 const { t } = useI18n()
 const user = useUserStore()
-const narrow = useNarrowScreen()
 const saving = ref(false)
 const reloading = ref(false)
 const failed = ref(false)
@@ -81,7 +80,7 @@ function close() { if (!saving.value) { generation++; form.close(); emit('update
 async function save() {
   if (saving.value || !props.visible || conflict.value || session !== user.token) return
   const action = props.record ? 'edit' : 'add'
-  if (!user.permisaction.some(value => value === '*:*:*' || value === `network:device-group:${action}`)) return
+  if (!hasPermission([`network:device-group:${action}`])) return
   form.model.code = form.model.code.trim().toLowerCase()
   saving.value = true
   submittedGeneration = generation

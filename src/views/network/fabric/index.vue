@@ -18,10 +18,11 @@
     </template>
     <Detail v-else-if="canReadDetail" :id="location.id" :key="location.id" :tab="location.tab" @tab="setTab" @close="select(undefined)" />
     <Rules v-if="rulesVisible" v-model:visible="rulesVisible" :fabrics="table.rows" @saved="table.getList" />
-    <AppDrawer v-model:visible="endpointVisible" :title="t('networkFabric.allRegions')" :width="narrow ? '100%' : 1100" :footer="false"><Endpoints v-if="endpointVisible" :can-open="canReadDetail" @navigate="endpointVisible = false" /></AppDrawer>
+    <AppDrawer v-model:visible="endpointVisible" :title="t('networkFabric.allRegions')" :width="1100" :footer="false"><Endpoints v-if="endpointVisible" :can-open="canReadDetail" @navigate="endpointVisible = false" /></AppDrawer>
   </PageContainer>
 </template>
 <script setup lang="ts">
+import { usePermission } from '@/composables/usePermission'
 import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -30,7 +31,6 @@ import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import AppDrawer from '@/components/AppDrawer/index.vue'
 import { useTable } from '@/composables'
-import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import { useUserStore } from '@/stores/user'
 import { listFabric } from '@/api/network/fabric'
 import type { Fabric, FabricQuery } from '@/types/network-fabric'
@@ -46,10 +46,9 @@ const { t } = useI18n()
 const user = useUserStore()
 const route = useRoute()
 const router = useRouter()
-const narrow = useNarrowScreen()
 const location = computed(() => parseLocation(route.query))
-const allowed = (action: string) => user.permisaction.some(value => value === '*:*:*' || value === `network:fabric:${action}`)
-const canReadDetail = computed(() => ['query', 'edit', 'collect', 'preview', 'execute'].some(allowed))
+const { can: allowed } = usePermission('network:fabric')
+const canReadDetail = computed(() => allowed(...['query', 'edit', 'collect', 'preview', 'execute']))
 const failed = ref(false)
 const rulesVisible = ref(false)
 const endpointVisible = ref(false)

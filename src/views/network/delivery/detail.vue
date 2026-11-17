@@ -1,5 +1,5 @@
 <template>
-  <AppDrawer class="network-drawer delivery-drawer" :visible="visible" :title="t('networkDelivery.detail')" :width="narrow ? '100%' : 1040" :mask-closable="!busy" :closable="!busy" @update:visible="close">
+  <AppDrawer class="network-drawer delivery-drawer" :visible="visible" :title="t('networkDelivery.detail')" :width="1040" :mask-closable="!busy" :closable="!busy" @update:visible="close">
     <a-spin :loading="loading" class="delivery-editor">
       <a-result v-if="failed && !order" status="error" :title="t('networkDelivery.loadFailed')"><template #extra><a-button @click="refresh">{{ t('networkDelivery.retry') }}</a-button></template></a-result>
       <template v-if="order">
@@ -44,11 +44,11 @@
 </template>
 
 <script setup lang="ts">
+import { usePermission } from '@/composables/usePermission'
 import { ref, toRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppDrawer from '@/components/AppDrawer/index.vue'
 import AppTabs from '@/components/AppTabs/index.vue'
-import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import { useUserStore } from '@/stores/user'
 import { confirmAction } from '@/utils/modal'
 import { cancelDelivery, executeDelivery, retryDelivery } from '@/api/network/delivery'
@@ -61,13 +61,12 @@ defineOptions({ name: 'DeliveryDetail' })
 const props = defineProps<{ visible: boolean, id?: number, ready: boolean }>()
 const emit = defineEmits<{ 'update:visible': [boolean], edit: [number], changed: [], open: [number] }>()
 const { t } = useI18n()
-const narrow = useNarrowScreen()
 const user = useUserStore()
 const { order, target, selectedId, loading, refreshing, failed, targetLoading, targetFailed, polling, refresh, loadTarget } = useDetail(toRef(props, 'id'), toRef(props, 'visible'))
 const busy = ref(false)
 const actionFailed = ref(false)
 const tab = ref('output')
-const allowed = (value: string) => user.permisaction.some(p => p === '*:*:*' || p === `network:delivery:${value}`)
+const { can: allowed } = usePermission('network:delivery')
 const time = (value?: string) => value ? new Date(value).toLocaleString() : '—'
 function close() { if (!busy.value) emit('update:visible', false) }
 watch(() => props.id, () => { actionFailed.value = false; tab.value = 'output' })

@@ -1,5 +1,5 @@
 <template>
-  <AppDrawer class="network-drawer circuit-drawer" :visible="visible" :title="t(id ? 'networkCircuit.editTitle' : 'networkCircuit.createTitle')" :width="narrow ? '100%' : 760" :mask-closable="false" :closable="!saving" @update:visible="requestClose">
+  <AppDrawer class="network-drawer circuit-drawer" :visible="visible" :title="t(id ? 'networkCircuit.editTitle' : 'networkCircuit.createTitle')" :width="760" :mask-closable="false" :closable="!saving" @update:visible="requestClose">
     <a-spin :loading="form.loading" class="circuit-editor">
       <a-result v-if="loadFailed" status="error" :title="t('networkCircuit.detailFailed')">
         <template #extra><a-button @click="load">{{ t('networkCircuit.retry') }}</a-button></template>
@@ -68,12 +68,12 @@
 </template>
 
 <script setup lang="ts">
+import { hasPermission } from '@/utils/permission'
 import { computed, onBeforeUnmount, onDeactivated, ref, watch } from 'vue'
 import { isAxiosError } from 'axios'
 import { useI18n } from 'vue-i18n'
 import AppDrawer from '@/components/AppDrawer/index.vue'
 import { useForm } from '@/composables'
-import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import { useUserStore } from '@/stores/user'
 import { confirmAction } from '@/utils/modal'
 import { addCircuit, getCircuit, updateCircuit } from '@/api/network/circuit'
@@ -91,7 +91,6 @@ const props = defineProps<{ visible: boolean, id?: number, options?: CircuitOpti
 const emit = defineEmits<{ 'update:visible': [value: boolean], saved: [], retryOptions: [] }>()
 const { t } = useI18n()
 const user = useUserStore()
-const narrow = useNarrowScreen()
 const loadFailed = ref(false)
 const saveFailed = ref(false)
 const conflict = ref(false)
@@ -167,7 +166,7 @@ async function requestClose() {
 async function reload() { if (!saving.value && await mayDiscard()) load() }
 async function save() {
   if (saving.value || form.loading || !form.visible || conflict.value || session !== user.token) return
-  if (!user.permisaction.some(permission => permission === '*:*:*' || permission === `network:circuit:${props.id ? 'edit' : 'add'}`)) return
+  if (!hasPermission([`network:circuit:${props.id ? 'edit' : 'add'}`])) return
   saving.value = true
   saveFailed.value = false
   try { await form.submit() } finally { saving.value = false }

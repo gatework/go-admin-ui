@@ -3,7 +3,7 @@
     class="network-drawer"
     :visible="visible"
     :title="t('network.device.editTitle')"
-    :width="narrow ? '100%' : 640"
+    :width="640"
     :mask-closable="false"
     :closable="!saving"
     @update:visible="close"
@@ -79,12 +79,12 @@
 </template>
 
 <script setup lang="ts">
+import { hasPermission } from '@/utils/permission'
 import { computed, onBeforeUnmount, onDeactivated, ref, watch } from 'vue'
 import { isAxiosError } from 'axios'
 import { useI18n } from 'vue-i18n'
 import AppDrawer from '@/components/AppDrawer/index.vue'
 import { useForm } from '@/composables'
-import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import { getDevice, updateDevice } from '@/api/network/device'
 import { useUserStore } from '@/stores/user'
 import { deviceRoles, deviceStatuses, deviceTypes, type DeviceDraft, type DeviceGroupNode } from '@/types/network'
@@ -99,7 +99,6 @@ const props = defineProps<{ visible: boolean, id?: number, groups: DeviceGroupNo
 const emit = defineEmits<{ 'update:visible': [visible: boolean], saved: [] }>()
 const { t } = useI18n()
 const user = useUserStore()
-const narrow = useNarrowScreen()
 const loadFailed = ref(false)
 const saveFailed = ref(false)
 const conflict = ref(false)
@@ -157,7 +156,7 @@ function close() {
 }
 async function save() {
   if (saving.value || form.loading || !form.visible || conflict.value || session !== user.token) return
-  if (!user.permisaction.some(permission => permission === '*:*:*' || permission === 'network:device:edit')) return
+  if (!hasPermission(['network:device:edit'])) return
   saving.value = true
   submittedGeneration = generation
   saveFailed.value = false

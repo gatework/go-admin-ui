@@ -1,5 +1,5 @@
 <template>
-  <AppDrawer :visible="visible" class="fabric-drawer" :title="t('networkFabric.rules')" :width="narrow ? '100%' : 1000" @update:visible="emit('update:visible', $event)">
+  <AppDrawer :visible="visible" class="fabric-drawer" :title="t('networkFabric.rules')" :width="1000" @update:visible="emit('update:visible', $event)">
     <p class="fabric-hint">{{ t('networkFabric.ruleHelp') }}</p>
     <a-alert v-if="failed" type="warning">{{ t('networkFabric.loadFailed') }}<template #action><a-button @click="load">{{ t('common.refresh') }}</a-button></template></a-alert>
     <a-spin :loading="loading" style="width:100%">

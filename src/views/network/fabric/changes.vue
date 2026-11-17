@@ -2,7 +2,7 @@
   <section>
     <p class="fabric-hint">{{ t('networkFabric.changeHelp') }}</p>
     <ProTable :table="table" :panels="false" row-key="id" :actions-width="100"><template #toolbar><a-button v-if="allowed('preview')" type="primary" :disabled="!fabric.completeScope" @click="create">{{ t('networkFabric.newChange') }}</a-button><a-button @click="refresh">{{ t('networkFabric.refreshJobs') }}</a-button></template><a-table-column data-index="id" :title="t('networkFabric.job')" :width="100" /><a-table-column data-index="kind" :title="t('networkFabric.kind')" :width="190"><template #cell="{ record }">{{ t(`networkFabric.kinds.${record.kind}`) }}</template></a-table-column><a-table-column data-index="vni" title="VNI" :width="120" /><a-table-column data-index="status" :title="t('networkFabric.state')" :width="150"><template #cell="{ record }"><StateTag :value="record.status" /></template></a-table-column><a-table-column data-index="createdAt" :title="t('common.createdAt')" :width="125"><template #cell="{ record }"><DateCell :value="record.createdAt" /></template></a-table-column><template #actions="{ row }"><a-button type="text" @click="show(row.id)">{{ t('networkFabric.view') }}</a-button></template></ProTable>
-    <AppDrawer v-model:visible="editorVisible" class="fabric-drawer" :title="t('networkFabric.newChange')" :width="narrow ? '100%' : 860" :mask-closable="!pending" @close="invalidate">
+    <AppDrawer v-model:visible="editorVisible" class="fabric-drawer" :title="t('networkFabric.newChange')" :width="860" :mask-closable="!pending" @close="invalidate">
       <a-alert v-if="!fabric.completeScope" type="warning">{{ t('networkFabric.partialScope') }}</a-alert>
       <a-form v-if="!plan && !inspectId" :model="draft" layout="vertical" :disabled="pending">
         <a-form-item v-input-label="t('networkFabric.source')" :label="t('networkFabric.source')"><a-select :model-value="draft.sourceDeviceId || undefined" :placeholder="t('common.selectPlaceholder')" allow-search @change="chooseSource(Number($event))"><a-option v-for="node in leaves.filter(item => !initialTargets?.includes(item.deviceId))" :key="node.deviceId" :value="node.deviceId">{{ node.name }} · {{ node.ip }}</a-option></a-select></a-form-item>
@@ -34,6 +34,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import { usePermission } from '@/composables/usePermission'
 import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppDrawer from '@/components/AppDrawer/index.vue'
@@ -41,7 +42,6 @@ import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import { useTable } from '@/composables'
 import { useNarrowScreen } from '@/composables/useNarrowScreen'
-import { useUserStore } from '@/stores/user'
 import { listChange, addChange, getChange, executeChange, cancelChange } from '@/api/network/fabric'
 import type { Change, ChangeCandidateInput, ChangeInput, ChangeKind, FabricDetail } from '@/types/network-fabric'
 import { vInputLabel } from '../shared/input-label'
@@ -56,10 +56,9 @@ const props = defineProps<{ fabric: FabricDetail, initialVni?: number, initialTa
 const emit = defineEmits<{ changed: [] }>()
 const { t, te } = useI18n()
 const tasks = inject<FabricTasks>('fabricTasks')
-const user = useUserStore()
 const narrow = useNarrowScreen()
 const { pending, run, invalidate } = useOperation()
-const allowed = (action: string) => user.permisaction.some(value => value === '*:*:*' || value === `network:fabric:${action}`)
+const { can: allowed } = usePermission('network:fabric')
 const kinds: ChangeKind[] = ['vlan_vni_add', 'svi_gateway_add', 'svi_acl']
 const draft = reactive<ChangeInput>({ sourceDeviceId: 0, targetDeviceIds: [], kind: 'vlan_vni_add', vni: 0, direction: 'in' })
 const editorVisible = ref(false)

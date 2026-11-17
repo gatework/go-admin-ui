@@ -85,6 +85,7 @@
 </template>
 
 <script setup lang="ts">
+import { hasPermission } from '@/utils/permission'
 import { computed, nextTick, onActivated, onDeactivated, onMounted, onBeforeUnmount, reactive, ref, type ObjectDirective } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message, type FormInstance } from '@arco-design/web-vue'
@@ -92,13 +93,11 @@ import PageContainer from '@/components/PageContainer/index.vue'
 import { useFormLocale } from '@/composables/useFormLocale'
 import { getDiagnosticServer } from '@/api/network/diagnostics'
 import { diagnosticTools, type DiagnosticFamily, type DiagnosticServer, type DiagnosticTool } from '@/types/diagnostics'
-import { useUserStore } from '@/stores/user'
 import DiagnosticOutput from './output.vue'
 import { useDiagnostics } from './use-diagnostics'
 
 defineOptions({ name: 'NetworkDiagnostics' })
 const { t } = useI18n()
-const user = useUserStore()
 const state = useDiagnostics()
 const server = ref<DiagnosticServer>()
 const loading = ref(false)
@@ -107,7 +106,7 @@ const formRef = ref<FormInstance>()
 useFormLocale(formRef)
 const selectExpanded = reactive({ node: false, tool: false, family: false, direction: false })
 const draft = reactive({ tool: 'ping' as DiagnosticTool, target: '', family: 'auto' as DiagnosticFamily, mode: 'client' as 'client' | 'server', port: 5201, duration: 10, direction: 'send' })
-const canRun = computed(() => user.permisaction.some(value => value === '*:*:*' || value === 'network:diagnostics:run'))
+const canRun = computed(() => hasPermission(['network:diagnostics:run']))
 const serverMode = computed(() => draft.tool === 'iperf3' && draft.mode === 'server')
 const slot = computed(() => serverMode.value ? state.session : state.run)
 const toolAvailable = computed(() => server.value?.tools.some(tool => tool.id === draft.tool && tool.available))

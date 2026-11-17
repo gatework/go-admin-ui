@@ -1,5 +1,5 @@
 <template>
-  <AppDrawer class="network-drawer circuit-drawer" :visible="visible" :title="t('networkCircuit.detailTitle')" :width="narrow ? '100%' : 760" @update:visible="close">
+  <AppDrawer class="network-drawer circuit-drawer" :visible="visible" :title="t('networkCircuit.detailTitle')" :width="760" @update:visible="close">
     <a-spin :loading="loading" class="circuit-editor">
       <a-result v-if="failed" status="error" :title="t('networkCircuit.detailFailed')"><template #extra><a-button @click="load">{{ t('networkCircuit.retry') }}</a-button></template></a-result>
       <template v-else-if="record">

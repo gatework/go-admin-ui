@@ -1,9 +1,10 @@
+import { usePermission } from '@/composables/usePermission'
 import { onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { createReadOwner } from './presentation'
 export function useWorkspace() {
   const user = useUserStore(); const account = user.token; const owner = createReadOwner(); const failed = ref(false); const loading = ref(false); const pending = ref(false); let active = true; let generation = 0; let scopeController = new AbortController(); let readGeneration = 0
-  const allowed = (action: string) => user.permisaction.some(value => value === '*:*:*' || value === `network:firewall:${action}`)
+  const { can: allowed } = usePermission('network:firewall')
   function stop() { active = false; generation++; scopeController.abort(); owner.stop(); loading.value = false }
   function resume() { if (user.token === account) { active = true; if (scopeController.signal.aborted) scopeController = new AbortController(); owner.resume() } }
   onDeactivated(stop); onBeforeUnmount(stop); onActivated(resume); watch(() => user.token, stop, { flush: 'sync' })

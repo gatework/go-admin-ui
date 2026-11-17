@@ -21,6 +21,7 @@
 </template>
 
 <script setup lang="ts">
+import { hasPermission } from '@/utils/permission'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppModal from '@/components/AppModal/index.vue'
@@ -48,7 +49,7 @@ const form = useForm<ConnectionSettings, number>({
   rules: computed(() => ({ port: [{ required: true, type: 'number', min: 1, max: 65535, message: t('networkDelivery.connectionRequired') }] })),
   api: { get: async id => { const result = await getConnection(id, controller?.signal); return { ...result, data: { ...result.data, profile: result.data.profileSource === 'manual' ? result.data.profile : '' }} } },
   submit: draft => {
-    if (!props.visible || !props.device || session !== user.token || !user.permisaction.some(p => p === '*:*:*' || p === 'network:delivery:connection')) throw new Error('Inactive connection form')
+    if (!props.visible || !props.device || session !== user.token || !hasPermission(['network:delivery:connection'])) throw new Error('Inactive connection form')
     return updateConnection(props.device.id, { version: draft.version, profile: draft.profile, protocol: draft.protocol, port: draft.port })
   },
   successMessage: () => t('networkDelivery.connectionSaved'),

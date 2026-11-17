@@ -1,5 +1,5 @@
 <template>
-  <AppDrawer class="network-drawer circuit-drawer" :visible="visible" :title="t('networkCircuit.trafficTitle')" :width="narrow ? '100%' : 1040" @update:visible="close">
+  <AppDrawer class="network-drawer circuit-drawer" :visible="visible" :title="t('networkCircuit.trafficTitle')" :width="1040" @update:visible="close">
     <div v-if="record" class="circuit-identity"><h2>{{ record.name }}</h2><p>{{ record.circuitNo }} · {{ t('networkCircuit.bandwidth') }}: {{ record.bandwidthMbps === null ? '—' : `${record.bandwidthMbps.toLocaleString()} Mbps` }}</p></div>
     <div class="circuit-traffic__toolbar">
       <a-radio-group v-model="period" type="button" :aria-label="t('networkCircuit.traffic')">
@@ -41,7 +41,6 @@
 import { computed, onDeactivated, ref, toRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppDrawer from '@/components/AppDrawer/index.vue'
-import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import { usePreferencesStore } from '@/stores/preferences'
 import { useUserStore } from '@/stores/user'
 import { preferenceTime } from '@/utils/preference-time'
@@ -59,7 +58,6 @@ const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
 const { t } = useI18n()
 const preferences = usePreferencesStore()
 const user = useUserStore()
-const narrow = useNarrowScreen()
 const period = ref<CircuitPeriod>('1h')
 const id = computed(() => props.record?.id)
 const { data, loading, failed, refresh, cancel } = useCircuitTraffic(id, toRef(props, 'visible'), period)

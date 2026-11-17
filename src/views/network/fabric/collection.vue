@@ -1,5 +1,5 @@
 <template>
-  <AppDrawer :visible="visible" class="fabric-drawer" :title="t('networkFabric.collect')" :width="narrow ? '100%' : 860" @update:visible="emit('update:visible', $event)">
+  <AppDrawer :visible="visible" class="fabric-drawer" :title="t('networkFabric.collect')" :width="860" @update:visible="emit('update:visible', $event)">
     <section v-if="allowed('edit')">
       <h2>{{ t('networkFabric.settings') }}</h2>
       <p class="fabric-hint">{{ t('networkFabric.settingsHelp') }}</p>
@@ -46,14 +46,13 @@
   </AppDrawer>
 </template>
 <script setup lang="ts">
+import { usePermission } from '@/composables/usePermission'
 import { inject, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppDrawer from '@/components/AppDrawer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import { useTable } from '@/composables'
-import { useNarrowScreen } from '@/composables/useNarrowScreen'
-import { useUserStore } from '@/stores/user'
 import { listCollection, addCollection, getCollection } from '@/api/network/fabric'
 import type { Collection, CollectionMode, Fabric } from '@/types/network-fabric'
 import { vInputLabel } from '../shared/input-label'
@@ -66,11 +65,9 @@ const props = defineProps<{ visible: boolean, fabric: Fabric }>()
 const emit = defineEmits<{ 'update:visible': [value: boolean], changed: [] }>()
 const { t } = useI18n()
 const tasks = inject<FabricTasks>('fabricTasks')
-const user = useUserStore()
-const narrow = useNarrowScreen()
 const operation = useOperation()
 const { pending, run } = operation
-const allowed = (action: string) => user.permisaction.some(value => value === '*:*:*' || value === `network:fabric:${action}`)
+const { can: allowed } = usePermission('network:fabric')
 const refreshFabric = inject<() => Promise<void>>('refreshFabric')
 const { settings, outdated, conflict, reloading, reloadFailed, valid, blocked, save: saveSettings, reload: reloadSettings } = useSettings(() => props.fabric, () => props.visible, () => allowed('edit'), operation, refreshFabric, () => emit('changed'))
 const modes: CollectionMode[] = ['all', 'runtime', 'configuration']

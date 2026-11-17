@@ -1,5 +1,5 @@
 <template>
-  <AppDrawer class="network-drawer" :visible="visible" :title="t('network.device.groups.assign')" :width="narrow ? '100%' : 480" :mask-closable="false" :closable="!saving" @update:visible="close">
+  <AppDrawer class="network-drawer" :visible="visible" :title="t('network.device.groups.assign')" :width="480" :mask-closable="false" :closable="!saving" @update:visible="close">
     <p class="assignment__summary">{{ t('network.device.groups.selectedCount', { count: records.length }) }}</p>
     <a-alert v-if="conflict" type="warning" class="assignment__notice" :title="t('network.device.groups.assignmentConflict')">{{ t('network.device.groups.assignmentConflictHelp') }}</a-alert>
     <a-alert v-else-if="failed" type="error" class="assignment__notice">{{ t('network.device.saveFailed') }}</a-alert>
@@ -21,11 +21,11 @@
 </template>
 
 <script setup lang="ts">
+import { hasPermission } from '@/utils/permission'
 import { computed, onBeforeUnmount, onDeactivated, reactive, ref, watch } from 'vue'
 import { isAxiosError } from 'axios'
 import { useI18n } from 'vue-i18n'
 import AppDrawer from '@/components/AppDrawer/index.vue'
-import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import { assignDeviceGroup } from '@/api/network/device'
 import { useUserStore } from '@/stores/user'
 import { msgSuccess } from '@/utils/message'
@@ -39,7 +39,6 @@ defineOptions({ name: 'DeviceGroupAssignment' })
 const emit = defineEmits<{ 'update:visible': [visible: boolean], saved: [], refresh: [] }>()
 const { t } = useI18n()
 const user = useUserStore()
-const narrow = useNarrowScreen()
 const saving = ref(false)
 const failed = ref(false)
 const conflict = ref(false)
@@ -62,7 +61,7 @@ function close() { if (!saving.value) emit('update:visible', false) }
 function refreshSelection() { close(); emit('refresh') }
 async function save() {
   if (saving.value || !props.visible || conflict.value || !props.records.length || props.records.length > 200 || session !== user.token) return
-  if (!user.permisaction.some(value => value === '*:*:*' || value === 'network:device:edit')) return
+  if (!hasPermission(['network:device:edit'])) return
   const current = generation
   const token = user.token
   saving.value = true

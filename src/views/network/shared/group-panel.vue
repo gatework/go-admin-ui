@@ -42,6 +42,7 @@
  * inventory, delivery, firewall and wireless. Maps groups onto TreeNav and adds
  * the group maintenance actions the user's permissions allow.
  */
+import { usePermission } from '@/composables/usePermission'
 import { computed, nextTick, onBeforeUnmount, onDeactivated, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppDropdown from '@/components/AppDropdown/index.vue'
@@ -69,7 +70,7 @@ const pinned = computed(() => [
 ])
 
 const user = useUserStore()
-const allowed = (action: string) => user.permisaction.some(value => value === '*:*:*' || value === `network:device-group:${action}`)
+const { can: allowed } = usePermission('network:device-group')
 const canAdd = computed(() => !props.readOnly && allowed('add'))
 const canEdit = computed(() => !props.readOnly && allowed('edit'))
 const canRemove = computed(() => !props.readOnly && allowed('remove'))

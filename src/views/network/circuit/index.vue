@@ -40,6 +40,8 @@
 </template>
 
 <script setup lang="ts">
+import { datedFilename, downloadBlob } from '@/utils/download'
+import { usePermission } from '@/composables/usePermission'
 import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -62,7 +64,7 @@ import CircuitTraffic from './traffic.vue'
 defineOptions({ name: 'NetworkCircuitManage' })
 const { t } = useI18n()
 const user = useUserStore()
-const allowed = (action: string) => user.permisaction.some(permission => permission === '*:*:*' || permission === `network:circuit:${action}`)
+const { can: allowed } = usePermission('network:circuit')
 const options = ref<CircuitOptions>()
 const optionsFailed = ref(false)
 const filterOptions = [{ key: 'provider', options: 'providers' }, { key: 'region', options: 'regions' }, { key: 'organization', options: 'organizations' }] as const
@@ -143,12 +145,7 @@ async function download() {
   try {
     const response = await exportCircuit({ ...appliedFilters.value }, exportController.signal)
     if (!active || current !== generation || token !== user.token) return
-    const url = URL.createObjectURL(new Blob([response.data], { type: 'text/csv;charset=utf-8' }))
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = `circuit-inventory-${new Date().toISOString().slice(0, 10)}.csv`
-    anchor.click()
-    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    downloadBlob(response.data, datedFilename('circuit-inventory', 'csv'), 'text/csv;charset=utf-8')
   } catch { /* The shared client reports server errors. */ } finally { exporting.value = false }
 }
 function invalidate() {

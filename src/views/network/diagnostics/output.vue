@@ -37,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+import { downloadBlob } from '@/utils/download'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
@@ -72,12 +73,7 @@ async function copy() {
 function download() {
   if (!props.job) return
   const body = `${props.job.command}\n${props.job.startedAt}\n${props.job.status}\n\n${text.value}`
-  const url = URL.createObjectURL(new Blob([body], { type: 'text/plain;charset=utf-8' }))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `${props.job.tool}-${props.job.id}.txt`
-  link.click()
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  downloadBlob(body, `${props.job.tool}-${props.job.id}.txt`, 'text/plain;charset=utf-8')
 }
 </script>
 

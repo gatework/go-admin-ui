@@ -37,8 +37,8 @@ test('profile summary and editor share a desktop row', async({ page }) => {
 test('department tree stays beside the desktop user table', async({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/#/admin/sys-user')
-  await expect(page.locator('.dept-pane')).toBeVisible()
-  const tree = await page.locator('.dept-pane').boundingBox()
+  await expect(page.locator('.aside-layout__aside')).toBeVisible()
+  const tree = await page.locator('.aside-layout__aside').boundingBox()
   const search = await page.locator('.pro-table__search-panel').boundingBox()
   expect(Math.abs(tree!.y - search!.y)).toBeLessThan(2)
   expect(search!.x).toBeGreaterThan(tree!.x + tree!.width - 2)
@@ -71,7 +71,7 @@ for (const selector of ['#hamburger-container', '#lang-select']) {
 
 test('department search retains the matching node and filters users', async({ page }) => {
   await page.goto('/#/admin/sys-user')
-  const tree = page.locator('.dept-pane')
+  const tree = page.locator('.aside-layout__aside')
   await tree.getByPlaceholder('请输入部门名称').fill('测试')
   await expect(tree.getByText('测试部', { exact: true })).toBeVisible()
   await expect(tree.getByText('研发部', { exact: true })).toBeHidden()

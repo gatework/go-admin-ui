@@ -126,6 +126,8 @@
 </template>
 
 <script setup lang="ts">
+import { datedFilename, downloadBlob } from '@/utils/download'
+import { usePermission } from '@/composables/usePermission'
 import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PageContainer from '@/components/PageContainer/index.vue'
@@ -151,7 +153,7 @@ defineOptions({ name: 'NetworkDeviceManage' })
 const { t } = useI18n()
 const user = useUserStore()
 const preferences = usePreferencesStore()
-const allowed = (action: string) => user.permisaction.some(permission => permission === '*:*:*' || permission === `network:device:${action}`)
+const { can: allowed } = usePermission('network:device')
 const canQuery = computed(() => allowed('query'))
 const canEdit = computed(() => allowed('edit'))
 const canSync = computed(() => allowed('sync'))
@@ -322,12 +324,7 @@ async function download() {
   try {
     const response = await exportDevice({ ...appliedFilters.value })
     if (!isCurrent(current, token)) return
-    const url = URL.createObjectURL(new Blob([response.data], { type: 'text/csv;charset=utf-8' }))
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `device-inventory-${new Date().toISOString().slice(0, 10)}.csv`
-    link.click()
-    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    downloadBlob(response.data, datedFilename('device-inventory', 'csv'), 'text/csv;charset=utf-8')
   } catch { /* The shared request client owns error messages. */ } finally { exporting.value = false }
 }
 function invalidate() {

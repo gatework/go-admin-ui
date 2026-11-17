@@ -263,7 +263,7 @@
     <AppDrawer
       v-model:visible="createVisible"
       :title="t('networkFirewall.newInstance')"
-      :width="narrow ? '100%' : 1000"
+      :width="1000"
       :footer="false"
     >
       <InstanceEditor
@@ -275,7 +275,7 @@
     <AppDrawer
       v-model:visible="importVisible"
       :title="t('networkFirewall.import')"
-      :width="narrow ? '100%' : 620"
+      :width="620"
       :footer="false"
     >
       <Importer
@@ -288,7 +288,7 @@
     <AppDrawer
       v-model:visible="protectionVisible"
       :title="t('networkFirewall.protection')"
-      :width="narrow ? '100%' : 800"
+      :width="800"
       :footer="false"
     >
       <Protection
@@ -302,7 +302,7 @@
     <AppDrawer
       :visible="!!objectId && !!snapshotId"
       :title="t('networkFirewall.details')"
-      :width="narrow ? '100%' : 800"
+      :width="800"
       :footer="false"
       @update:visible="value => { if (!value) navigate({ object: undefined }) }"
     >

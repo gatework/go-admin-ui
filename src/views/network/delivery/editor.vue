@@ -33,6 +33,7 @@
 </template>
 
 <script setup lang="ts">
+import { usePermission } from '@/composables/usePermission'
 import { computed, onBeforeUnmount, onDeactivated, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppDrawer from '@/components/AppDrawer/index.vue'
@@ -69,7 +70,7 @@ let session = ''
 let generation = 0
 let savedId = 0
 let confirming = false
-const allowed = (action: string) => user.permisaction.some(p => p === '*:*:*' || p === `network:delivery:${action}`)
+const { can: allowed } = usePermission('network:delivery')
 const form = useForm<DeliveryDraft, number>({
   defaultModel: emptyDraft, idKey: 'id',
   rules: computed(() => ({ title: [{ required: true, message: t('networkDelivery.rules.titleRequired') }] })),

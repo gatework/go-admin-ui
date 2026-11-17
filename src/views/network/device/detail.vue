@@ -1,5 +1,5 @@
 <template>
-  <AppDrawer class="network-drawer" :visible="visible" :title="t('network.device.details')" :width="narrow ? '100%' : 640" @update:visible="emit('update:visible', $event)">
+  <AppDrawer class="network-drawer" :visible="visible" :title="t('network.device.details')" :width="640" @update:visible="emit('update:visible', $event)">
     <a-spin :loading="loading" class="device-detail">
       <a-result v-if="failed" status="error" :title="t('network.device.detailFailed')" :subtitle="t('network.device.detailFailedHelp')">
         <template #extra><a-button @click="load">{{ t('network.device.retry') }}</a-button></template>

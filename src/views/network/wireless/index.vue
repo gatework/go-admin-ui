@@ -38,7 +38,7 @@
         <a-card v-else :loading="loading" class="wireless-placeholder"><a-empty :description="canRead ? t('networkWireless.selectController') : t('networkWireless.readRequired')" /></a-card>
       </div>
     </AsideLayout>
-    <AppDrawer :visible="!!location.ap && canRead" :title="t('networkWireless.detail')" :width="narrow ? '100%' : 800" :footer="false" @update:visible="value => { if (!value) closeAP() }"><APDetails
+    <AppDrawer :visible="!!location.ap && canRead" :title="t('networkWireless.detail')" :width="800" :footer="false" @update:visible="value => { if (!value) closeAP() }"><APDetails
       v-if="apDetail && apDetail.resource.id === location.ap"
       :key="`${location.controller}-${location.ap}`"
       :data="apDetail"
@@ -51,13 +51,14 @@
       @issue="setIssue"
       @collect="openCollection"
     /><a-spin v-else :loading="loading"><a-empty /></a-spin></AppDrawer>
-    <AppDrawer :visible="!!clientId && canRead" :title="t('networkWireless.clientDetail')" :width="narrow ? '100%' : 640" :footer="false" @update:visible="value => { if (!value) navigate({ client: undefined }) }"><template v-if="clientDetail"><h2>{{ clientDetail.fields.mac }}</h2><a-descriptions :column="1" bordered><a-descriptions-item v-for="field in ['ip', 'ipv6', 'apName', 'ssid', 'band', 'vlan', 'radioId', 'signal', 'snr'] as const" :key="field" :label="t(`networkWireless.${field === 'apName' ? 'ap' : field === 'radioId' ? 'radio' : field}`)">{{ clientDetail.fields[field] ?? '—' }}</a-descriptions-item></a-descriptions><p><StateTag :value="clientDetail.health" /> <DateCell :value="clientDetail.observedAt" /></p><a-button @click="inspectAPName(clientDetail!.fields.apName)">{{ t('networkWireless.detail') }}</a-button><a-button v-if="location.issue" @click="navigate({ client: undefined })">{{ t('networkWireless.returnIssue') }}</a-button></template></AppDrawer>
-    <AppDrawer v-model:visible="collectVisible" :title="t('networkWireless.collect')" :width="narrow ? '100%' : 520" :footer="false"><CollectionForm v-if="collectVisible && controller && allowed('collect')" :controller="controller" :suggestion="suggestion" @created="created" /></AppDrawer>
-    <AppDrawer v-model:visible="importVisible" :title="t('networkWireless.import')" :width="narrow ? '100%' : 620" :footer="false"><ImportForm v-if="importVisible && allowed('import')" @saved="imported" /></AppDrawer>
-    <AppDrawer v-model:visible="locateVisible" :title="t('networkWireless.locate')" :width="narrow ? '100%' : 1050" :footer="false"><Resources v-if="locateVisible && canRead" kind="clients" compact @inspect="locate" /></AppDrawer>
+    <AppDrawer :visible="!!clientId && canRead" :title="t('networkWireless.clientDetail')" :width="640" :footer="false" @update:visible="value => { if (!value) navigate({ client: undefined }) }"><template v-if="clientDetail"><h2>{{ clientDetail.fields.mac }}</h2><a-descriptions :column="1" bordered><a-descriptions-item v-for="field in ['ip', 'ipv6', 'apName', 'ssid', 'band', 'vlan', 'radioId', 'signal', 'snr'] as const" :key="field" :label="t(`networkWireless.${field === 'apName' ? 'ap' : field === 'radioId' ? 'radio' : field}`)">{{ clientDetail.fields[field] ?? '—' }}</a-descriptions-item></a-descriptions><p><StateTag :value="clientDetail.health" /> <DateCell :value="clientDetail.observedAt" /></p><a-button @click="inspectAPName(clientDetail!.fields.apName)">{{ t('networkWireless.detail') }}</a-button><a-button v-if="location.issue" @click="navigate({ client: undefined })">{{ t('networkWireless.returnIssue') }}</a-button></template></AppDrawer>
+    <AppDrawer v-model:visible="collectVisible" :title="t('networkWireless.collect')" :width="520" :footer="false"><CollectionForm v-if="collectVisible && controller && allowed('collect')" :controller="controller" :suggestion="suggestion" @created="created" /></AppDrawer>
+    <AppDrawer v-model:visible="importVisible" :title="t('networkWireless.import')" :width="620" :footer="false"><ImportForm v-if="importVisible && allowed('import')" @saved="imported" /></AppDrawer>
+    <AppDrawer v-model:visible="locateVisible" :title="t('networkWireless.locate')" :width="1050" :footer="false"><Resources v-if="locateVisible && canRead" kind="clients" compact @inspect="locate" /></AppDrawer>
   </PageContainer>
 </template>
 <script setup lang="ts">
+import { usePermission } from '@/composables/usePermission'
 import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -67,7 +68,6 @@ import AsideLayout from '@/components/AsideLayout/index.vue'
 import NavList from '@/components/NavList/index.vue'
 import AppTabs from '@/components/AppTabs/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
-import { useNarrowScreen } from '@/composables/useNarrowScreen'
 import { useUserStore } from '@/stores/user'
 import { msgSuccess } from '@/utils/message'
 import { getGroups, listController, getController, getAnalysis, getAP, getClient, listResource, listCollection, getCollection, exportResource } from '@/api/network/wireless'
@@ -86,11 +86,10 @@ import { createOwner } from './owner'
 import { parseLocation, positive, tabs, downloadCSV } from './presentation'
 import './style.scss'
 defineOptions({ name: 'NetworkWirelessManage' })
-const { t } = useI18n(); const route = useRoute(); const router = useRouter(); const user = useUserStore(); const narrow = useNarrowScreen()
-const groupLabels = computed(() => ({ title: t('networkWireless.groups'), all: t('networkWireless.allControllers'), search: t('networkWireless.groupSearch'), countHelp: t('networkWireless.groupCountHelp') }))
+const { t } = useI18n(); const route = useRoute(); const router = useRouter(); const user = useUserStore(); const groupLabels = computed(() => ({ title: t('networkWireless.groups'), all: t('networkWireless.allControllers'), search: t('networkWireless.groupSearch'), countHelp: t('networkWireless.groupCountHelp') }))
 const location = computed(() => parseLocation(route.query)); const clientId = computed(() => positive(route.query.client))
-const allowed = (action: string) => user.permisaction.some(value => value === '*:*:*' || value === `network:wireless:${action}`)
-const canRead = computed(() => ['query', 'collect', 'edit', 'import', 'export'].some(allowed))
+const { can: allowed } = usePermission('network:wireless')
+const canRead = computed(() => allowed(...['query', 'collect', 'edit', 'import', 'export']))
 const controller = ref<Controller>(); const analysis = ref<Analysis>(); const apDetail = ref<APDetail>(); const clientDetail = ref<Resource>()
 const groups = ref<DeviceGroupTree>({ items: [], totalDeviceCount: 0, ungroupedDeviceCount: 0 }); const controllers = ref<Device[]>([]); const controllerCount = ref(0); const controllerPage = ref(1); const controllerSearch = ref('')
 const loading = ref(false); const failed = ref(false); const navigationLoading = ref(false); const navigationFailed = ref(false); const revision = ref(0)
