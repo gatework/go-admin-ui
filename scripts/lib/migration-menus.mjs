@@ -1,7 +1,8 @@
 /** Read inline or named literal menu slices; computed specifications remain unknown. */
 export function migrationMenus(source) {
   const menus = []
-  const calls = /\bseed\.SeedMenus\(\s*[^,]+,\s*("(?:\\.|[^"\\])*"),\s*(\[\]seed\.MenuSpec\s*\{|[A-Za-z_]\w*)/g
+  // seed.Menus on the main line; seed.SeedMenus before the backend dropped the stutter.
+  const calls = /\bseed\.(?:Seed)?Menus\(\s*[^,]+,\s*("(?:\\.|[^"\\])*"),\s*(\[\]seed\.MenuSpec\s*\{|[A-Za-z_]\w*)/g
   const pascal = value => value.split(/[-_]+/).filter(Boolean).map(part => part[0].toUpperCase() + part.slice(1)).join('')
   for (const call of source.matchAll(calls)) {
     const app = JSON.parse(call[1])

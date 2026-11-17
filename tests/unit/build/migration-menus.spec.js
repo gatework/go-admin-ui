@@ -14,4 +14,17 @@ describe('migration menu language contracts', () => {
       {Code: "management", Title: "Network", Kind: models.Directory},
       {Code: "execute", Title: "Execute", Kind: models.Button}}, apis)`)).toEqual([{ name: 'NetworkManagement', title: 'Network' }])
   })
+
+  // The backend renamed seed.SeedMenus to seed.Menus; the i18n check read no
+  // network menu at all against it and reported every translation as unknown.
+  it('reads the current seed.Menus spelling with contract kinds', () => {
+    expect(migrationMenus(`return seed.Menus(tx, "network", []seed.MenuSpec{
+      {Code: "management", Kind: contractmodels.Directory, Title: "网络管理", Path: "/network"},
+      {Code: "device-manage", Parent: "management", Kind: contractmodels.Menu, Title: "设备管理"},
+      {Code: "device-list", Parent: "device-manage", Kind: contractmodels.Button, Title: "查询台账"},
+    })`)).toEqual([
+      { name: 'NetworkManagement', title: '网络管理' },
+      { name: 'NetworkDeviceManage', title: '设备管理' }
+    ])
+  })
 })

@@ -37,9 +37,13 @@ const GO = process.env.GO_ADMIN_PATH ?? join(UI, '..', 'go-admin')
  * checkout without it can only conclude that every model has lost them.
  */
 const goModFile = join(GO, 'go.mod')
-const coreVersion = existsSync(goModFile)
-  ? readFileSync(goModFile, 'utf8').match(/^\s*github\.com\/go-admin-team\/go-admin-core\/v2\s+(\S+)/m)?.[1]
-  : undefined
+/** The core module the backend pins: motor-core on the main line, go-admin-core before the rename. */
+const CORE_MODULES = ['github.com/gatework/motor-core', 'github.com/go-admin-team/go-admin-core/v2']
+const goMod = existsSync(goModFile) ? readFileSync(goModFile, 'utf8') : ''
+const corePin = CORE_MODULES
+  .map(module => ({ module, version: goMod.match(new RegExp(`^\\s*${module.replace(/[./]/g, '\\$&')}\\s+(\\S+)`, 'm'))?.[1] }))
+  .find(pin => pin.version)
+const coreVersion = corePin?.version
 let goModCache = process.env.GOMODCACHE
 if (!goModCache && existsSync(goModFile)) {
   try {
@@ -52,7 +56,7 @@ if (!goModCache && existsSync(goModFile)) {
   }
 }
 const cachedCore = goModCache && coreVersion
-  ? join(goModCache, `github.com/go-admin-team/go-admin-core/v2@${coreVersion}`)
+  ? join(goModCache, `${corePin.module}@${coreVersion}`)
   : undefined
 const CORE = process.env.GO_ADMIN_CORE_PATH ?? cachedCore
 
@@ -105,24 +109,36 @@ const parseStructs = (source, qualifiedEmbeds = false) => {
 
 const goFiles = dir => readdirSync(dir).filter(f => f.endsWith('.go')).map(f => join(dir, f))
 
+/**
+ * The first of `dirs` that exists in the Go repository.
+ *
+ * The backend moved its network modules under app/net (app/network/models ->
+ * app/net/models/inventory and so on). Each location is listed new first, old
+ * second, so this checks either layout -- a release branch on the old one, the
+ * main line on the new one -- without a flag saying which.
+ */
+const at = (...dirs) => dirs.find(dir => existsSync(join(GO, dir))) ?? dirs[0]
+
 const MODEL_DIRS = [
   [GO, 'common/models'],
   [GO, 'app/admin/models'],
   [GO, 'app/demo/models'], // the reference module
   [GO, 'app/jobs/models'], // scheduled jobs
-  [GO, 'app/network/models'], // network inventory
-  [GO, 'app/delivery/models'], // persistent configuration delivery
-  [GO, 'app/delivery/service'], // delivery device response
-  [GO, 'app/fabric/models'], // Fabric persistence and operation response
-  [GO, 'app/fabric/service/dto'], // assessed Fabric summary and membership response
-  [GO, 'app/other/models/tools'], // the code generator's own tables
+  [GO, at('app/net/models/inventory', 'app/network/models')], // network inventory
+  [GO, at('app/net/models/delivery', 'app/delivery/models')], // persistent configuration delivery
+  // delivery device response. Prefixed: on the new layout it is plain `Device`,
+  // which the inventory model already claims.
+  [GO, at('app/net/service/delivery', 'app/delivery/service'), 'Delivery'],
+  [GO, at('app/net/models/fabric', 'app/fabric/models')], // Fabric persistence and operation response
+  [GO, at('app/net/service/dto/fabric', 'app/fabric/service/dto')], // assessed Fabric summary and membership response
+  [GO, at('app/codegen/models', 'app/other/models/tools')], // the code generator's own tables
   // Last, so a base the Go repository still declares itself is the one used.
   // This is where the aliased ones are read from once it has stopped.
   [CORE, CORE_MODELS]
 ]
 
 const structs = {}
-for (const [root, dir] of MODEL_DIRS) {
+for (const [root, dir, prefix] of MODEL_DIRS) {
   if (!root) continue
   const path = join(root, dir)
   if (!existsSync(path)) continue
@@ -130,9 +146,14 @@ for (const [root, dir] of MODEL_DIRS) {
     for (const [name, fields] of Object.entries(parseStructs(readFileSync(file, 'utf8')))) {
       // First directory wins, so the order above is the resolution order
       if (!(name in structs)) structs[name] = fields
+      if (prefix && !(prefix + name in structs)) structs[prefix + name] = fields
     }
   }
 }
+
+/** Go struct names by lower case: the backend spells initialisms in caps (SysAPI) where the UI does not (SysApi). */
+const structsByLowerName = new Map(Object.keys(structs).map(name => [name.toLowerCase(), name]))
+const goStructName = name => name in structs ? name : structsByLowerName.get(name.toLowerCase()) ?? name
 
 /**
  * Embedded bases no directory above declares.
@@ -146,7 +167,8 @@ for (const [root, dir] of MODEL_DIRS) {
 const unresolved = new Set()
 
 /** Flattens a struct's own and embedded fields into jsonName -> goType. */
-const fieldsOf = (name, seen = new Set()) => {
+const fieldsOf = (requested, seen = new Set()) => {
+  const name = goStructName(requested)
   if (seen.has(name) || !structs[name]) return {}
   seen.add(name)
   const out = {}
@@ -189,10 +211,10 @@ const DTO_DIRS = [
   'app/admin/service/dto',
   'app/demo/service/dto',
   'app/jobs/service/dto',
-  'app/network/service/dto',
-  'app/delivery/service/dto',
-  'app/fabric/service/dto',
-  'app/other/service/dto'
+  at('app/net/service/dto/inventory', 'app/network/service/dto'),
+  at('app/net/service/dto/delivery', 'app/delivery/service/dto'),
+  at('app/net/service/dto/fabric', 'app/fabric/service/dto'),
+  at('app/codegen/service', 'app/other/service/dto')
 ]
 
 const snakeCase = name => name.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase()
@@ -317,13 +339,33 @@ for (const [name, model] of Object.entries(FIXTURES)) {
 const wirelessTypes = ts.createSourceFile('network-wireless.ts', readFileSync(join(UI, 'src/types/network-wireless.ts'), 'utf8'), ts.ScriptTarget.Latest, true)
 const wirelessDeclarations = new Map(wirelessTypes.statements.filter(node => ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)).map(node => [node.name.text, node]))
 const wirelessStructs = {}
-for (const dir of ['app/wireless/models', 'app/wireless/service/dto', 'app/wireless/service']) {
-  for (const file of goFiles(join(GO, dir))) Object.assign(wirelessStructs, parseStructs(readFileSync(file, 'utf8')))
+// Later directories win a bare name, as before. The model package is also kept
+// under `models.<Name>`, because the new layout's DTO `Resource` embeds the
+// model `models.Resource` of the same name.
+const WIRELESS_DIRS = [
+  ['models', at('app/net/models/wireless', 'app/wireless/models')],
+  ['dto', at('app/net/service/dto/wireless', 'app/wireless/service/dto')],
+  ['service', at('app/net/service/wireless', 'app/wireless/service')]
+]
+for (const [label, dir] of WIRELESS_DIRS) {
+  for (const file of goFiles(join(GO, dir)).filter(file => !file.endsWith('_test.go'))) {
+    for (const [name, fields] of Object.entries(parseStructs(readFileSync(file, 'utf8'), true))) {
+      wirelessStructs[name] = fields
+      wirelessStructs[`${label}.${name}`] = fields
+    }
+  }
 }
-function wirelessGoFields(name) {
+/** `WirelessResource` on the old layout, `Resource` in the wireless package on the new one. */
+const wirelessSchema = name => name in wirelessStructs ? name : name.replace(/^Wireless/, '')
+function wirelessGoFields(requested, seen = new Set()) {
+  const name = wirelessSchema(requested)
+  if (seen.has(name)) return {}
+  seen.add(name)
   const out = {}
   for (const [key, type] of wirelessStructs[name] || []) {
-    if (key === '@embed') Object.assign(out, wirelessGoFields(type))
+    // A qualified embed names its package; an unqualified one, or one from a
+    // package this does not read (base.Service), falls back to the bare name.
+    if (key === '@embed') Object.assign(out, wirelessGoFields(type in wirelessStructs ? type : type.split('.').pop(), seen))
     else out[key] = type
   }
   return out
@@ -358,11 +400,13 @@ for (const [name, schema] of Object.entries(wirelessNames)) {
   note(`network-wireless.ts ${name}`, 'missing DTO fields', Object.keys(fields).filter(key => !members.has(key)))
   note(`network-wireless.ts ${name}`, 'not on the DTO', [...members.keys()].filter(key => !(key in fields)))
   for (const [key, type] of members) {
-    const shape = wirelessShape(type); const expected = wirelessGoShape(fields[key] || '')
+    // Type names compare without the Wireless prefix the old layout's Go names carried.
+    const unprefixed = value => value.replace(/Wireless(?=[A-Z])/g, '')
+    const shape = unprefixed(wirelessShape(type)); const expected = unprefixed(wirelessGoShape(fields[key] || ''))
     if (fields[key] && !['object', '[]object'].includes(shape) && shape !== expected) problems.push(`network-wireless.ts ${name}.${key}: ${shape} differs from Go ${expected}`)
   }
 }
-const wirelessQueryTags = new Set([...readFileSync(join(GO, 'app/wireless/service/dto/wireless.go'), 'utf8').matchAll(/form:"(\w+)"/g)].map(match => match[1]))
+const wirelessQueryTags = new Set([...readFileSync(join(GO, at('app/net/service/dto/wireless', 'app/wireless/service/dto'), 'wireless.go'), 'utf8').matchAll(/form:"(\w+)"/g)].map(match => match[1]))
 note('network-wireless.ts WirelessQuery', 'not accepted by Go', [...wirelessTSFields('WirelessQuery').keys()].filter(key => !wirelessQueryTags.has(key)))
 
 
@@ -372,13 +416,27 @@ const PAGES = migratedPages()
 // ProTable against its own DTO, with package-qualified Go names so model and
 // result types named AnalysisResult cannot accidentally substitute for each other.
 const firewallStructs = {}
-for (const [pkg, dir] of [...['models', 'types', 'storage', 'service'].map(pkg => [pkg, `app/firewall/${pkg}`]), ['connection', 'app/network/connection']]) {
+// Labels, not Go package names: the model package is `firewall` on the new
+// layout and `models` on the old, and the service DTOs split into a dto
+// package. firewallNames below speaks in these labels.
+const FIREWALL_PACKAGES = [
+  ['models', at('app/net/models/firewall', 'app/firewall/models')],
+  ['types', at('app/net/models/firewall/types', 'app/firewall/types')],
+  ['storage', at('app/net/models/firewall/storage', 'app/firewall/storage')],
+  ['service', at('app/net/service/firewall', 'app/firewall/service')],
+  ['service', 'app/net/service/firewall/dto'],
+  ['connection', at('app/net/models/connection', 'app/network/connection')]
+].filter(([, dir]) => existsSync(join(GO, dir)))
+for (const [pkg, dir] of FIREWALL_PACKAGES) {
   for (const file of goFiles(join(GO, dir)).filter(file => !file.endsWith('_test.go'))) {
     for (const [name, fields] of Object.entries(parseStructs(readFileSync(file, 'utf8'), true))) firewallStructs[`${pkg}.${name}`] = fields
   }
 }
-function firewallGoFields(qualified, seen = new Set()) {
-  if (qualified.startsWith('inventory.')) return fieldsOf(qualified.split('.')[1])
+/** `service.FirewallDevice` on the old layout, `service.Device` in the firewall package on the new one. */
+const firewallSchema = qualified => qualified in firewallStructs ? qualified : qualified.replace(/\.Firewall/, '.')
+function firewallGoFields(requested, seen = new Set()) {
+  if (requested.startsWith('inventory.')) return fieldsOf(requested.split('.')[1])
+  const qualified = firewallSchema(requested)
   if (seen.has(qualified)) return {}
   seen.add(qualified)
   const pkg = qualified.split('.')[0]
@@ -559,7 +617,7 @@ for (const name of ['IssueGroup', 'IssueDevice', 'IssueCounts']) {
 if (unresolved.size) {
   const bases = [...unresolved].sort().join(', ')
   const where = `${bases} are embedded by the models but declared in no source this reads`
-  const hint = `download the backend's pinned go-admin-core module with go mod download, or set GO_ADMIN_CORE_PATH explicitly (looked for ${CORE ? join(CORE, CORE_MODELS) : 'GOMODCACHE and a core version in go.mod'})`
+  const hint = `download the backend's pinned core module (motor-core or go-admin-core) with go mod download, or set GO_ADMIN_CORE_PATH explicitly (looked for ${CORE ? join(CORE, CORE_MODELS) : 'GOMODCACHE and a core version in go.mod'})`
   if (required) {
     console.error(`cannot check the api contract: ${where}\n  ${hint}`)
     process.exit(1)
