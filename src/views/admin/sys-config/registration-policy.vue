@@ -20,7 +20,6 @@ async function save() { if (saving.value) return; saving.value = true; try { awa
 onMounted(load)
 </script>
 <style scoped>
-.registration-policy { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--motor-border); }
-h3 { margin: 0 0 8px; } p { color: var(--motor-text-2); line-height: 1.7; }
+h3 { margin: 0 0 8px; font-size: var(--motor-font-size-16); font-weight: 600; } p { margin: 0; color: var(--motor-text-2); line-height: 1.7; }
 .policy-controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px;  flex-wrap: wrap; }
 </style>

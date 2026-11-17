@@ -46,12 +46,6 @@ export default {
 
   set: {
     sidebarTitle: 'System Settings',
-    sidebarSub: 'Basic information and appearance',
-    basic: 'Basic Information',
-    basicSub: 'Name, logo, password',
-    appearance: 'Appearance',
-    appearanceSub: 'Skin and theme',
-
     basicTitle: 'Basic System Information',
     basicDesc: 'Set the system name, the logo and the default user password',
     logoEmpty: 'No logo',
@@ -62,16 +56,6 @@ export default {
     appNamePlaceholder: 'Enter system name',
     initPassword: 'Initial User Password',
     initPasswordPlaceholder: 'Enter initial password',
-
-    appearanceDesc: 'Adjust the skin and the sidebar theme',
-    skin: 'Skin',
-    skinPlaceholder: 'Select skin',
-    skinBlue: 'Blue',
-    sideTheme: 'Sidebar Theme',
-    sideThemePlaceholder: 'Select sidebar theme',
-    themeHint: 'Click to switch theme',
-    themeDark: 'Dark Theme',
-    themeLight: 'Light Theme',
 
     save: 'Save Settings',
     // 'Saved', not 'Updated': the same wording the composables use for a

@@ -1,314 +1,107 @@
 <template>
-  <PageContainer card>
-    <div class="sys-config-set">
+  <PageContainer class="config-set" :title="$t('admin.sysConfig.set.sidebarTitle')" :description="$t('admin.sysConfig.set.basicDesc')">
+    <template #actions>
+      <a-button :loading="loading" @click="load">{{ $t('common.reset') }}</a-button>
+      <a-button type="primary" :loading="saving" :disabled="loading" @click="submit">{{ $t('admin.sysConfig.set.save') }}</a-button>
+    </template>
 
-      <div class="config-wrapper">
-
-        <!-- ── Sidebar ── -->
-        <div class="config-sidebar">
-          <div class="sidebar-header">
-            <div class="sidebar-icon-box">
-              <icon-settings :size="18" class="accent-icon" />
-            </div>
-            <div>
-              <p class="sidebar-header__title">{{ $t('admin.sysConfig.set.sidebarTitle') }}</p>
-              <p class="sidebar-header__sub">{{ $t('admin.sysConfig.set.sidebarSub') }}</p>
-            </div>
+    <a-card :title="$t('admin.sysConfig.set.basicTitle')" class="config-section">
+      <a-spin :loading="loading" class="config-set__body">
+        <div class="config-set__logo">
+          <div class="config-set__logo-preview">
+            <img v-if="form.sys_app_logo" :src="form.sys_app_logo" :alt="$t('admin.sysConfig.set.logoName')">
+            <span v-else><icon-image :size="22" />{{ $t('admin.sysConfig.set.logoEmpty') }}</span>
           </div>
-          <div class="sidebar-divider" />
-          <button
-            v-for="(item, idx) in navItems"
-            :key="idx"
-            type="button"
-            class="nav-item"
-            :class="{ 'is-active': activeSection === idx }"
-            :aria-pressed="activeSection === idx"
-            @click="activeSection = idx"
-          >
-            <div class="nav-item__icon-wrap">
-              <component :is="item.icon" :size="15" />
-            </div>
-            <div class="nav-item__text">
-              <span class="nav-item__label">{{ item.label }}</span>
-              <span class="nav-item__sub">{{ item.sub }}</span>
-            </div>
-          </button>
+          <div class="config-set__logo-meta">
+            <strong>{{ $t('admin.sysConfig.set.logoName') }}</strong>
+            <span>{{ $t('admin.sysConfig.set.logoHint') }}</span>
+            <a-upload
+              :headers="uploadHeaders"
+              :action="uploadAction"
+              :on-before-upload="beforeLogoUpload"
+              :show-file-list="false"
+              accept="image/png,image/jpeg"
+              @success="onLogoUploaded"
+            >
+              <template #upload-button>
+                <a-button size="small"><template #icon><icon-upload /></template>{{ $t('admin.sysConfig.set.upload') }}</a-button>
+              </template>
+            </a-upload>
+          </div>
         </div>
 
-        <!-- ── Main pane ── -->
-        <div class="config-main">
+        <a-form ref="formRef" :model="form" :rules="rules" layout="vertical" @submit-success="submit">
+          <a-row :gutter="20">
+            <a-col :xs="24" :sm="12">
+              <a-form-item :label="$t('admin.sysConfig.set.appName')" field="sys_app_name">
+                <a-input v-model="form.sys_app_name" :placeholder="$t('admin.sysConfig.set.appNamePlaceholder')" allow-clear />
+              </a-form-item>
+            </a-col>
+            <a-col :xs="24" :sm="12">
+              <a-form-item :label="$t('admin.sysConfig.set.initPassword')" field="sys_user_initPassword">
+                <a-input-password v-model="form.sys_user_initPassword" :placeholder="$t('admin.sysConfig.set.initPasswordPlaceholder')" allow-clear />
+              </a-form-item>
+            </a-col>
+          </a-row>
+        </a-form>
+      </a-spin>
+    </a-card>
 
-          <!-- Basic information -->
-          <div>
-            <div v-show="activeSection === 0" key="basic" class="config-section">
-              <div class="section-head">
-                <div class="section-head__icon-wrap">
-                  <icon-apps :size="16" class="accent-icon" />
-                </div>
-                <div>
-                  <p class="section-head__title">{{ $t('admin.sysConfig.set.basicTitle') }}</p>
-                  <p class="section-head__desc">{{ $t('admin.sysConfig.set.basicDesc') }}</p>
-                </div>
-              </div>
-
-              <div class="section-body">
-                <!-- Logo -->
-                <div class="logo-zone">
-                  <div class="logo-preview">
-                    <img v-if="form.sys_app_logo" :src="form.sys_app_logo" alt="logo" class="logo-img">
-                    <div v-else class="logo-empty">
-                      <icon-image :size="24" />
-                      <span>{{ $t('admin.sysConfig.set.logoEmpty') }}</span>
-                    </div>
-                  </div>
-                  <div class="logo-meta">
-                    <p class="logo-meta__name">{{ $t('admin.sysConfig.set.logoName') }}</p>
-                    <p class="logo-meta__hint">{{ $t('admin.sysConfig.set.logoHint') }}</p>
-                    <a-upload
-                      :headers="uploadHeaders"
-                      :action="uploadAction"
-                      :on-before-upload="beforeLogoUpload"
-                      :show-file-list="false"
-                      @success="onLogoUploaded"
-                    >
-                      <a-button size="small" type="primary">
-                        <icon-upload style="margin-right:4px" />{{ $t('admin.sysConfig.set.upload') }}
-                      </a-button>
-                    </a-upload>
-                  </div>
-                </div>
-
-                <a-divider style="margin: 16px 0" />
-
-                <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
-                  <a-row :gutter="20">
-                    <a-col :xs="24" :sm="12">
-                      <a-form-item :label="$t('admin.sysConfig.set.appName')" field="sys_app_name">
-                        <a-input
-                          v-model="form.sys_app_name"
-                          :placeholder="$t('admin.sysConfig.set.appNamePlaceholder')"
-                          allow-clear
-                        >
-                          <template #prefix><icon-apps /></template>
-                        </a-input>
-                      </a-form-item>
-                    </a-col>
-                    <a-col :xs="24" :sm="12">
-                      <a-form-item :label="$t('admin.sysConfig.set.initPassword')" field="sys_user_initPassword">
-                        <a-input-password
-                          v-model="form.sys_user_initPassword"
-                          :placeholder="$t('admin.sysConfig.set.initPasswordPlaceholder')"
-                          allow-clear
-                        >
-                          <template #prefix><icon-lock /></template>
-                        </a-input-password>
-                      </a-form-item>
-                    </a-col>
-                  </a-row>
-                </a-form>
-                <RegistrationPolicy v-if="accountUser.roles.includes('admin')" />
-              </div>
-            </div>
-
-            <!-- Appearance -->
-            <div v-show="activeSection === 1" key="theme" class="config-section">
-              <div class="section-head">
-                <div class="section-head__icon-wrap">
-                  <icon-brush :size="16" class="accent-icon" />
-                </div>
-                <div>
-                  <p class="section-head__title">{{ $t('admin.sysConfig.set.appearance') }}</p>
-                  <p class="section-head__desc">{{ $t('admin.sysConfig.set.appearanceDesc') }}</p>
-                </div>
-              </div>
-
-              <div class="section-body">
-                <a-form :model="form" layout="vertical">
-                  <a-row :gutter="20">
-                    <a-col :xs="24" :sm="12">
-                      <a-form-item :label="$t('admin.sysConfig.set.skin')">
-                        <a-select
-                          v-model="form.sys_index_skinName"
-                          :placeholder="$t('admin.sysConfig.set.skinPlaceholder')"
-                        >
-                          <a-option v-for="(item, i) in skinOptions" :key="i" :label="item.label" :value="item.value" />
-                        </a-select>
-                      </a-form-item>
-                    </a-col>
-                    <a-col :xs="24" :sm="12">
-                      <a-form-item :label="$t('admin.sysConfig.set.sideTheme')">
-                        <a-select
-                          v-model="form.sys_index_sideTheme"
-                          :placeholder="$t('admin.sysConfig.set.sideThemePlaceholder')"
-                        >
-                          <a-option v-for="(item, i) in sideThemeOptions" :key="i" :label="item.label" :value="item.value" />
-                        </a-select>
-                      </a-form-item>
-                    </a-col>
-                  </a-row>
-                </a-form>
-
-                <p class="theme-label">{{ $t('admin.sysConfig.set.themeHint') }}</p>
-                <div class="theme-row">
-                  <div
-                    class="theme-card"
-                    :class="{ 'is-active': form.sys_index_sideTheme === 'theme-dark' }"
-                    @click="form.sys_index_sideTheme = 'theme-dark'"
-                  >
-                    <div class="tc-preview tc-preview--dark">
-                      <div class="tc-sidebar" />
-                      <div class="tc-body">
-                        <div class="tc-topbar" />
-                        <div class="tc-content" />
-                      </div>
-                    </div>
-                    <div class="tc-label">
-                      <span>{{ $t('admin.sysConfig.set.themeDark') }}</span>
-                      <icon-check v-if="form.sys_index_sideTheme === 'theme-dark'" class="accent-icon" />
-                    </div>
-                  </div>
-                  <div
-                    class="theme-card"
-                    :class="{ 'is-active': form.sys_index_sideTheme === 'theme-light' }"
-                    @click="form.sys_index_sideTheme = 'theme-light'"
-                  >
-                    <div class="tc-preview tc-preview--light">
-                      <div class="tc-sidebar" />
-                      <div class="tc-body">
-                        <div class="tc-topbar" />
-                        <div class="tc-content" />
-                      </div>
-                    </div>
-                    <div class="tc-label">
-                      <span>{{ $t('admin.sysConfig.set.themeLight') }}</span>
-                      <icon-check v-if="form.sys_index_sideTheme === 'theme-light'" class="accent-icon" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div class="config-footer">
-            <a-button :loading="loading" @click="load">{{ $t('common.reset') }}</a-button>
-            <a-button type="primary" :loading="saving" @click="submit">
-              {{ $t('admin.sysConfig.set.save') }}
-            </a-button>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
+    <!-- Saved on its own: the policy is a separate endpoint and takes effect at once. -->
+    <a-card v-if="isAdmin">
+      <RegistrationPolicy />
+    </a-card>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
-import RegistrationPolicy from './registration-policy.vue'
-import { useUserStore } from '@/stores/user'
-const accountUser = useUserStore()
-import { useFormLocale } from '@/composables/useFormLocale'
-
-import { ref, computed, onMounted, nextTick } from 'vue'
+/**
+ * System settings: the application's name and logo, the initial password for
+ * new users, and -- for administrators -- whether the public can register.
+ *
+ * The page used to carry an appearance section (skin and sidebar theme). Those
+ * two keys were saved but nothing in either repository read them; the sidebar
+ * surface is a per-user preference now. Whatever the server holds for them is
+ * still loaded and sent back untouched, because the form round-trips every key
+ * the response carries.
+ */
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormInstance, FileItem } from '@arco-design/web-vue'
+import type { FileItem, FormInstance } from '@arco-design/web-vue'
+import PageContainer from '@/components/PageContainer/index.vue'
+import RegistrationPolicy from './registration-policy.vue'
+import { getSetConfig, updateSetConfig } from '@/api/admin/sys-config'
+import { useFormLocale } from '@/composables/useFormLocale'
+import { useSystemStore } from '@/stores/system'
+import { useUserStore } from '@/stores/user'
+import { getToken } from '@/utils/auth'
+import { msgError, msgSuccess } from '@/utils/message'
 import type { FormRules } from '@/types/ui'
 
-import { IconApps, IconBrush } from '@arco-design/web-vue/es/icon'
-
-import PageContainer from '@/components/PageContainer/index.vue'
-import { getSetConfig, updateSetConfig } from '@/api/admin/sys-config'
-import { getToken } from '@/utils/auth'
-import { useSystemStore } from '@/stores/system'
-import { msgSuccess, msgError } from '@/utils/message'
-
-// Must match the menu_name the backend serves, or keep-alive silently misses
 defineOptions({ name: 'SysConfigSet' })
 
+/** Uploads larger than this are refused before any request is made. */
+const LOGO_MAX_BYTES = 2 * 1024 * 1024
+
 const { t } = useI18n()
+const isAdmin = computed(() => useUserStore().roles.includes('admin'))
 
-/**
- * The settings this page owns, and the only keys it will ever send.
- *
- * The previous version assigned the whole response over `form`. The controls
- * still render either way, so nothing looks wrong -- but `submit` builds its
- * body from the keys the object actually has, so a setting the server happened
- * to omit was silently dropped from the next save. Merging into these defaults
- * keeps the shape fixed no matter what comes back.
- */
-const defaults = () => ({
-  sys_app_name: '',
-  sys_app_logo: '',
-  sys_user_initPassword: '',
-  sys_index_skinName: '',
-  sys_index_sideTheme: ''
-})
-
-type ConfigForm = ReturnType<typeof defaults>
+/** The keys this page edits. Others the server returns ride along unchanged. */
+const defaults = () => ({ sys_app_name: '', sys_app_logo: '', sys_user_initPassword: '' })
+type ConfigForm = ReturnType<typeof defaults> & Record<string, string>
 
 const form = ref<ConfigForm>(defaults())
 const formRef = ref<FormInstance>()
 useFormLocale(formRef)
 const loading = ref(false)
 const saving = ref(false)
-const activeSection = ref(0)
 
-/**
- * Rebuilt whenever the language changes.
- *
- * A plain object is evaluated once, when the page is set up, and this page is
- * kept alive -- so a message already rendered under a field would keep the
- * language it was built in. a-form revalidates when its rules change, which is
- * what repaints one that is already on screen.
- */
 const rules = computed<FormRules>(() => ({
   sys_app_name: [{ required: true, message: t('admin.sysConfig.set.rules.appName') }],
-  sys_user_initPassword: [
-    { required: true, message: t('admin.sysConfig.set.rules.initPassword') }
-  ]
+  sys_user_initPassword: [{ required: true, message: t('admin.sysConfig.set.rules.initPassword') }]
 }))
 
-/**
- * The two sections of the page, rebuilt whenever the language changes.
- *
- * A computed rather than the shallowRef this replaces: the labels are the point
- * of the list, and a plain array built at setup would keep the language the
- * page was opened in. The icons ride along as plain component definitions --
- * a computed hands its value back untouched, so nothing walks their internals,
- * which is what the shallowRef was avoiding.
- */
-const navItems = computed(() => [
-  {
-    label: t('admin.sysConfig.set.basic'),
-    sub: t('admin.sysConfig.set.basicSub'),
-    icon: IconApps
-  },
-  {
-    label: t('admin.sysConfig.set.appearance'),
-    sub: t('admin.sysConfig.set.appearanceSub'),
-    icon: IconBrush
-  }
-])
-
-const skinOptions = computed(() => [
-  { label: t('admin.sysConfig.set.skinBlue'), value: 'skin-blue' }
-])
-
-const sideThemeOptions = computed(() => [
-  { label: t('admin.sysConfig.set.themeDark'), value: 'theme-dark' },
-  { label: t('admin.sysConfig.set.themeLight'), value: 'theme-light' }
-])
-
-/**
- * Doubles as the reset button.
- *
- * Reset refetches rather than calling resetFields. Both put the saved values
- * back today, but resetFields restores what each item held when it mounted,
- * which is only the saved state because the request happens to land first --
- * and it covers only the two fields inside the a-form, leaving the theme
- * cards and the logo on whatever the user last clicked.
- */
+/** Rebuilds the form from the server, which is also what Reset means. */
 const load = async() => {
   if (loading.value) return
   loading.value = true
@@ -316,431 +109,79 @@ const load = async() => {
     const response = await getSetConfig()
     form.value = { ...defaults(), ...(response.data ?? {}) }
     formRef.value?.clearValidate()
-  } catch {
-    // Reported by the interceptor
-  } finally {
+  } catch { /* The request client has reported it; the form keeps what it had. */ } finally {
     loading.value = false
   }
 }
 
-onMounted(load)
-
 const submit = async() => {
-  if (saving.value) return
-  // The basic form may be unmounted while the appearance tab is active.
-  if (!form.value.sys_app_name || !form.value.sys_user_initPassword) {
-    activeSection.value = 0
-    await nextTick()
-  }
-  if (!formRef.value || await formRef.value.validate()) return
-
+  if (saving.value || !formRef.value || await formRef.value.validate()) return
   saving.value = true
   try {
-    const entries = Object.entries(form.value)
-      .map(([configKey, configValue]) => ({ configKey, configValue }))
-    await updateSetConfig(entries)
+    await updateSetConfig(Object.entries(form.value).map(([configKey, configValue]) => ({ configKey, configValue })))
     msgSuccess(t('admin.sysConfig.set.saveOk'))
-
-    // The name and logo are in the shell, so the store has to hear about it
-    useSystemStore().setInfo({
-      sys_app_name: form.value.sys_app_name,
-      sys_app_logo: form.value.sys_app_logo
-    })
-    // No refetch: the interceptor already rejected anything but a 200, and the
-    // endpoint answers with an ack rather than the stored record, so a GET here
-    // would return the values just sent
-    formRef.value?.clearValidate()
-  } catch {
-    // Reported by the interceptor
-  } finally {
+    // The rail and the tab title read these from the store; update them without a reload.
+    useSystemStore().setInfo({ sys_app_name: form.value.sys_app_name, sys_app_logo: form.value.sys_app_logo })
+  } catch { /* Reported by the request client. */ } finally {
     saving.value = false
   }
 }
 
-// ── Logo upload ───────────────────────────────────────────────────
 const uploadHeaders = { Authorization: 'Bearer ' + getToken() }
-const uploadAction = process.env.VUE_APP_BASE_API + '/api/v1/public/uploadFile'
+const uploadAction = `${process.env.VUE_APP_BASE_API}/api/v1/public/uploadFile`
 
 const beforeLogoUpload = (file: File) => {
-  const withinLimit = file.size / 1024 / 1024 < 2
-  if (!withinLimit) msgError(t('admin.sysConfig.set.logoTooLarge'))
-  return withinLimit
+  if (file.size < LOGO_MAX_BYTES) return true
+  msgError(t('admin.sysConfig.set.logoTooLarge'))
+  return false
 }
 
 const onLogoUploaded = (file: FileItem) => {
   const response = file.response
-  if (response?.code === 200 && response.data?.full_path) {
-    form.value.sys_app_logo = process.env.VUE_APP_BASE_API + response.data.full_path
-  } else {
-    msgError(response?.msg || t('common.networkError'))
-  }
+  if (response?.code === 200 && response.data?.full_path) form.value.sys_app_logo = process.env.VUE_APP_BASE_API + response.data.full_path
+  else msgError(response?.msg || t('common.networkError'))
 }
+
+onMounted(load)
 </script>
 
 <style lang="scss" scoped>
-/* Every colour below comes from the token set, so the page follows the app's
-   light and dark themes. It used to hardcode #fff panels and near-black text,
-   which made it a white slab in dark mode. */
+.config-set__body { display: block; }
 
-.accent-icon {
-  color: rgb(var(--primary-6));
-}
-
-// ── Page container ────────────────────────────────────────
-.sys-config-set {
-  padding: 0;
-}
-
-.config-wrapper {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-}
-
-// ══════════════════════════════
-//  Sidebar card
-// ══════════════════════════════
-.config-sidebar {
-  width: 188px;
-  flex-shrink: 0;
-  background: var(--color-bg-2);
-  border-radius: 8px;
-  border: 1px solid var(--color-border-1);
-  box-shadow: 0 1px 2px var(--motor-shadow-sm);
-  overflow: hidden;
-}
-
-.sidebar-header {
+.config-set__logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 14px 12px;
+  gap: var(--motor-space-4);
+  padding-bottom: var(--motor-space-4);
+  margin-bottom: var(--motor-space-4);
+  border-bottom: 1px solid var(--motor-border-soft);
 }
 
-.sidebar-icon-box {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: var(--color-fill-2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.sidebar-header__title {
-  margin: 0 0 2px;
-  font-size: var(--motor-font-size-14);
-  font-weight: 600;
-  color: var(--color-text-1);
-  line-height: 1;
-}
-
-.sidebar-header__sub {
-  margin: 0;
-  font-size: var(--motor-font-size-11);
-  color: var(--color-text-2);
-  line-height: 1;
-}
-
-.sidebar-divider {
-  height: 1px;
-  background: var(--color-border-1);
-  margin: 0;
-}
-
-// Nav item
-.nav-item {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 14px;
-  cursor: pointer;
-  border: 0;
-  border-left: 2px solid transparent;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-
-  &:focus-visible { outline: 2px solid rgb(var(--primary-6)); outline-offset: -2px; }
-  transition: all 0.15s;
-
-  &:hover:not(.is-active) { background: var(--color-fill-1); }
-
-  &.is-active {
-    background: var(--color-fill-2);
-    border-left-color: rgb(var(--primary-6));
-
-    .nav-item__icon-wrap { color: rgb(var(--primary-6)); background: var(--color-fill-2); }
-    .nav-item__label { color: rgb(var(--primary-6)); font-weight: 600; }
-  }
-
-  &:not(:last-child) { border-bottom: 1px solid var(--color-fill-1); }
-}
-
-.nav-item__icon-wrap {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: var(--color-fill-1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-2);
-  flex-shrink: 0;
-  transition: all 0.15s;
-}
-
-.nav-item__text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.nav-item__label {
-  font-size: var(--motor-font-size-13);
-  color: var(--color-text-1);
-  font-weight: 500;
-  line-height: 1.3;
-}
-
-.nav-item__sub {
-  font-size: var(--motor-font-size-11);
-  color: var(--motor-text-3);
-  line-height: 1;
-}
-
-// ══════════════════════════════
-//  Main pane
-// ══════════════════════════════
-.config-main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-// Section card
-.config-section {
-  background: var(--color-bg-2);
-  border-radius: 8px;
-  border: 1px solid var(--color-border-1);
-  box-shadow: 0 1px 2px var(--motor-shadow-sm);
-  overflow: hidden;
-}
-
-// Section head
-.section-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--color-border-1);
-  background: var(--color-fill-1);
-}
-
-.section-head__icon-wrap {
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  background: var(--color-fill-2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.section-head__title {
-  margin: 0 0 2px;
-  font-size: var(--motor-font-size-14);
-  font-weight: 600;
-  color: var(--color-text-1);
-  line-height: 1;
-}
-
-.section-head__desc {
-  margin: 0;
-  font-size: var(--motor-font-size-12);
-  color: var(--color-text-2);
-  line-height: 1;
-}
-
-// Section body
-.section-body {
-  padding: 16px;
-}
-
-// ── Logo zone ─────────────────────────────────────────────
-.logo-zone {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px;
-  background: var(--color-fill-1);
-  border-radius: 6px;
-  border: 1px dashed var(--color-border-2);
-}
-
-.logo-preview {
+.config-set__logo-preview {
+  display: grid;
   width: 72px;
   height: 72px;
-  border-radius: 8px;
-  border: 1px solid var(--color-border-2);
-  background: var(--color-bg-2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
+  place-items: center;
   overflow: hidden;
-}
-
-.logo-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.logo-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  border: 1px dashed var(--motor-border);
+  border-radius: var(--motor-radius-sm);
+  background: var(--motor-surface-soft);
   color: var(--motor-text-3);
   font-size: var(--motor-font-size-11);
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+  span { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 }
 
-.logo-meta { flex: 1; min-width: 0; }
-
-.logo-meta__name {
-  margin: 0 0 3px;
-  font-size: var(--motor-font-size-13);
-  font-weight: 500;
-  color: var(--color-text-1);
-}
-
-.logo-meta__hint {
-  margin: 0 0 10px;
-  font-size: var(--motor-font-size-12);
-  color: var(--color-text-2);
-  line-height: 1.5;
-}
-
-// ── Theme picker ──────────────────────────────────────────
-.theme-label {
-  margin: 12px 0 10px;
-  font-size: var(--motor-font-size-12);
-  color: var(--color-text-2);
-}
-
-.theme-row {
+.config-set__logo-meta {
   display: flex;
-  gap: 12px;
-}
-
-.theme-card {
-  width: 160px;
-  border: 1px solid var(--color-border-2);
-  border-radius: 6px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover { border-color: rgb(var(--primary-6)); box-shadow: 0 2px 8px color-mix(in oklab, rgb(var(--primary-6)) 18%, transparent); }
-
-  &.is-active {
-    border-color: rgb(var(--primary-6));
-    box-shadow: 0 2px 8px color-mix(in oklab, rgb(var(--primary-6)) 28%, transparent);
-  }
-}
-
-.tc-preview {
-  display: flex;
-  height: 80px;
-}
-
-// The two previews draw what each sidebar theme looks like, so their colours
-// are content, not chrome: they must stay literal in either app theme.
-.tc-preview--dark {
-  background: #1e2a3b;
-  .tc-sidebar  { background: #001529; }
-  .tc-topbar   { background: #162131; height: 16px; }
-  .tc-content  { flex: 1; background: #1e2a3b; }
-}
-
-.tc-preview--light {
-  background: #f5f5f5;
-  .tc-sidebar  { background: #fff; border-right: 1px solid #f0f0f0; }
-  .tc-topbar   { background: #fff; height: 16px; border-bottom: 1px solid #f0f0f0; }
-  .tc-content  { flex: 1; background: #f5f5f5; }
-}
-
-.tc-sidebar {
-  width: 36px;
-  height: 100%;
-  flex-shrink: 0;
-}
-
-.tc-body {
-  flex: 1;
-  display: flex;
+  min-width: 0;
   flex-direction: column;
-}
+  align-items: flex-start;
+  gap: 4px;
 
-.tc-label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 10px;
-  font-size: var(--motor-font-size-12);
-  color: var(--color-text-1);
-  background: var(--color-bg-2);
-  border-top: 1px solid var(--color-border-1);
-}
-
-// ── Footer bar ────────────────────────────────────────────
-.config-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 12px 16px;
-  background: var(--color-bg-2);
-  border-radius: 8px;
-  border: 1px solid var(--color-border-1);
-  box-shadow: 0 1px 2px var(--motor-shadow-sm);
-}
-
-// ── Transition ────────────────────────────────────────────
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: opacity 0.15s, transform 0.15s;
-}
-
-.fade-slide-enter-from { opacity: 0; transform: translateY(6px); }
-.fade-slide-leave-to   { opacity: 0; transform: translateY(-6px); }
-
-// ══════════════════════════════
-//  Phone: one column
-// ══════════════════════════════
-// The 188px section list beside the form left the form ~150px on a phone:
-// headings broke after every word and the logo controls ran off screen.
-// Stack them, and lay the sections out as a row of equal tabs.
-@media (max-width: 767px) {
-  .config-wrapper { flex-direction: column; align-items: stretch; gap: 12px; }
-  .config-sidebar { width: auto; display: flex; flex-wrap: wrap; }
-  .sidebar-header, .sidebar-divider { flex: 0 0 100%; }
-  .nav-item {
-    flex: 1 1 0;
-    min-width: 0;
-    min-height: 44px;
-    border-left: 0;
-    border-bottom: 2px solid transparent;
-    &:not(:last-child) { border-bottom: 2px solid transparent; }
-    &.is-active { border-bottom-color: rgb(var(--primary-6)); }
-  }
-  .logo-zone { align-items: flex-start; }
-  .theme-row { flex-wrap: wrap; }
+  strong { color: var(--motor-text-1); font-weight: 600; }
+  span { margin-bottom: 4px; color: var(--motor-text-3); font-size: var(--motor-font-size-12); }
 }
 </style>

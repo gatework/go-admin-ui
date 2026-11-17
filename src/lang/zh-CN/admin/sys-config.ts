@@ -65,14 +65,7 @@ export default {
    * two vocabularies would collide if merged.
    */
   set: {
-    // ── Sidebar ───────────────────────────────────────────────────
     sidebarTitle: '系统配置',
-    sidebarSub: '基础信息与外观设置',
-    basic: '基础信息',
-    basicSub: '名称、Logo、密码',
-    appearance: '外观设置',
-    appearanceSub: '皮肤与主题风格',
-
     // ── Basic information ─────────────────────────────────────────
     basicTitle: '系统基础信息',
     basicDesc: '配置系统名称、Logo 及用户默认密码',
@@ -84,17 +77,6 @@ export default {
     appNamePlaceholder: '请输入系统名称',
     initPassword: '用户初始密码',
     initPasswordPlaceholder: '请输入初始密码',
-
-    // ── Appearance ────────────────────────────────────────────────
-    appearanceDesc: '调整皮肤样式与侧栏主题风格',
-    skin: '皮肤样式',
-    skinPlaceholder: '请选择皮肤样式',
-    skinBlue: '蓝色',
-    sideTheme: '侧栏主题',
-    sideThemePlaceholder: '请选择侧栏主题',
-    themeHint: '点击快速切换主题',
-    themeDark: '深色主题',
-    themeLight: '浅色主题',
 
     // ── Saving ────────────────────────────────────────────────────
     save: '保存设置',
