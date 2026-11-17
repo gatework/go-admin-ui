@@ -124,4 +124,30 @@ test.describe('Wireless workspace', () => {
     await page.setViewportSize({ width: 390, height: 844 }); await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); await shot(page, 'mobile')
     await page.getByRole('button', { name: /^Controller groups · / }).click(); await expect(page.getByRole('dialog', { name: 'Controller groups', exact: true })).toBeVisible(); await page.keyboard.press('Escape'); await expect(page.getByRole('dialog', { name: 'Controller groups', exact: true })).not.toBeVisible()
   })
+
+  // Kept alive between visits: leaving stops the background polling, coming back reads again.
+  test('leaving stops background reads and coming back resumes them', async({ page }) => {
+    const state = await mockWireless(page); await page.goto('/#/network/wireless?controller=1')
+    await expect(page.locator('.wireless-detail')).toContainText('SZX9-AC-1')
+    await page.goto('/#/dashboard')
+    await expect(page.getByRole('heading', { name: '运维总览' })).toBeVisible()
+    const away = state.queries.length
+    await page.waitForTimeout(1500)
+    expect(state.queries.length, 'no reads while the page is not on screen').toBe(away)
+    await page.goBack()
+    await expect.poll(() => state.queries.slice(away).some(url => /\/controllers\/1$/.test(url.pathname))).toBe(true)
+    await expect(page.locator('.wireless-detail')).toContainText('SZX9-AC-1')
+  })
+
+  // The data on screen belonged to the previous account: it is cleared at once,
+  // and the page does not read again on the new account's behalf.
+  test('an account change clears the controller and does not read for the new account', async({ page }) => {
+    const state = await mockWireless(page); await page.goto('/#/network/wireless?controller=1')
+    await expect(page.locator('.wireless-detail')).toContainText('SZX9-AC-1')
+    await page.evaluate(async() => { const path = '/src/stores/user.ts'; const { useUserStore } = await import(path); useUserStore().token = 'replacement-session' })
+    await expect(page.locator('.wireless-detail')).toHaveCount(0)
+    const after = state.queries.length
+    await page.waitForTimeout(1500)
+    expect(state.queries.slice(after).filter(url => /\/controllers\/1(\/analysis)?$/.test(url.pathname))).toEqual([])
+  })
 })

@@ -59,7 +59,8 @@
 </template>
 <script setup lang="ts">
 import { usePermission } from '@/composables/usePermission'
-import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
+import { usePageSession } from '@/composables/usePageSession'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer/index.vue'
@@ -96,7 +97,11 @@ const loading = ref(false); const failed = ref(false); const navigationLoading =
 const aside = ref<InstanceType<typeof AsideLayout>>(); const collectVisible = ref(false); const importVisible = ref(false); const locateVisible = ref(false); const suggestion = ref<Suggestion>(); const exporting = ref(false)
 const apIssues = computed(() => analysis.value?.groups.filter(group => group.outcomes.some(row => row.apName === apDetail.value?.resource.fields.name)) || [])
 let owner: ReturnType<typeof createOwner> | undefined
-let active = true; const account = user.token; let generation = 0
+/** The account this page was opened under. It does not come back to life for another one. */
+const account = user.token
+/** Advances whenever the background owner is replaced: a new controller, a hidden tab, or a suspension. */
+let generation = 0
+const session = usePageSession({ onSuspend: () => { owner?.stop(); generation++ }, onResume: () => setupOwner() })
 function navigate(query: Record<string, string | number | undefined>) { void router.push({ query: { ...route.query, ...query }}) }
 function selectGroup(group?: number) { aside.value?.close(); controllerPage.value = 1; navigate({ group, controller: undefined, ap: undefined, client: undefined, issue: undefined, tab: undefined, keyword: undefined, ssid: undefined, band: undefined, apFilter: undefined, vlan: undefined, status: undefined }) }
 function selectController(id: number) { aside.value?.close(); if (canRead.value) navigate({ controller: id, ap: undefined, client: undefined, issue: undefined, tab: 'overview', keyword: undefined, ssid: undefined, band: undefined, apFilter: undefined, vlan: undefined, status: undefined }) }
@@ -109,16 +114,16 @@ function setFilters(filters: WirelessQuery) {
 function closeAP() { navigate({ ap: undefined }) }
 function inspect(row: Resource) { if (row.kind === 'access_points') navigate({ ap: row.id, client: undefined }); else if (row.kind === 'clients') navigate({ client: row.id, ap: undefined }); else void inspectAPName(row.fields.apName) }
 function inspectOutcome(row: IssueOutcome) { if (row.kind === 'access_points') navigate({ ap: row.resourceId, client: undefined }); else if (row.kind === 'clients') navigate({ client: row.resourceId, ap: undefined }); else void inspectAPName(row.apName) }
-async function inspectAPName(name: string) { const id = location.value.controller; const version = generation; if (!id || !name) return; try { const response = await listResource(id, 'access-points', { ap: name, exactAp: true, pageIndex: 1, pageSize: 2 }); if (active && generation === version && response.data.list.length === 1) navigate({ ap: response.data.list[0].id, client: undefined }) } catch { /* interceptor */ } }
+async function inspectAPName(name: string) { const id = location.value.controller; const version = generation; if (!id || !name) return; try { const response = await listResource(id, 'access-points', { ap: name, exactAp: true, pageIndex: 1, pageSize: 2 }); if (session.active && generation === version && response.data.list.length === 1) navigate({ ap: response.data.list[0].id, client: undefined }) } catch { /* interceptor */ } }
 function locate(row: Resource) { locateVisible.value = false; navigate({ controller: row.controllerId, client: row.id, ap: undefined, issue: undefined, tab: 'clients', keyword: row.fields.mac, ssid: undefined, band: undefined, apFilter: undefined, vlan: undefined, status: undefined }) }
 function openCollection(value?: Suggestion) { suggestion.value = value; collectVisible.value = true }
 function created(job: Collection) { collectVisible.value = false; owner?.accept(job); msgSuccess(t('networkWireless.requestQueued')); navigate({ tab: 'jobs', ap: undefined, client: undefined }); void owner?.refresh() }
 function imported() { importVisible.value = false; msgSuccess(t('networkWireless.importSuccess')); void owner?.refresh() }
-async function template() { if (!location.value.controller || exporting.value) return; const version = generation; exporting.value = true; try { const result = await exportResource(location.value.controller, 'management', {}); if (active && version === generation) downloadCSV(result.data, 'wireless-management.csv') } catch { /* interceptor */ } finally { if (version === generation) exporting.value = false } }
+async function template() { if (!location.value.controller || exporting.value) return; const version = generation; exporting.value = true; try { const result = await exportResource(location.value.controller, 'management', {}); if (session.active && version === generation) downloadCSV(result.data, 'wireless-management.csv') } catch { /* interceptor */ } finally { if (version === generation) exporting.value = false } }
 async function navigation(signal: AbortSignal) { navigationLoading.value = !controllers.value.length; try { const [g, c] = await Promise.all([getGroups(signal), listController({ groupId: location.value.group, keyword: controllerSearch.value, pageIndex: controllerPage.value, pageSize: 20 }, signal)]); if (signal.aborted) return; groups.value = g.data; controllers.value = c.data.list; controllerCount.value = c.data.count; navigationFailed.value = false } catch { if (!signal.aborted) navigationFailed.value = true } finally { if (!signal.aborted) navigationLoading.value = false } }
 function setupOwner() {
   owner?.stop(); generation++; exporting.value = false
-  if (!active || document.hidden || user.token !== account) return
+  if (!session.active || document.hidden || user.token !== account) return
   const id = location.value.controller
   owner = createOwner({
     read: async signal => {
@@ -134,12 +139,10 @@ function setupOwner() {
 }
 watch(() => [location.value.controller, location.value.group], () => { controller.value = undefined; analysis.value = undefined; apDetail.value = undefined; clientDetail.value = undefined; collectVisible.value = false; importVisible.value = false; setupOwner() })
 watch(() => [location.value.ap, clientId.value], () => { apDetail.value = undefined; clientDetail.value = undefined; void owner?.refresh() })
-function suspend() { active = false; owner?.stop(); generation++ }
 function visibility() { if (document.hidden) { owner?.stop(); generation++ } else setupOwner() }
-watch(() => user.token, () => { suspend(); controller.value = undefined; analysis.value = undefined; apDetail.value = undefined; clientDetail.value = undefined; controllers.value = []; collectVisible.value = false; importVisible.value = false; locateVisible.value = false }, { flush: 'sync' })
+watch(() => user.token, () => { owner?.stop(); generation++; controller.value = undefined; analysis.value = undefined; apDetail.value = undefined; clientDetail.value = undefined; controllers.value = []; collectVisible.value = false; importVisible.value = false; locateVisible.value = false }, { flush: 'sync' })
 onMounted(() => { document.addEventListener('visibilitychange', visibility); setupOwner() })
-onActivated(() => { if (!active && user.token === account) { active = true; setupOwner() } })
-onDeactivated(suspend); onBeforeUnmount(() => { suspend(); document.removeEventListener('visibilitychange', visibility) })
+onBeforeUnmount(() => document.removeEventListener('visibilitychange', visibility))
 const controllerItems = computed(() => controllers.value.map(device => ({ key: device.id, title: device.name, description: device.ip })))
 const currentScope = computed(() => {
   if (controller.value) return controller.value.device.name
