@@ -60,6 +60,7 @@ motor 是网络运维管理平台。用户已明确的三个核心工作是：
 ## Capabilities and Constraints
 
 - 基于现有 go-admin-ui 项目，使用 Vue 3、TypeScript 和 Arco Design Vue。
+- 2026-11-16：外壳重做为运维控制台布局（带品牌标记的侧栏、面包屑顶栏、菜单搜索、账户菜单、页签），偏好项精简为主题、布局与通用三组；约定见 `AGENTS.md` 的「外壳」「偏好设置」「设计 token」。
 - `master` 保留上游基线，`gatework` 承载定制；通过保留共同历史的合并接收上游更新。
 - 页面、列表、权限、多语言与响应式行为遵循本仓库 `AGENTS.md`。
 - 业务菜单由后端配置生成，导航变更需要与菜单配置配套。
@@ -67,7 +68,7 @@ motor 是网络运维管理平台。用户已明确的三个核心工作是：
 
 ## Evidence on Hand
 
-- 当前 `src/views/dashboard/admin/index.vue` 展示销售额、访问量等演示指标，不是网络运维业务数据。
+- 首页（`src/views/dashboard/index.vue`）是运维总览：只读取各网络模块已有的列表与状态接口，按菜单权限显示设备、台账同步、专线、Fabric、无线与下发工单的规模和状态；没有新增后端接口，也没有告警数据。
 - 设备台账的真实来源及本地接口已验证，范围见 Confirmed Device Inventory；专线的本地接口与已有 Zabbix 监控项读取已验证，范围见 Confirmed Circuit Inventory。网络检查本轮只补验当前界面；告警和其他自动化任务的接口、数据来源及现有实现尚未确认。
 
 ## Open Decisions

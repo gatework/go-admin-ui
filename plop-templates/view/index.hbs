@@ -1,21 +1,17 @@
 {{#if template}}
 <template>
-  <div />
+  <PageContainer>
+    <!-- A list page: see src/views/demo/product/index.vue -->
+  </PageContainer>
 </template>
 {{/if}}
 
 {{#if script}}
-<script>
-export default {
-  name: '{{ properCase name }}',
-  props: {},
-  data() {
-    return {}
-  },
-  created() {},
-  mounted() {},
-  methods: {}
-}
+<script setup lang="ts">
+import PageContainer from '@/components/PageContainer/index.vue'
+
+// Must match the menu_name the backend serves, or keep-alive silently misses
+defineOptions({ name: '{{ properCase name }}' })
 </script>
 {{/if}}
 

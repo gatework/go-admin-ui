@@ -5,17 +5,8 @@
 {{/if}}
 
 {{#if script}}
-<script>
-export default {
-  name: '{{ properCase name }}',
-  props: {},
-  data() {
-    return {}
-  },
-  created() {},
-  mounted() {},
-  methods: {}
-}
+<script setup lang="ts">
+defineOptions({ name: '{{ properCase name }}' })
 </script>
 {{/if}}
 
