@@ -1,3 +1,6 @@
+import { mount } from '@vue/test-utils'
+import { Input, Spin, Tree } from '@arco-design/web-vue'
+import TreeNav from '@/components/TreeNav/index.vue'
 import { filterTreeNav, flattenTreeNav, type TreeNavItem } from '@/components/TreeNav/tree'
 
 const items: TreeNavItem[] = [
@@ -8,6 +11,30 @@ const items: TreeNavItem[] = [
 ]
 
 describe('TreeNav filtering', () => {
+  it('keeps a visible keyboard entry when a search hides the selected group', async() => {
+    const wrapper = mount(TreeNav, {
+      props: { items, pinned: [{ key: 'all', title: 'All' }], selected: 1, title: 'Groups', searchPlaceholder: 'Search groups' },
+      global: {
+        components: { AInput: Input, ASpin: Spin, ATree: Tree },
+        stubs: { IconSearch: true, AButton: true, AResult: true }
+      }
+    })
+    const entry = () => wrapper.findAll('[data-tree-key][tabindex="0"]')
+    expect(entry()).toHaveLength(1)
+    expect(entry()[0].attributes('data-tree-key')).toBe('1')
+    await wrapper.get('input').setValue('Lab')
+    expect(wrapper.find('[data-tree-key="1"]').exists()).toBe(false)
+    expect(entry()).toHaveLength(1)
+    expect(entry()[0].attributes('data-tree-key')).toBe('all')
+    await wrapper.setProps({ selected: 2 })
+    expect(entry()).toHaveLength(1)
+    await wrapper.get('input').setValue('')
+    await wrapper.setProps({ selected: 0 })
+    expect(entry()).toHaveLength(1)
+    expect(entry()[0].attributes('data-tree-key')).toBe('0')
+    wrapper.unmount()
+  })
+
   it('keeps the path to a nested match and records level and parent for keyboard navigation', () => {
     const [campus] = filterTreeNav(items, 'row')
     expect(campus).toMatchObject({ key: 1, level: 1, parentKey: undefined })

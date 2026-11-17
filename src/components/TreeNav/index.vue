@@ -105,8 +105,9 @@ watch(parents, keys => {
   known = new Set(keys)
   if (added.length) expanded.value = [...new Set([...expanded.value, ...added])]
 }, { immediate: true })
-watch(() => props.selected, value => { focusKey.value = value })
-watch(nodes, () => { if (focusKey.value === undefined || !nodeMap.value.has(focusKey.value)) focusKey.value = props.selected ?? nodes.value[0]?.key }, { immediate: true })
+const defaultFocusKey = () => props.selected !== undefined && nodeMap.value.has(props.selected) ? props.selected : nodes.value[0]?.key
+watch(() => props.selected, () => { focusKey.value = defaultFocusKey() })
+watch(nodes, () => { if (focusKey.value === undefined || !nodeMap.value.has(focusKey.value)) focusKey.value = defaultFocusKey() }, { immediate: true })
 
 function select(keys: (string | number)[], data: { node?: TreeNodeData }) {
   // Arco 2.59 omits data.node for the valid numeric key 0.
