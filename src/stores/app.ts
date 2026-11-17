@@ -1,52 +1,28 @@
 import { defineStore } from 'pinia'
-import Cookies from 'js-cookie'
 
 export type DeviceType = 'desktop' | 'mobile'
 
 /**
- * Sidebar collapse state, viewport class and component size.
+ * Viewport class and the phone navigation drawer.
  *
- * Sidebar and size are mirrored into cookies so they survive a reload; that
- * persistence is part of the contract, not an implementation detail.
- *
- * Ported from src/store/modules/app.js. Behaviour is covered by
- * tests/unit/store/app.spec.js.
+ * Whether the desktop rail is collapsed is a preference
+ * (`preferences.menuCollapse`), because it is remembered. The drawer is not: it
+ * opens over the page and closes on the next navigation.
  */
 export const useAppStore = defineStore('app', {
-  state: () => {
-    // Read once instead of calling Cookies.get twice as the Vuex version did:
-    // the two reads were independent and could in principle disagree.
-    const sidebarStatus = Cookies.get('sidebarStatus')
-    return {
-      sidebar: {
-        opened: sidebarStatus ? !!+sidebarStatus : true,
-        withoutAnimation: false
-      },
-      device: 'desktop' as DeviceType,
-      size: Cookies.get('size') || 'medium'
-    }
+  state: () => ({
+    device: 'desktop' as DeviceType,
+    drawerOpen: false
+  }),
+  getters: {
+    mobile: state => state.device === 'mobile'
   },
-
   actions: {
-    toggleSideBar() {
-      this.sidebar.opened = !this.sidebar.opened
-      this.sidebar.withoutAnimation = false
-      Cookies.set('sidebarStatus', this.sidebar.opened ? '1' : '0')
-    },
-
-    closeSideBar({ withoutAnimation }: { withoutAnimation: boolean }) {
-      Cookies.set('sidebarStatus', '0')
-      this.sidebar.opened = false
-      this.sidebar.withoutAnimation = withoutAnimation
-    },
-
-    toggleDevice(device: DeviceType) {
+    setDevice(device: DeviceType) {
       this.device = device
+      if (device === 'desktop') this.drawerOpen = false
     },
-
-    setSize(size: string) {
-      this.size = size
-      Cookies.set('size', size)
-    }
+    toggleDrawer() { this.drawerOpen = !this.drawerOpen },
+    closeDrawer() { this.drawerOpen = false }
   }
 })

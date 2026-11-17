@@ -3,6 +3,7 @@
  * API. Referenced through `meta.titleKey`; see lang/backend.ts.
  */
 export default {
+  swagger: '接口文档',
   dashboard: '首页',
   profile: '个人中心'
 }
