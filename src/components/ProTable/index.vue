@@ -39,6 +39,10 @@
       <div class="pro-table__data">
         <div v-if="$slots.toolbar && !asCards" class="pro-table__toolbar">
           <slot name="toolbar" />
+          <span v-if="selection && table.selection.length" class="pro-table__selected" aria-live="polite">
+            {{ $t('components.proTable.selected', { count: table.selection.length }) }}
+            <a-button type="text" size="mini" @click="table.handleSelectionChange([])">{{ $t('components.proTable.clearSelection') }}</a-button>
+          </span>
           <a-button class="pro-table__refresh" :loading="table.loading" shape="circle" :title="$t('common.refresh')" :aria-label="$t('common.refresh')" @click="table.getList"><template #icon><icon-refresh /></template></a-button>
         </div>
         <MobileCards
@@ -698,4 +702,20 @@ defineExpose({
 .pro-table__toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
 .pro-table__refresh { margin-left: auto; }
 .pro-table__actions { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+
+/*
+ * How many rows the batch buttons will act on. Last in the reversed row, so it
+ * sits at the far left, away from the actions; the auto margin gives it the
+ * free space between.
+ */
+.pro-table__selected {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  order: 99;
+  margin-right: auto;
+  color: var(--motor-text-2);
+  font-size: var(--motor-font-size-13);
+  white-space: nowrap;
+}
 </style>

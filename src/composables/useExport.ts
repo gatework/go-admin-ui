@@ -24,17 +24,30 @@ import { buildSheet } from '@/utils/workbook'
 
 const DATE_FORMAT = 'yyyy-mm-dd hh:mm:ss'
 
-export interface ExportOptions<TRow> {
-  /** Column headings, in order. */
-  header: string[]
-  /** Row fields to project, aligned with `header`. */
-  fields: Array<keyof TRow & string>
+/** One column of the sheet: which field it reads and what its header says. */
+export interface ExportColumn<TRow> {
+  field: keyof TRow & string
+  title: string
+}
+
+interface ExportBase<TRow> {
+  /** Rows to write. This is whatever the caller holds -- the current page, not the whole collection. */
   rows: TRow[]
-  /** Workbook name, without the extension. */
+  /** File name without the extension. */
   filename: string
-  /** Confirmation body. Pass null to export without asking. */
+  /** Confirmation text. `null` skips the confirmation. */
   confirmText?: string | null
 }
+
+/**
+ * Columns are given as pairs, so a header cannot drift away from its field.
+ * The `header` / `fields` form is the older one: two arrays that have to be
+ * kept the same length and order by hand.
+ */
+export type ExportOptions<TRow> = ExportBase<TRow> & (
+  | { columns: Array<ExportColumn<TRow>>, header?: never, fields?: never }
+  | { header: string[], fields: Array<keyof TRow & string>, columns?: never }
+)
 
 export interface UseExportReturn {
   exportExcel: <TRow extends Record<string, unknown>>(
@@ -50,15 +63,10 @@ export function useExport(): UseExportReturn {
   /** Guards the whole interaction, dialog included -- see useRemove. */
   let pending = false
 
-  const exportExcel = async<TRow extends Record<string, unknown>>({
-    header,
-    fields,
-    rows,
-    filename,
-    // Resolved per call, like the rest: this is a destructuring default, so it
-    // runs when exportExcel does rather than when the module loaded.
-    confirmText = i18n.global.t('composables.export.confirm')
-  }: ExportOptions<TRow>): Promise<boolean> => {
+  const exportExcel = async<TRow extends Record<string, unknown>>(options: ExportOptions<TRow>): Promise<boolean> => {
+    const { rows, filename, confirmText = i18n.global.t('composables.export.confirm') } = options
+    const header = options.columns ? options.columns.map(column => column.title) : options.header
+    const fields = options.columns ? options.columns.map(column => column.field) : options.fields
     if (pending) return false
     if (!rows.length) return false
 

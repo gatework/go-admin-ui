@@ -18,7 +18,7 @@ export type { UseRemoveOptions, UseRemoveReturn } from './useRemove'
 export { useDict, dictLabel, clearDictCache } from './useDict'
 
 export { useExport } from './useExport'
-export type { ExportOptions, UseExportReturn } from './useExport'
+export type { ExportColumn, ExportOptions, UseExportReturn } from './useExport'
 
 export { useTreePicker } from './useTreePicker'
 export type { UseTreePickerOptions, UseTreePickerReturn } from './useTreePicker'

@@ -308,19 +308,18 @@ const { exportExcel, exporting } = useExport()
 // Built on each click rather than once, so the sheet is written in the
 // language the reader is in when they ask for it.
 const handleExport = () => exportExcel({
-  header: [
-    t('admin.sysOperLog.exportHeader.operId'),
-    t('admin.sysOperLog.exportHeader.module'),
-    t('admin.sysOperLog.exportHeader.businessType'),
-    t('admin.sysOperLog.exportHeader.operName'),
-    t('admin.sysOperLog.exportHeader.operIp'),
-    t('admin.sysOperLog.exportHeader.operLocation'),
-    t('admin.sysOperLog.exportHeader.requestMethod'),
-    t('admin.sysOperLog.exportHeader.operUrl'),
-    t('admin.sysOperLog.exportHeader.status'),
-    t('admin.sysOperLog.exportHeader.operDate')
+  columns: [
+    { field: 'id', title: t('admin.sysOperLog.exportHeader.operId') },
+    { field: 'title', title: t('admin.sysOperLog.exportHeader.module') },
+    { field: 'businessType', title: t('admin.sysOperLog.exportHeader.businessType') },
+    { field: 'operName', title: t('admin.sysOperLog.exportHeader.operName') },
+    { field: 'operIp', title: t('admin.sysOperLog.exportHeader.operIp') },
+    { field: 'operLocation', title: t('admin.sysOperLog.exportHeader.operLocation') },
+    { field: 'requestMethod', title: t('admin.sysOperLog.exportHeader.requestMethod') },
+    { field: 'operUrl', title: t('admin.sysOperLog.exportHeader.operUrl') },
+    { field: 'status', title: t('admin.sysOperLog.exportHeader.status') },
+    { field: 'operTime', title: t('admin.sysOperLog.exportHeader.operDate') }
   ],
-  fields: ['id', 'title', 'businessType', 'operName', 'operIp', 'operLocation', 'requestMethod', 'operUrl', 'status', 'operTime'],
   // Dictionary-backed columns are resolved here rather than written as the
   // codes they are stored as. The sheet used to say 1 and 2 in the two columns
   // the table renders as 正常/关闭 and 新增/修改 -- readable on screen,

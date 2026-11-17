@@ -1,22 +1,24 @@
 <template>
   <PageContainer class="device-page network-list" :title="t('network.device.title')" :description="t('network.device.pageDescription')">
-    <a-alert v-if="statusFailed" type="warning" class="device-page__feedback">
-      {{ t('network.device.statusFailed') }}
-      <template #action><a-button :loading="statusLoading" @click="refreshStatus">{{ t('network.device.checkSync') }}</a-button></template>
-    </a-alert>
-    <a-alert v-else-if="syncFailed || syncStatus?.status === 'failed'" type="warning" class="device-page__feedback">
-      {{ t('network.device.syncFailed') }}
-    </a-alert>
-    <a-alert v-else-if="syncStatus?.status === 'running' && !syncing" class="device-page__feedback">
-      {{ t('network.device.syncRunning') }}
-      <template #action><a-button :loading="statusLoading" @click="refreshStatusAndList">{{ t('network.device.checkSync') }}</a-button></template>
-    </a-alert>
-    <a-alert v-else-if="syncResult" type="success" class="device-page__feedback" aria-live="polite">
-      {{ t('network.device.syncSucceeded', { ...syncResult }) }}
-    </a-alert>
-    <a-alert v-if="syncStatus && !syncStatus.configured && table.rows.length" type="warning" class="device-page__feedback" :title="t('network.device.unconfigured')">
-      {{ t('network.device.unconfiguredHelp') }}
-    </a-alert>
+    <template #alerts>
+      <a-alert v-if="statusFailed" type="warning">
+        {{ t('network.device.statusFailed') }}
+        <template #action><a-button :loading="statusLoading" @click="refreshStatus">{{ t('network.device.checkSync') }}</a-button></template>
+      </a-alert>
+      <a-alert v-else-if="syncFailed || syncStatus?.status === 'failed'" type="warning">
+        {{ t('network.device.syncFailed') }}
+      </a-alert>
+      <a-alert v-else-if="syncStatus?.status === 'running' && !syncing">
+        {{ t('network.device.syncRunning') }}
+        <template #action><a-button :loading="statusLoading" @click="refreshStatusAndList">{{ t('network.device.checkSync') }}</a-button></template>
+      </a-alert>
+      <a-alert v-else-if="syncResult" type="success" aria-live="polite">
+        {{ t('network.device.syncSucceeded', { ...syncResult }) }}
+      </a-alert>
+      <a-alert v-if="syncStatus && !syncStatus.configured && table.rows.length" type="warning" :title="t('network.device.unconfigured')">
+        {{ t('network.device.unconfiguredHelp') }}
+      </a-alert>
+    </template>
 
     <AsideLayout ref="aside" :title="t('network.device.groups.title')" :current="currentScope">
       <template #aside="{ compact }">
@@ -338,7 +340,6 @@ onMounted(() => { void refreshStatus(); void refreshOptions(); void refreshGroup
 </script>
 
 <style scoped lang="scss">
-.device-page__feedback { margin-bottom: 16px; }
 .device-page__summary { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-right: auto; color: var(--color-text-2); font-size: var(--motor-font-size-12); line-height: 1.6; }
 .device-page__identity { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
 .device-page__identity > span { color: var(--color-text-2); font-size: var(--motor-font-size-12); line-height: 1.6; overflow-wrap: anywhere; }
@@ -347,6 +348,5 @@ onMounted(() => { void refreshStatus(); void refreshOptions(); void refreshGroup
 .device-page :deep(.arco-table-td) { font-variant-numeric: tabular-nums; }
 @media (max-width: 767px) {
   .device-page__summary { flex-direction: column; max-width: min(280px, calc(100vw - 64px)); }
-  .device-page__feedback { margin: 0 12px 12px; width: auto; }
 }
 </style>

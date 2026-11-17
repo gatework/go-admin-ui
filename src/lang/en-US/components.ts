@@ -1,5 +1,8 @@
 export default {
   proTable: {
+    /** Beside the toolbar while rows are ticked: what the batch buttons will act on. */
+    selected: '{count} selected',
+    clearSelection: 'Clear',
     filters: 'Filters',
     showResults: 'Show Results',
     pageActions: 'Page actions',

@@ -7,6 +7,7 @@
       </div>
       <div v-if="$slots.actions" class="page-container__actions"><slot name="actions" /></div>
     </header>
+    <div v-if="$slots.alerts" class="page-container__alerts"><slot name="alerts" /></div>
     <a-card v-if="card" class="page-container__body">
       <slot />
     </a-card>
@@ -33,6 +34,10 @@
  * orientation (network management) passes `title`, `description` and
  * `#actions`, so every such page opens the same way instead of each drawing its
  * own header.
+ *
+ * `#alerts` is for page-level notices (a sync that failed, an integration that
+ * is not configured): they sit between the heading and the content with one
+ * spacing rule, instead of each page inventing a margin for its own.
  */
 defineOptions({ name: 'PageContainer' })
 
@@ -52,7 +57,7 @@ withDefaults(defineProps<{
 
 <style lang="scss" scoped>
 .page-container {
-  padding: 12px;
+  padding: var(--motor-page-gutter);
   box-sizing: border-box;
 }
 
@@ -86,6 +91,16 @@ withDefaults(defineProps<{
   }
 }
 
+.page-container__alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: var(--motor-space-4);
+}
+
+/* Every notice in it is conditional; with none showing it must not hold a gap open. */
+.page-container__alerts:empty { display: none; }
+
 .page-container__actions {
   display: flex;
   align-items: center;
@@ -116,6 +131,8 @@ withDefaults(defineProps<{
   .page-container__heading h1 { font-size: var(--motor-font-size-18); }
 
   .page-container__actions :deep(.arco-btn) { min-height: 36px; }
+
+  .page-container__alerts { margin: 0 12px 12px; }
 
   .page-container__body {
     border: 0;

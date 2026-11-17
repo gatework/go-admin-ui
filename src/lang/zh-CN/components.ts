@@ -10,6 +10,9 @@
  */
 export default {
   proTable: {
+    /** Beside the toolbar while rows are ticked: what the batch buttons will act on. */
+    selected: '已选 {count} 项',
+    clearSelection: '清除',
     filters: '筛选',
     showResults: '查看结果',
     /** Label of the floating button that opens a page's toolbar on a phone. */

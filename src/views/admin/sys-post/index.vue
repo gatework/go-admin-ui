@@ -182,14 +182,13 @@ const { exportExcel, exporting } = useExport()
 // Built on each click rather than once, so the sheet is written in the
 // language the reader is in when they ask for it.
 const handleExport = () => exportExcel({
-  header: [
-    t('admin.sysPost.exportHeader.postId'),
-    t('admin.sysPost.exportHeader.postCode'),
-    t('admin.sysPost.exportHeader.postName'),
-    t('admin.sysPost.exportHeader.sort'),
-    t('admin.sysPost.exportHeader.createdAt')
+  columns: [
+    { field: 'postId', title: t('admin.sysPost.exportHeader.postId') },
+    { field: 'postCode', title: t('admin.sysPost.exportHeader.postCode') },
+    { field: 'postName', title: t('admin.sysPost.exportHeader.postName') },
+    { field: 'sort', title: t('admin.sysPost.exportHeader.sort') },
+    { field: 'createdAt', title: t('admin.sysPost.exportHeader.createdAt') }
   ],
-  fields: ['postId', 'postCode', 'postName', 'sort', 'createdAt'],
   rows: table.rows as Array<Record<string, unknown>>,
   filename: t('admin.sysPost.exportFilename')
 })

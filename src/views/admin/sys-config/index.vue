@@ -223,17 +223,16 @@ const { exportExcel, exporting } = useExport()
 // Built on each click rather than once, so the sheet is written in the
 // language the reader is in when they ask for it.
 const handleExport = () => exportExcel({
-  header: [
-    t('admin.sysConfig.exportHeader.configId'),
-    t('admin.sysConfig.exportHeader.configName'),
-    t('admin.sysConfig.exportHeader.configKey'),
-    t('admin.sysConfig.exportHeader.configValue'),
-    t('admin.sysConfig.exportHeader.remark'),
-    t('admin.sysConfig.exportHeader.createdAt')
+  columns: [
+    { field: 'id', title: t('admin.sysConfig.exportHeader.configId') },
+    { field: 'configName', title: t('admin.sysConfig.exportHeader.configName') },
+    { field: 'configKey', title: t('admin.sysConfig.exportHeader.configKey') },
+    { field: 'configValue', title: t('admin.sysConfig.exportHeader.configValue') },
+    { field: 'remark', title: t('admin.sysConfig.exportHeader.remark') },
+    { field: 'createdAt', title: t('admin.sysConfig.exportHeader.createdAt') }
   ],
   // `id`, not `configId`: the rows carry the former, so the old export wrote an
   // empty first column on every line
-  fields: ['id', 'configName', 'configKey', 'configValue', 'remark', 'createdAt'],
   rows: table.rows as Array<Record<string, unknown>>,
   filename: t('admin.sysConfig.exportFilename')
 })

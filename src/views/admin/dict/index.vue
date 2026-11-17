@@ -194,14 +194,13 @@ const { exportExcel, exporting } = useExport()
 // Built on each click rather than once, so the sheet is written in the
 // language the reader is in when they ask for it.
 const handleExport = () => exportExcel({
-  header: [
-    t('admin.dict.type.exportHeader.dictId'),
-    t('admin.dict.type.exportHeader.dictName'),
-    t('admin.dict.type.exportHeader.dictType'),
-    t('admin.dict.type.exportHeader.status'),
-    t('admin.dict.type.exportHeader.remark')
+  columns: [
+    { field: 'id', title: t('admin.dict.type.exportHeader.dictId') },
+    { field: 'dictName', title: t('admin.dict.type.exportHeader.dictName') },
+    { field: 'dictType', title: t('admin.dict.type.exportHeader.dictType') },
+    { field: 'status', title: t('admin.dict.type.exportHeader.status') },
+    { field: 'remark', title: t('admin.dict.type.exportHeader.remark') }
   ],
-  fields: ['id', 'dictName', 'dictType', 'status', 'remark'],
   rows: table.rows as Array<Record<string, unknown>>,
   filename: t('admin.dict.type.exportFilename')
 })

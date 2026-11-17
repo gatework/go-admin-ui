@@ -356,15 +356,14 @@ const { exportExcel, exporting } = useExport()
 // Built on each click rather than once, so the sheet is written in the
 // language the reader is in when they ask for it.
 const handleExport = () => exportExcel({
-  header: [
-    t('admin.sysRole.exportHeader.roleId'),
-    t('admin.sysRole.exportHeader.roleName'),
-    t('admin.sysRole.exportHeader.roleKey'),
-    t('admin.sysRole.exportHeader.roleSort'),
-    t('admin.sysRole.exportHeader.status'),
-    t('admin.sysRole.exportHeader.createdAt')
+  columns: [
+    { field: 'roleId', title: t('admin.sysRole.exportHeader.roleId') },
+    { field: 'roleName', title: t('admin.sysRole.exportHeader.roleName') },
+    { field: 'roleKey', title: t('admin.sysRole.exportHeader.roleKey') },
+    { field: 'roleSort', title: t('admin.sysRole.exportHeader.roleSort') },
+    { field: 'status', title: t('admin.sysRole.exportHeader.status') },
+    { field: 'createdAt', title: t('admin.sysRole.exportHeader.createdAt') }
   ],
-  fields: ['roleId', 'roleName', 'roleKey', 'roleSort', 'status', 'createdAt'],
   // The switch in the status column reads 2 as on and 1 as off; the sheet used
   // to write those digits. See sys-oper-log for the same fix.
   rows: table.rows.map(row => ({

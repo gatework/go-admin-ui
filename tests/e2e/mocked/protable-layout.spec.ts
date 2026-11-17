@@ -170,3 +170,20 @@ test.describe('mobile filter sheets', () => {
     })
   }
 })
+
+// The batch buttons act on "the selection", which after paging or scrolling is
+// no longer all on screen; the count says how much that is.
+test('ticking rows shows how many are selected and offers to clear them', async({ page, context }) => {
+  await authenticate(context)
+  await installApiMocks(page)
+  await page.goto('/#/admin/sys-post')
+  const rows = page.locator('.arco-table tbody tr')
+  await expect(rows.first()).toBeVisible()
+  const count = page.locator('.pro-table__selected')
+  await expect(count).toHaveCount(0)
+  await rows.nth(0).locator('.arco-checkbox').click()
+  await expect(count).toContainText('已选 1 项')
+  await count.getByRole('button', { name: '清除' }).click()
+  await expect(count).toHaveCount(0)
+  await expect(rows.nth(0).locator('.arco-checkbox-checked')).toHaveCount(0)
+})
