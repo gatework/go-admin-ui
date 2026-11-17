@@ -9,10 +9,12 @@ let session: PageSession
 const onSuspend = vi.fn()
 const onResume = vi.fn()
 
+let resumeOnSignIn = false
+
 const Page = defineComponent({
   name: 'SessionPage',
   setup() {
-    session = usePageSession({ onSuspend, onResume })
+    session = usePageSession({ onSuspend, onResume, resumeOnSignIn })
     return () => h('div')
   }
 })
@@ -29,6 +31,7 @@ beforeEach(() => {
   useUserStore().token = 'first'
   onSuspend.mockClear()
   onResume.mockClear()
+  resumeOnSignIn = false
 })
 
 describe('usePageSession', () => {
@@ -75,6 +78,29 @@ describe('usePageSession', () => {
     expect(current()).toBe(false)
     expect(session.active).toBe(false)
     expect(onSuspend).toHaveBeenCalledOnce()
+    expect(onResume).not.toHaveBeenCalled()
+  })
+
+  // For a page that should show the new account's data without being navigated to again.
+  it('with resumeOnSignIn, reloads for the new account at once', async() => {
+    resumeOnSignIn = true
+    mountKeptAlive()
+    const stale = session.guard()
+    useUserStore().token = 'second'
+    await nextTick()
+    expect(stale()).toBe(false)
+    expect(onSuspend).toHaveBeenCalledOnce()
+    expect(onResume).toHaveBeenCalledOnce()
+    expect(session.active).toBe(true)
+    expect(session.guard()()).toBe(true)
+  })
+
+  it('with resumeOnSignIn, still stays suspended after sign-out', async() => {
+    resumeOnSignIn = true
+    mountKeptAlive()
+    useUserStore().token = ''
+    await nextTick()
+    expect(session.active).toBe(false)
     expect(onResume).not.toHaveBeenCalled()
   })
 })

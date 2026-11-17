@@ -18,6 +18,12 @@ export interface PageSessionOptions {
   onSuspend?: () => void
   /** The page came back after being suspended: reload what may be stale. */
   onResume?: () => void
+  /**
+   * Resume at once when a different account signs in while the page is on
+   * screen, instead of waiting for the next activation. For a page that should
+   * show the new account's data without being navigated to again.
+   */
+  resumeOnSignIn?: boolean
 }
 
 /**
@@ -55,10 +61,14 @@ export function usePageSession(options: PageSessionOptions = {}): PageSession {
   }
 
   // A new token is a new account as far as any in-flight response is concerned.
-  // The page stays suspended until it is next activated: what it shows was the
-  // previous account's, and signing in again navigates, which remounts or
-  // reactivates the page with a clean start.
-  watch(() => user.token, suspend)
+  // By default the page stays suspended until it is next activated: what it
+  // shows was the previous account's, and signing in again navigates, which
+  // reactivates it with a clean start. `resumeOnSignIn` reloads straight away.
+  watch(() => user.token, token => {
+    const wasActive = active
+    suspend()
+    if (options.resumeOnSignIn && wasActive && token) resume()
+  })
   onActivated(resume)
   onDeactivated(suspend)
   onBeforeUnmount(suspend)

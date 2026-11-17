@@ -42,14 +42,14 @@
 
 <script setup lang="ts">
 import { usePermission } from '@/composables/usePermission'
-import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import PageContainer from '@/components/PageContainer/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 import AppTabs from '@/components/AppTabs/index.vue'
-import { useTable } from '@/composables'
+import { usePageSession, useTable } from '@/composables'
 import { useUserStore } from '@/stores/user'
 import { getDeliveryOptions, listDelivery } from '@/api/network/delivery'
 import { deliveryStatuses } from '@/types/network-delivery'
@@ -78,44 +78,42 @@ const activeTab = ref(canBrowseDevices.value ? 'devices' : 'tasks')
 const selectedDevices = ref<DeviceSnapshot[]>([])
 const editor = ref<InstanceType<typeof Editor>>()
 const ready = computed(() => Boolean(options.value?.enabled && options.value.configured))
-let active = true
-let generation = 0
 let listController: AbortController | undefined
 let optionsController: AbortController | undefined
 let timer: ReturnType<typeof setTimeout> | undefined
+/** The page left the screen or the account changed: stop polling and in-flight reads. */
+function closeTransient() { listController?.abort(); optionsController?.abort(); clearTimeout(timer); detailVisible.value = false }
+const session = usePageSession({ onSuspend: closeTransient, onResume: () => { void reload() }, resumeOnSignIn: true })
 const table = useTable<DeliveryOrder, DeliveryQuery>({
   idKey: 'id', immediate: false, defaultQuery: () => ({ keyword: '', status: undefined }),
   api: async query => {
     listController?.abort(); listController = new AbortController(); clearTimeout(timer)
-    const current = generation
+    const current = session.guard()
     const result = await listDelivery({ keyword: query.keyword, status: query.status, pageIndex: query.pageIndex, pageSize: query.pageSize }, listController.signal)
-    if (current !== generation || !active) throw new Error('Inactive delivery list')
+    if (!current()) throw new Error('Inactive delivery list')
     failed.value = false
     if (result.data.list.some(row => isActive(row.status))) timer = setTimeout(poll, 5000)
     return result
   },
-  onError: () => { if (active) failed.value = true }
+  onError: () => { if (session.active) failed.value = true }
 })
 const emptyKey = computed(() => failed.value ? 'loadFailed' : table.query.keyword || table.query.status ? 'noResults' : 'empty')
 const emptyTitle = computed(() => t(`networkDelivery.${emptyKey.value}`))
 const emptyHelp = computed(() => t(`networkDelivery.${emptyKey.value}Help`))
-function poll() { if (active && !document.hidden && !editorVisible.value) void table.getList(); else if (active) timer = setTimeout(poll, 5000) }
+function poll() { if (session.active && !document.hidden && !editorVisible.value) void table.getList(); else if (session.active) timer = setTimeout(poll, 5000) }
 async function loadOptions() {
-  const current = generation
+  const current = session.guard()
   optionsController?.abort(); optionsController = new AbortController()
   const request = optionsController
-  try { const result = await getDeliveryOptions(request.signal); if (active && current === generation && !request.signal.aborted) { options.value = result.data; optionsFailed.value = false } } catch { if (active && current === generation && !request.signal.aborted) optionsFailed.value = true }
+  try { const result = await getDeliveryOptions(request.signal); if (current() && !request.signal.aborted) { options.value = result.data; optionsFailed.value = false } } catch { if (current() && !request.signal.aborted) optionsFailed.value = true }
 }
 async function reload() { await Promise.all([table.getList(), loadOptions()]) }
 function showDetail(id: number) { if (!allowed('query')) return; selectedId.value = id; detailVisible.value = true }
 function showEditor(id?: number) { if (!options.value || !allowed(id ? 'edit' : 'add')) return; detailVisible.value = false; selectedId.value = id; editorVisible.value = true }
 function saved(id: number) { editorVisible.value = false; selectedDevices.value = []; activeTab.value = 'tasks'; void reload(); showDetail(id) }
-function suspend() { active = false; generation++; listController?.abort(); optionsController?.abort(); clearTimeout(timer); detailVisible.value = false }
 onBeforeRouteLeave(async() => !editorVisible.value || Boolean(await editor.value?.requestClose()))
 onMounted(() => { void reload() })
-onActivated(() => { if (!active) { active = true; void reload() } })
-onDeactivated(suspend)
-onBeforeUnmount(suspend)
-watch(() => user.token, () => { suspend(); table.rows = []; options.value = undefined; selectedDevices.value = []; editorVisible.value = false; if (user.token) { active = true; void reload() } })
+// The previous account's orders and selection must not stay on screen; usePageSession reloads for the new one.
+watch(() => user.token, () => { table.rows = []; options.value = undefined; selectedDevices.value = []; editorVisible.value = false })
 watch(canBrowseDevices, value => { if (!value) activeTab.value = 'tasks' })
 </script>
