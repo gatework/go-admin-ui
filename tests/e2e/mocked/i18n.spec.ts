@@ -187,33 +187,25 @@ test.describe('switching language', () => {
     // existing `routes` watcher would never have fired.
     await openList(page)
 
-    const search = page.locator('#header-search')
-    const input = search.locator('input')
-    // Scoped to the dropdown that is actually open: el-select teleports its
-    // popper to <body>, and the page behind has its own selects whose options
-    // are in the DOM too.
-    const results = page.locator('.arco-select-dropdown:visible .arco-select-option')
+    const palette = page.locator('.command-palette')
+    const input = palette.locator('input')
+    const first = palette.locator('.command-palette__item').first()
 
-    // The icon toggles, so it is clicked once per open -- and switching
-    // language closes it, because the switcher click reaches the body listener
-    // this component installs while open.
-    await search.locator('.search-icon').click()
-    await expect(input).toBeVisible()
-    // Typed rather than filled: el-select's remote mode runs its query off the
-    // input event, and only reveals the dropdown once results arrive.
+    await page.locator('#header-search').click()
     await input.pressSequentially('User')
     // The fixture's own title, which is what zh-CN shows: no menu.ts entry is
     // consulted, the stored value comes straight through.
-    await expect(results.first()).toHaveText('Admin > User')
+    await expect(first.locator('.command-palette__title')).toHaveText('User')
+    await expect(first.locator('.command-palette__trail')).toHaveText('Admin')
+    await page.keyboard.press('Escape')
+    await expect(palette).toBeHidden()
 
     await switchTo(page, 'English')
-    await expect(search.getByRole('button', { name: 'Search', exact: true })).toHaveAttribute('aria-expanded', 'false')
 
-    await search.locator('.search-icon').click()
-    await expect(input).toBeVisible()
+    await page.locator('#header-search').click()
     await input.pressSequentially('User')
     // Same query, rebuilt index: now the translated title.
-    await expect(results.first()).toHaveText('Admin > User Management')
+    await expect(first.locator('.command-palette__title')).toHaveText('User Management')
   })
 
   test('follows the language in the browser tab', async({ page }) => {

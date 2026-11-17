@@ -42,13 +42,11 @@ const KNOWN: Record<string, number> = {
   // Fallback titles for the fixed routes. Both already carry a titleKey, so
   // these render only when the pack is missing the key.
   'src/router/index.js': 3,
-  'src/components/Breadcrumb/index.vue': 1,
 
   // Not user-facing: a console banner, a developer-facing throw, and comments
   // the stripper below does not reach (see its note).
   'src/main.js': 1,
   'src/directive/permission/permisaction.js': 1,
-  'src/directive/waves/waves.js': 3,
   'src/utils/request.ts': 2
 }
 

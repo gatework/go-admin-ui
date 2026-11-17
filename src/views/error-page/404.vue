@@ -10,7 +10,7 @@
       <div class="bullshit">
         <div class="bullshit__oops">{{ $t('errorPage.title') }}</div>
         <div class="bullshit__info">All rights reserved
-          <a style="color:var(--ga-text-link)" href="https://wallstreetcn.com" target="_blank">wallstreetcn</a>
+          <a style="color:rgb(var(--link-6))" href="https://wallstreetcn.com" target="_blank">wallstreetcn</a>
         </div>
         <div class="bullshit__info">{{ $t('errorPage.recovery') }}</div>
         <RouterLink to="/" class="bullshit__return-home">{{ $t('errorPage.home') }}</RouterLink>
@@ -169,7 +169,7 @@ export default {
     &__info {
       font-size: 13px;
       line-height: 21px;
-      color: var(--ga-text-2);
+      color: var(--color-text-2);
       opacity: 0;
       margin-bottom: 30px;
       animation-name: slideUp;

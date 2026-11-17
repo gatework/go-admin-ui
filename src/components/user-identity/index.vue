@@ -83,8 +83,8 @@ const initial = computed(() =>
     }
 
     &__avatar {
-      background: var(--motor-avatar-background);
-      box-shadow: var(--motor-avatar-shadow);
+      background: var(--motor-primary-gradient);
+      box-shadow: 0 4px 12px var(--motor-primary-shadow);
       color: #fff;
       font-weight: 720;
     }

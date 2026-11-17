@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { authenticate, installApiMocks } from './fixtures'
+import { openPreferences, authenticate, installApiMocks } from './fixtures'
 
 /**
  * Safety net for the app shell: session guard, dynamic route generation from the
@@ -70,8 +70,8 @@ test.describe('app shell', () => {
     await page.goto('/#/demo/product')
     await page.waitForSelector('.arco-menu')
 
-    const header = await page.locator('.sidebar-logo-container').boundingBox()
-    const image = await page.locator('.sidebar-logo').boundingBox()
+    const header = await page.locator('.app-sidebar__brand').boundingBox()
+    const image = await page.locator('.app-sidebar__brand .brand__logo').boundingBox()
     expect(header, 'the logo header is rendered').toBeTruthy()
     expect(image, 'the logo image is rendered').toBeTruthy()
 
@@ -199,34 +199,20 @@ test.describe('app shell', () => {
     expect(calls.product.list).toBe(beforeReturn)
   })
 
-  // The trigger used to be a tile fixed to the right edge of the viewport, which
-  // covered whatever the page had there -- on a list page, the pinned action
-  // column. It lives in the navbar icon row now.
-  test('the settings drawer opens from the navbar, not from a floating tile', async({ page, context }) => {
+  // Preferences live in the account menu. Closing the drawer hands focus back
+  // to the menu's trigger, so a keyboard user is not dropped at the top of the
+  // document.
+  test('the preferences drawer opens from the account menu and returns focus to it', async({ page, context }) => {
     await authenticate(context)
     await installApiMocks(page)
 
     await page.goto('/#/demo/product')
     await page.waitForSelector('.arco-table')
 
-    // Nothing floating over the content any more
-    await expect(page.locator('.handle-button')).toHaveCount(0)
-
-    const drawer = page.getByRole('dialog', { name: '偏好设置' })
-    await expect(drawer).toBeHidden()
-
-    await page.locator('#layout-settings').click()
-    await expect(drawer).toBeVisible()
-
-    await page.getByRole('button', { name: '关闭偏好设置' }).click()
-    await expect(drawer).toBeHidden()
-    await expect(page.locator('#layout-settings')).toBeFocused()
-
-    await page.keyboard.press('Enter')
-    await expect(drawer).toBeVisible()
+    const drawer = await openPreferences(page)
     await page.keyboard.press('Escape')
     await expect(drawer).toBeHidden()
-    await expect(page.locator('#layout-settings')).toBeFocused()
+    await expect(page.locator('.avatar-wrapper')).toBeFocused()
   })
 
   test('opens a tab per visited page', async({ page, context }) => {

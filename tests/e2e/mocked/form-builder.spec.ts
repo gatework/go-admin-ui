@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { authenticate, installApiMocks } from './fixtures'
+import { openPreferences, choosePreference, authenticate, installApiMocks } from './fixtures'
 
 test('the local Arco designer follows host appearance without losing edits', async({ page, context }) => {
   await authenticate(context)
@@ -43,28 +43,25 @@ test('the builder fits the shell through resize, layout changes and cached navig
   const fits = () => page.evaluate(() => {
     const box = document.querySelector('.form-builder-frame')?.getBoundingClientRect()
     if (!box) return false
-    const footer = document.querySelector('.main-container > .app-footer')?.getBoundingClientRect()
-    return box.height > 0 && box.bottom <= (footer?.top ?? innerHeight) - 10 && document.documentElement.scrollHeight <= innerHeight + 1 && document.documentElement.scrollWidth <= innerWidth
+    return box.height > 0 && box.bottom <= innerHeight - 10 && document.documentElement.scrollHeight <= innerHeight + 1 && document.documentElement.scrollWidth <= innerWidth
   })
   for (const viewport of [{ width: 1600, height: 1000 }, { width: 1440, height: 900 }, { width: 1280, height: 720 }, { width: 390, height: 700 }]) {
     await page.setViewportSize(viewport)
     await expect.poll(fits).toBe(true)
   }
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.locator('#layout-settings').click()
-  const drawer = page.getByRole('dialog', { name: '偏好设置', exact: true })
-  await drawer.getByRole('tab', { name: '布局', exact: true }).click()
-  await drawer.getByRole('button', { name: '内容全屏', exact: true }).click()
-  await drawer.getByRole('button', { name: '关闭偏好设置' }).click()
+  // Switching the navigation to the header removes the rail and widens the page.
+  await openPreferences(page)
+  await choosePreference(page, '水平')
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.sidebar-container')).toHaveCount(0)
   await expect.poll(fits).toBe(true)
   await expect(page.locator('iframe')).toHaveAttribute('src', source!)
   await expect(frame.getByRole('textbox', { name: '标题', exact: true })).toHaveValue('Retained layout draft')
 
-  await page.locator('.preferences-recovery').click()
-  await drawer.getByRole('button', { name: '垂直', exact: true }).click()
-  await drawer.getByRole('switch', { name: '显示底栏', exact: true }).click()
-  await drawer.getByRole('switch', { name: '显示顶栏', exact: true }).click()
-  await drawer.getByRole('button', { name: '关闭偏好设置' }).click()
+  await openPreferences(page)
+  await choosePreference(page, '垂直')
+  await page.keyboard.press('Escape')
   await expect.poll(fits).toBe(true)
   await expect(page.locator('iframe')).toHaveAttribute('src', source!)
   await expect(frame.getByRole('textbox', { name: '标题', exact: true })).toHaveValue('Retained layout draft')

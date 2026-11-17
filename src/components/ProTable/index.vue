@@ -427,7 +427,7 @@ defineExpose({
 .pro-table--flat .pro-table__search {
   padding-bottom: 12px;
   margin-bottom: 12px;
-  border-bottom: 1px solid var(--ga-border-light);
+  border-bottom: 1px solid var(--color-border-1);
 }
 
 /*
@@ -552,7 +552,7 @@ defineExpose({
   height: 56px;
   color: #fff;
   cursor: pointer;
-  background: var(--ga-brand, #1677ff);
+  background: rgb(var(--primary-6));
   border: none;
   border-radius: 50%;
   box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
@@ -569,8 +569,8 @@ defineExpose({
   align-items: stretch;
   gap: 8px;
   padding: 8px;
-  background: var(--ga-bg-container, #fff);
-  border: 1px solid var(--ga-border-light, #0505050f);
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-1);
   border-radius: 10px;
   box-shadow: 0 6px 20px rgb(0 0 0 / 12%);
 
@@ -607,7 +607,7 @@ defineExpose({
   width: 36px;
   height: 4px;
   margin: 8px auto 12px;
-  background: var(--ga-border, #d9d9d9);
+  background: var(--color-border-2);
   border-radius: 2px;
 }
 
@@ -639,7 +639,7 @@ defineExpose({
   justify-content: flex-start;
   padding-bottom: 8px;
   margin-bottom: 8px;
-  border-bottom: 1px solid var(--ga-border-light);
+  border-bottom: 1px solid var(--color-border-1);
 }
 
 .pro-table__filter-icon { margin-right: 4px; }

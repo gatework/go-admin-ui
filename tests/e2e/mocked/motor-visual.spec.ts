@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { authenticate, installApiMocks, installLoginMocks } from './fixtures'
+import { openPreferences, authenticate, installApiMocks, installLoginMocks } from './fixtures'
 
 for (const width of [375, 768, 1440]) {
   for (const theme of ['light', 'dark']) {
@@ -20,11 +20,10 @@ for (const width of [375, 768, 1440]) {
       await expect(page.locator('#loader-wrapper')).toBeHidden()
       await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
       await page.screenshot({ path: info.outputPath('profile.png'), animations: 'disabled', fullPage: true })
-      await page.locator('#layout-settings').click()
-      const preferences = page.locator('.preferences-drawer')
-      await expect(preferences).toBeVisible()
+      const preferences = await openPreferences(page)
       await page.screenshot({ path: info.outputPath('preferences.png'), animations: 'disabled' })
-      await preferences.getByRole('button', { name: /^(关闭偏好设置|Close preferences)$/ }).click()
+      await page.keyboard.press('Escape')
+      await expect(preferences).toBeHidden()
       await page.goto('/#/admin/sys-menu')
       await page.getByRole('row', { name: /用户管理/ }).getByRole('button', { name: /^(修改|Edit)$/ }).click()
       const editor = page.locator('.menu-editor')

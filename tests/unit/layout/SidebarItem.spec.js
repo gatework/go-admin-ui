@@ -1,7 +1,7 @@
 import { vi } from 'vitest'
 vi.mock('vue-router', () => ({ useRouter: () => ({ push: vi.fn() }) }))
 import { mount } from '@vue/test-utils'
-import SidebarItem from '@/layout/components/Sidebar/SidebarItem.vue'
+import SidebarItem from '@/layout/components/SidebarItem.vue'
 
 // el-menu 开启了 :router，index 会被直接交给 router.push。外链地址不在路由表
 // 中，若外链菜单也渲染成 a-menu-item，点击必然导航失败（#242）。这里断言外链

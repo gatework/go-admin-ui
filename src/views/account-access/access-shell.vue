@@ -65,7 +65,7 @@ import {
   IconSafe,
   IconCodeSquare
 } from '@arco-design/web-vue/es/icon'
-import Footer from '@/components/footer/index.vue'
+import Footer from './access-footer.vue'
 import Brand from '@/components/brand/index.vue'
 import AppearanceToolbar from '@/views/login/components/login-appearance-settings.vue'
 import AmbientBackground from '@/views/login/components/ambient-background.vue'

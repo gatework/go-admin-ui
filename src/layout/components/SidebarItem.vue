@@ -1,12 +1,12 @@
 <template>
   <template v-if="!item.hidden">
     <a-menu-item v-if="leaf" :key="target" @click="navigate">
-      <template v-if="icon" #icon><MenuIcon :name="icon" /></template>
+      <template v-if="icon" #icon><MenuIcon :name="String(icon)" /></template>
       <a v-if="isExternal(target)" class="sidebar-external-link" :href="target" target="_blank" rel="noopener noreferrer" @click.stop>{{ routeTitle(leaf) }}</a>
       <span v-else class="menu-title" :title="routeTitle(leaf)">{{ routeTitle(leaf) }}</span>
     </a-menu-item>
     <a-sub-menu v-else :key="basePath" :title="routeTitle(item)">
-      <template v-if="item.meta?.icon" #icon><MenuIcon :name="item.meta.icon" /></template>
+      <template v-if="item.meta?.icon" #icon><MenuIcon :name="String(item.meta.icon)" /></template>
       <SidebarItem v-for="child in visibleChildren" :key="resolvePath(child.path)" :item="child" :base-path="resolvePath(child.path)" />
     </a-sub-menu>
   </template>
@@ -17,13 +17,17 @@ import MenuIcon from '@/components/MenuIcon/index.vue'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import path from 'path'
+import type { RouteRecordRaw } from 'vue-router'
 import { isExternal } from '@/utils/validate'
 import { routeTitle } from '@/lang/backend'
 
 defineOptions({ name: 'SidebarItem' })
-const props = defineProps<{ item: any, basePath: string }>()
+/** A route as the permission store builds it: vue-router's record plus the menu's own flags. */
+type MenuRoute = Omit<RouteRecordRaw, 'children'> & { hidden?: boolean, alwaysShow?: boolean, children?: MenuRoute[] }
+
+const props = defineProps<{ item: MenuRoute, basePath: string }>()
 const router = useRouter()
-const visibleChildren = computed(() => (props.item.children || []).filter((child: any) => !child.hidden))
+const visibleChildren = computed(() => (props.item.children || []).filter(child => !child.hidden))
 const leaf = computed(() => {
   if (props.item.alwaysShow) return null
   if (!visibleChildren.value.length) return { ...props.item, path: '' }

@@ -431,7 +431,7 @@ const handleExport = () => exportExcel({
   max-height: 190px;
   overflow-y: auto;
   padding: 4px 0;
-  border: 1px solid var(--ga-border-light);
-  border-radius: var(--ga-radius-sm);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--motor-radius-xs);
 }
 </style>

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
-import { authenticate, installApiMocks } from './fixtures'
+import { openPreferences, choosePreference, authenticate, installApiMocks } from './fixtures'
 
 /**
  * The light/dark switch, and the two places that have to agree about it.
@@ -67,7 +67,7 @@ test.describe('colour scheme', () => {
     await open(page, 'dark')
     const dark = await page.evaluate(() => ({
       body: getComputedStyle(document.body).backgroundColor,
-      token: getComputedStyle(document.body).getPropertyValue('--ga-bg-body').trim()
+      token: getComputedStyle(document.body).getPropertyValue('--motor-app-bg').trim()
     }))
     expect(dark.body).toBe(await page.evaluate(t => {
       const probe = document.createElement('div')
@@ -90,9 +90,8 @@ test.describe('colour scheme', () => {
   test('the drawer switches the scheme and the choice survives a reload', async({ page }) => {
     await open(page)
 
-    await page.locator('#layout-settings').click()
-    await expect(page.getByRole('dialog', { name: '偏好设置' })).toBeVisible()
-    await page.getByRole('button', { name: '暗色', exact: true }).click()
+    await openPreferences(page)
+    await choosePreference(page, '暗色')
 
     await expect.poll(async() => (await surfaces(page)).hasDarkClass).toBe(true)
     expect(await page.evaluate(k => localStorage.getItem(k), KEY)).toBe('dark')

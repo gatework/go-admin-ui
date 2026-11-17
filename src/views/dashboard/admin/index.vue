@@ -155,7 +155,7 @@ export default {
   // The page's own plane, so it has to be the page's own colour. This was
   // #f0f2f5, which stayed light under the dark scheme and put every card on
   // this page on a white sheet.
-  background-color: var(--ga-bg-body);
+  background-color: var(--motor-app-bg);
   position: relative;
 }
 

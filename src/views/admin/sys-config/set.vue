@@ -385,7 +385,7 @@ const onLogoUploaded = (file: FileItem) => {
    which made it a white slab in dark mode. */
 
 .accent-icon {
-  color: var(--ga-brand);
+  color: rgb(var(--primary-6));
 }
 
 // ── Page container ────────────────────────────────────────
@@ -405,10 +405,10 @@ const onLogoUploaded = (file: FileItem) => {
 .config-sidebar {
   width: 188px;
   flex-shrink: 0;
-  background: var(--ga-bg-container);
+  background: var(--color-bg-2);
   border-radius: 8px;
-  border: 1px solid var(--ga-border-light);
-  box-shadow: 0 1px 2px var(--ga-shadow-1, rgba(0,0,0,0.05));
+  border: 1px solid var(--color-border-1);
+  box-shadow: 0 1px 2px var(--motor-shadow-sm);
   overflow: hidden;
 }
 
@@ -423,7 +423,7 @@ const onLogoUploaded = (file: FileItem) => {
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  background: var(--ga-bg-hover);
+  background: var(--color-fill-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -434,20 +434,20 @@ const onLogoUploaded = (file: FileItem) => {
   margin: 0 0 2px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--ga-text-1);
+  color: var(--color-text-1);
   line-height: 1;
 }
 
 .sidebar-header__sub {
   margin: 0;
   font-size: 11px;
-  color: var(--ga-text-2);
+  color: var(--color-text-2);
   line-height: 1;
 }
 
 .sidebar-divider {
   height: 1px;
-  background: var(--ga-border-light);
+  background: var(--color-border-1);
   margin: 0;
 }
 
@@ -466,31 +466,31 @@ const onLogoUploaded = (file: FileItem) => {
   font: inherit;
   text-align: left;
 
-  &:focus-visible { outline: 2px solid var(--ga-brand); outline-offset: -2px; }
+  &:focus-visible { outline: 2px solid rgb(var(--primary-6)); outline-offset: -2px; }
   transition: all 0.15s;
 
-  &:hover:not(.is-active) { background: var(--ga-bg-subtle); }
+  &:hover:not(.is-active) { background: var(--color-fill-1); }
 
   &.is-active {
-    background: var(--ga-bg-hover);
-    border-left-color: var(--ga-brand);
+    background: var(--color-fill-2);
+    border-left-color: rgb(var(--primary-6));
 
-    .nav-item__icon-wrap { color: var(--ga-brand); background: var(--ga-bg-hover); }
-    .nav-item__label { color: var(--ga-brand); font-weight: 600; }
+    .nav-item__icon-wrap { color: rgb(var(--primary-6)); background: var(--color-fill-2); }
+    .nav-item__label { color: rgb(var(--primary-6)); font-weight: 600; }
   }
 
-  &:not(:last-child) { border-bottom: 1px solid var(--ga-bg-subtle); }
+  &:not(:last-child) { border-bottom: 1px solid var(--color-fill-1); }
 }
 
 .nav-item__icon-wrap {
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  background: var(--ga-bg-subtle);
+  background: var(--color-fill-1);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--ga-text-2);
+  color: var(--color-text-2);
   flex-shrink: 0;
   transition: all 0.15s;
 }
@@ -503,14 +503,14 @@ const onLogoUploaded = (file: FileItem) => {
 
 .nav-item__label {
   font-size: 13px;
-  color: var(--ga-text-1);
+  color: var(--color-text-1);
   font-weight: 500;
   line-height: 1.3;
 }
 
 .nav-item__sub {
   font-size: 11px;
-  color: var(--ga-text-3);
+  color: var(--motor-text-3);
   line-height: 1;
 }
 
@@ -527,10 +527,10 @@ const onLogoUploaded = (file: FileItem) => {
 
 // Section card
 .config-section {
-  background: var(--ga-bg-container);
+  background: var(--color-bg-2);
   border-radius: 8px;
-  border: 1px solid var(--ga-border-light);
-  box-shadow: 0 1px 2px var(--ga-shadow-1, rgba(0,0,0,0.05));
+  border: 1px solid var(--color-border-1);
+  box-shadow: 0 1px 2px var(--motor-shadow-sm);
   overflow: hidden;
 }
 
@@ -540,15 +540,15 @@ const onLogoUploaded = (file: FileItem) => {
   align-items: center;
   gap: 10px;
   padding: 14px 16px;
-  border-bottom: 1px solid var(--ga-border-light);
-  background: var(--ga-bg-subtle);
+  border-bottom: 1px solid var(--color-border-1);
+  background: var(--color-fill-1);
 }
 
 .section-head__icon-wrap {
   width: 30px;
   height: 30px;
   border-radius: 6px;
-  background: var(--ga-bg-hover);
+  background: var(--color-fill-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -559,14 +559,14 @@ const onLogoUploaded = (file: FileItem) => {
   margin: 0 0 2px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--ga-text-1);
+  color: var(--color-text-1);
   line-height: 1;
 }
 
 .section-head__desc {
   margin: 0;
   font-size: 12px;
-  color: var(--ga-text-2);
+  color: var(--color-text-2);
   line-height: 1;
 }
 
@@ -581,17 +581,17 @@ const onLogoUploaded = (file: FileItem) => {
   align-items: center;
   gap: 16px;
   padding: 14px;
-  background: var(--ga-bg-subtle);
+  background: var(--color-fill-1);
   border-radius: 6px;
-  border: 1px dashed var(--ga-border);
+  border: 1px dashed var(--color-border-2);
 }
 
 .logo-preview {
   width: 72px;
   height: 72px;
   border-radius: 8px;
-  border: 1px solid var(--ga-border);
-  background: var(--ga-bg-container);
+  border: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -610,7 +610,7 @@ const onLogoUploaded = (file: FileItem) => {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  color: var(--ga-text-3);
+  color: var(--motor-text-3);
   font-size: 11px;
 }
 
@@ -620,13 +620,13 @@ const onLogoUploaded = (file: FileItem) => {
   margin: 0 0 3px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--ga-text-1);
+  color: var(--color-text-1);
 }
 
 .logo-meta__hint {
   margin: 0 0 10px;
   font-size: 12px;
-  color: var(--ga-text-2);
+  color: var(--color-text-2);
   line-height: 1.5;
 }
 
@@ -634,7 +634,7 @@ const onLogoUploaded = (file: FileItem) => {
 .theme-label {
   margin: 12px 0 10px;
   font-size: 12px;
-  color: var(--ga-text-2);
+  color: var(--color-text-2);
 }
 
 .theme-row {
@@ -644,17 +644,17 @@ const onLogoUploaded = (file: FileItem) => {
 
 .theme-card {
   width: 160px;
-  border: 1px solid var(--ga-border);
+  border: 1px solid var(--color-border-2);
   border-radius: 6px;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.2s;
 
-  &:hover { border-color: var(--ga-brand); box-shadow: 0 2px 8px color-mix(in oklab, var(--ga-brand) 18%, transparent); }
+  &:hover { border-color: rgb(var(--primary-6)); box-shadow: 0 2px 8px color-mix(in oklab, rgb(var(--primary-6)) 18%, transparent); }
 
   &.is-active {
-    border-color: var(--ga-brand);
-    box-shadow: 0 2px 8px color-mix(in oklab, var(--ga-brand) 28%, transparent);
+    border-color: rgb(var(--primary-6));
+    box-shadow: 0 2px 8px color-mix(in oklab, rgb(var(--primary-6)) 28%, transparent);
   }
 }
 
@@ -697,9 +697,9 @@ const onLogoUploaded = (file: FileItem) => {
   justify-content: space-between;
   padding: 6px 10px;
   font-size: 12px;
-  color: var(--ga-text-1);
-  background: var(--ga-bg-container);
-  border-top: 1px solid var(--ga-border-light);
+  color: var(--color-text-1);
+  background: var(--color-bg-2);
+  border-top: 1px solid var(--color-border-1);
 }
 
 // ── Footer bar ────────────────────────────────────────────
@@ -708,10 +708,10 @@ const onLogoUploaded = (file: FileItem) => {
   justify-content: flex-end;
   gap: 8px;
   padding: 12px 16px;
-  background: var(--ga-bg-container);
+  background: var(--color-bg-2);
   border-radius: 8px;
-  border: 1px solid var(--ga-border-light);
-  box-shadow: 0 1px 2px var(--ga-shadow-1, rgba(0,0,0,0.05));
+  border: 1px solid var(--color-border-1);
+  box-shadow: 0 1px 2px var(--motor-shadow-sm);
 }
 
 // ── Transition ────────────────────────────────────────────
@@ -740,7 +740,7 @@ const onLogoUploaded = (file: FileItem) => {
     border-left: 0;
     border-bottom: 2px solid transparent;
     &:not(:last-child) { border-bottom: 2px solid transparent; }
-    &.is-active { border-bottom-color: var(--ga-brand); }
+    &.is-active { border-bottom-color: rgb(var(--primary-6)); }
   }
   .logo-zone { align-items: flex-start; }
   .theme-row { flex-wrap: wrap; }

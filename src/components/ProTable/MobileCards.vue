@@ -334,15 +334,15 @@ function toggleRow(row: Record<string, unknown>, index: number) {
 .pro-cards__end {
   padding: 12px 0 4px;
   font-size: 13px;
-  color: var(--ga-text-3);
+  color: var(--motor-text-3);
   text-align: center;
 }
 
 .pro-card {
   position: relative;
   overflow: hidden;
-  background: var(--ga-bg-container, #fff);
-  border: 1px solid var(--ga-border, #d9d9d9);
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
   border-radius: 8px;
 }
 
@@ -365,15 +365,15 @@ function toggleRow(row: Record<string, unknown>, index: number) {
     border-radius: 0;
   }
 
-  :deep(.arco-btn--primary.is-link) { color: var(--ga-text-link); }
+  :deep(.arco-btn--primary.is-link) { color: rgb(var(--link-6)); }
 }
 
 .pro-card__close {
   flex-shrink: 0;
   width: 44px;
   border: none;
-  background: var(--ga-bg-subtle);
-  color: var(--ga-text-2);
+  background: var(--color-fill-1);
+  color: var(--color-text-2);
   cursor: pointer;
 }
 
@@ -381,7 +381,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
 
 .pro-card__surface {
   position: relative;
-  background: var(--ga-bg-container, #fff);
+  background: var(--color-bg-2);
   touch-action: pan-y;
   transition: transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
   will-change: transform;
@@ -404,7 +404,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   font-size: 17px;
   font-weight: 600;
   line-height: 1.4;
-  color: var(--ga-text-1);
+  color: var(--color-text-1);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -415,16 +415,16 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   align-items: baseline;
   margin-top: 2px;
   font-size: 13px;
-  color: var(--ga-text-3);
+  color: var(--motor-text-3);
 }
 
 .pro-card__sub-item { display: inline-flex; align-items: baseline; min-width: 0; overflow-wrap: anywhere; }
 
-.pro-card__dot { margin: 0 6px; color: var(--ga-text-4, #00000040); }
+.pro-card__dot { margin: 0 6px; color: var(--color-text-4); }
 
 // Only the expanded rows caption their values; the subtitle reads as a phrase
 // and labelling each half of it doubles the words for no gain.
-.pro-card__k { color: var(--ga-text-3); }
+.pro-card__k { color: var(--motor-text-3); }
 
 .pro-card__badge { flex-shrink: 0; }
 
@@ -450,7 +450,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   gap: 16px;
   padding: 8px 0;
   font-size: 13px;
-  border-top: 1px solid var(--ga-border-light, #0505050f);
+  border-top: 1px solid var(--color-border-1);
 }
 
 .pro-card__v {
@@ -471,8 +471,8 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   align-items: center;
   justify-content: space-between;
   padding: 0 12px;
-  background: var(--ga-bg-subtle);
-  border-top: 1px solid var(--ga-border-light, #0505050f);
+  background: var(--color-fill-1);
+  border-top: 1px solid var(--color-border-1);
 }
 
 .pro-card__toggle,
@@ -485,7 +485,7 @@ function toggleRow(row: Record<string, unknown>, index: number) {
   padding: 0;
   font-family: inherit;
   font-size: 13px;
-  color: var(--ga-text-link);
+  color: rgb(var(--link-6));
   cursor: pointer;
   background: none;
   border: none;

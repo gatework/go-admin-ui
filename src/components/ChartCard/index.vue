@@ -42,7 +42,7 @@ export default {
     loading: { type: Boolean, default: false },
     // Falls back to the brand token rather than a copy of its value, so a
     // rebrand does not leave this one card behind.
-    color: { type: String, default: 'var(--ga-brand)' }
+    color: { type: String, default: 'rgb(var(--primary-6))' }
   }
 }
 </script>
@@ -60,7 +60,7 @@ export default {
     top: 0;
     bottom: 0;
     width: 4px;
-    background-color: var(--kpi-color, var(--ga-brand));
+    background-color: var(--kpi-color, rgb(var(--primary-6)));
     z-index: 1;
     border-radius: 4px 0 0 4px;
   }
@@ -77,7 +77,7 @@ export default {
   right: 16px;
   font-size: 56px;
   opacity: 0.1;
-  color: var(--kpi-color, var(--ga-brand));
+  color: var(--kpi-color, rgb(var(--primary-6)));
   line-height: 1;
   pointer-events: none;
   z-index: 0;
@@ -92,7 +92,7 @@ export default {
     position: relative;
     overflow: hidden;
     width: 100%;
-    color: var(--ga-text-3);
+    color: var(--motor-text-3);
     font-size: 14px;
     line-height: 22px;
   }
@@ -117,7 +117,7 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0;
-    color: var(--ga-text-2);
+    color: var(--color-text-2);
     font-size: 14px;
     line-height: 22px;
 
@@ -147,7 +147,7 @@ export default {
   text-overflow: ellipsis;
   word-break: break-all;
   white-space: nowrap;
-  color: var(--ga-text-1);
+  color: var(--color-text-1);
   margin-top: 4px;
   margin-bottom: 0;
   font-size: 28px;

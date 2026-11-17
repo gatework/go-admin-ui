@@ -1,49 +1,29 @@
 <template>
-  <BasicLayout>
-    <template #wrapper>
-      <a-card class="box-card">
-        <a-spin :loading="loading" style="width: 100%"><div :style="'height:' + height">
-          <iframe
-            :src="src"
-            frameborder="no"
-            style="width: 100%; height: 100%"
-            scrolling="auto"
-          />
-        </div></a-spin>
-      </a-card>
-    </template>
-  </BasicLayout>
+  <PageContainer card class="swagger-page">
+    <a-spin :loading="loading" class="swagger-page__frame">
+      <iframe :src="src" :title="$t('route.swagger')" @load="loading = false" />
+    </a-spin>
+  </PageContainer>
 </template>
-<script>
-export default {
-  name: 'Swagger',
-  components: {},
-  data() {
-    return {
-      src: process.env.VUE_APP_BASE_API + '/swagger/admin/index.html',
-      height: document.documentElement.clientHeight - 94.5 + 'px;',
-      loading: true
-    }
-  },
-  mounted() {
-    setTimeout(() => {
-      this.loading = false
-    }, 230)
-    // addEventListener rather than window.onresize, and removed on the way out.
-    // Assigning to onresize gives the window one handler slot: this page and
-    // the form builder both claimed it, so whichever opened second silently
-    // replaced the other's -- and under keep-alive the first one's iframe then
-    // stopped resizing. Neither ever cleaned up, so the closure kept a
-    // reference to an unmounted component for the rest of the session.
-    window.addEventListener('resize', this.fitToWindow)
-  },
-  unmounted() {
-    window.removeEventListener('resize', this.fitToWindow)
-  },
-  methods: {
-    fitToWindow() {
-      this.height = document.documentElement.clientHeight - 94.5 + 'px;'
-    }
-  }
-}
+
+<script setup lang="ts">
+/** The backend's own API reference, embedded. It is served by the backend, so it needs no CDN. */
+import { ref } from 'vue'
+import PageContainer from '@/components/PageContainer/index.vue'
+
+defineOptions({ name: 'Swagger' })
+
+const src = `${process.env.VUE_APP_BASE_API}/swagger/admin/index.html`
+const loading = ref(true)
 </script>
+
+<style lang="scss" scoped>
+// Fills what the shell leaves: viewport minus header, tabs, and the page gutter and card padding.
+.swagger-page__frame {
+  display: block;
+  width: 100%;
+  height: calc(100vh - var(--motor-header-height) - var(--motor-tabs-height) - 80px);
+
+  iframe { display: block; width: 100%; height: 100%; border: 0; }
+}
+</style>

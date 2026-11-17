@@ -166,23 +166,23 @@ onBeforeUnmount(async() => {
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: var(--ga-text-2);
+  color: var(--color-text-2);
 }
 
 .job-log__dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--ga-text-3);
+  background: var(--motor-text-3);
 }
 
-.is-open .job-log__dot { background: var(--ga-success); }
-.is-closed .job-log__dot { background: var(--ga-danger); }
-.is-connecting .job-log__dot { background: var(--ga-warning); }
+.is-open .job-log__dot { background: rgb(var(--success-6)); }
+.is-closed .job-log__dot { background: rgb(var(--danger-6)); }
+.is-connecting .job-log__dot { background: rgb(var(--warning-6)); }
 
 .job-log__count {
   font-size: 12px;
-  color: var(--ga-text-3);
+  color: var(--motor-text-3);
   font-variant-numeric: tabular-nums;
 }
 
@@ -198,8 +198,8 @@ onBeforeUnmount(async() => {
   height: 520px;
   overflow-y: auto;
   padding: 12px 14px;
-  border-radius: var(--ga-radius-lg);
-  border: 1px solid var(--ga-border);
+  border-radius: var(--motor-radius-md);
+  border: 1px solid var(--color-border-2);
   background: #0f1720;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 12px;

@@ -112,11 +112,11 @@ onBeforeUnmount(() => { resetLight(); cleanups.forEach(cleanup => cleanup()) })
     content: '';
     background: linear-gradient(
       145deg,
-      color-mix(in srgb, var(--login-story-accent) 22%, var(--motor-chrome-surface))
+      color-mix(in srgb, var(--login-story-accent) 22%, var(--motor-surface))
         0%,
-      color-mix(in srgb, var(--login-story-accent) 54%, var(--motor-chrome-surface))
+      color-mix(in srgb, var(--login-story-accent) 54%, var(--motor-surface))
         52%,
-      color-mix(in srgb, var(--login-story-accent) 90%, var(--motor-chrome-surface))
+      color-mix(in srgb, var(--login-story-accent) 90%, var(--motor-surface))
         100%
     );
   }
@@ -180,7 +180,7 @@ onBeforeUnmount(() => { resetLight(); cleanups.forEach(cleanup => cleanup()) })
   }
 
   body[arco-theme='dark'] .is-centered {
-    --login-scene-base: var(--motor-chrome-surface);
+    --login-scene-base: var(--motor-surface);
     --login-scene-corner: 48%;
     --login-scene-edge: 24%;
     --login-scene-start: 0%;

@@ -482,7 +482,7 @@ const { remove } = useRemove({
 :global(.menu-editor .arco-modal-body) { max-height: min(680px, calc(100dvh - 160px)); overflow-y: auto; }
 :global(.menu-editor) { max-width: calc(100vw - 32px); }
 .menu-form-section + .menu-form-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--color-border-2); }
-.menu-form-section header { margin-bottom: 20px; h3 { font-size: 15px; margin: 0 0 5px; } p { font-size: 12px; color: var(--ga-text-2); margin: 0; } }
+.menu-form-section header { margin-bottom: 20px; h3 { font-size: 15px; margin: 0 0 5px; } p { font-size: 12px; color: var(--color-text-2); margin: 0; } }
 .menu-editor-form :deep(.arco-form-item) { margin-bottom: 20px; }
 .api-transfer { display: flex; width: 100%; }
 .api-transfer :deep(.arco-transfer-view) { flex: 1; min-width: 0; width: auto; }

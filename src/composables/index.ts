@@ -22,3 +22,8 @@ export type { ExportOptions, UseExportReturn } from './useExport'
 
 export { useTreePicker } from './useTreePicker'
 export type { UseTreePickerOptions, UseTreePickerReturn } from './useTreePicker'
+
+export { usePermission } from './usePermission'
+
+export { usePageSession } from './usePageSession'
+export type { PageSession, PageSessionOptions } from './usePageSession'

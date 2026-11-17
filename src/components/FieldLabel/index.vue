@@ -28,11 +28,11 @@ defineProps<{
 <style lang="scss" scoped>
 .field-label__hint {
   margin-left: 2px;
-  color: var(--ga-text-3);
+  color: var(--motor-text-3);
   cursor: help;
 
   &:hover {
-    color: var(--ga-brand);
+    color: rgb(var(--primary-6));
   }
 }
 </style>

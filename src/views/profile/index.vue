@@ -39,7 +39,7 @@
           </section>
           <section id="account-panel-preferences" role="tabpanel" :hidden="activeTab !== 'preferences'" aria-labelledby="account-tab-preferences" class="account-section">
             <header><h3>{{ $t('settings.title') }}</h3><p>{{ $t('profile.alignment.localPreferences') }}</p></header>
-            <a-button type="primary" @click="preferences.updateSettings({ globalSettings: true }, false)"><template #icon><icon-settings /></template>{{ $t('settings.title') }}</a-button>
+            <a-button type="primary" @click="preferences.openSettings()"><template #icon><icon-settings /></template>{{ $t('settings.title') }}</a-button>
           </section>
           <p class="account-differences"><icon-info-circle /> {{ $t('profile.alignment.backendDifferences') }}</p>
         </div>
@@ -94,7 +94,7 @@ onMounted(load)
 .identity-detail { max-width: 100%; overflow-wrap: anywhere; color: var(--motor-text-2); }
 .account-navigation { padding: 8px; button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 14px 12px; border: 0; border-radius: var(--motor-radius-sm); background: transparent; color: var(--motor-text-2); cursor: pointer; text-align: left; span { flex: 1; } &:hover { background: var(--motor-surface-hover); } &.active { background: var(--motor-primary-soft); color: var(--motor-primary); } } }
 .account-main { min-width: 0; }
-.account-section :deep(.arco-form-item-extra) { color: var(--ga-text-2); }
+.account-section :deep(.arco-form-item-extra) { color: var(--color-text-2); }
 .account-section { max-width: 760px; padding: 24px; border: 1px solid var(--motor-border); border-radius: var(--motor-radius-lg); background: var(--motor-surface); header { margin-bottom: 24px; h3 { margin: 0 0 8px; } p { margin: 0; color: var(--motor-text-2); } } }
 .account-differences { max-width: 760px; color: var(--motor-text-2); font-size: 12px; line-height: 1.7; }
 @media (max-width: 767px) { .account-page { padding: 16px; } .account-workspace { grid-template-columns: 1fr; } .account-hero { flex-direction: row; flex-wrap: wrap; align-items: center; } .account-navigation { display: flex; button { justify-content: center; padding: 12px 8px; span { flex: initial; } > svg:last-child { display: none; } } } .account-section { padding: 16px; } }

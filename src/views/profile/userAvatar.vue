@@ -62,7 +62,7 @@ const upload = () => {
 </script>
 <style scoped>
 .avatar-trigger { position: relative; padding: 0; border: 0; background: transparent; cursor: pointer; }
-.avatar-trigger :deep(.arco-avatar) { background: var(--motor-avatar-background); box-shadow: var(--motor-avatar-shadow); }
+.avatar-trigger :deep(.arco-avatar) { background: var(--motor-primary-gradient); box-shadow: 0 4px 12px var(--motor-primary-shadow); }
 .avatar-camera { position: absolute; bottom: -3px; right: -3px; width: 28px; height: 28px; display: grid; place-items: center; border: 2px solid var(--motor-surface); border-radius: 50%; background: var(--motor-primary); color: white; }
 .avatar-crop-layout { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 24px; align-items: center; }
 .avatar-crop { height: 320px; }

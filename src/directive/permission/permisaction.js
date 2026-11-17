@@ -1,23 +1,9 @@
-import { useUserStore } from '@/stores/user'
+import { hasPermission } from '@/utils/permission'
 
+/** `v-permisaction="['admin:sysPost:add']"`: removes the element unless the account holds one of the codes. */
 export default {
-  mounted(el, binding, vnode) {
-    const { value } = binding
-    const all_permission = '*:*:*'
-    const permissions = useUserStore().permisaction
-
-    if (value && value instanceof Array && value.length > 0) {
-      const permissionFlag = value
-
-      const hasPermissions = permissions.some(permission => {
-        return all_permission === permission || permissionFlag.includes(permission)
-      })
-
-      if (!hasPermissions) {
-        el.parentNode && el.parentNode.removeChild(el)
-      }
-    } else {
-      throw new Error(`请设置操作权限标签值`)
-    }
+  mounted(el, { value }) {
+    if (!Array.isArray(value) || !value.length) throw new Error(`请设置操作权限标签值`)
+    if (!hasPermission(value)) el.parentNode?.removeChild(el)
   }
 }

@@ -128,6 +128,6 @@ const submit = async() => {
 .import-table__count {
   margin-right: auto;
   font-size: 13px;
-  color: var(--ga-text-2);
+  color: var(--color-text-2);
 }
 </style>

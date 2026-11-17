@@ -300,7 +300,7 @@ onBeforeUnmount(() => {
       place-items: center;
       border: 5px solid var(--motor-surface);
       border-radius: var(--motor-radius-lg);
-      background: var(--motor-avatar-background);
+      background: var(--motor-primary-gradient);
       box-shadow: 0 12px 30px var(--motor-primary-shadow);
       color: #fff;
       font-size: var(--motor-font-size-28);

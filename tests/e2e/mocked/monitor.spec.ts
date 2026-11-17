@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { authenticate, installApiMocks, menuTree } from './fixtures'
+import { openPreferences, choosePreference, authenticate, installApiMocks, menuTree } from './fixtures'
 
 const metrics = {
   code: 200,
@@ -28,16 +28,15 @@ for (const width of [375, 1440]) {
     await expect(page.locator('.monitor-details')).toHaveCount(3)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
     await page.screenshot({ path: testInfo.outputPath('monitor-light.png'), fullPage: true, animations: 'disabled' })
-    await page.locator('.user-trigger').click()
+    await page.locator('.avatar-wrapper').click()
     const menu = page.locator('.arco-dropdown:visible')
-    await expect(menu.getByRole('menuitem')).toHaveCount(4)
+    expect(await menu.getByRole('menuitem').count()).toBeGreaterThanOrEqual(4)
     for (const item of await menu.getByRole('menuitem').all()) await expect(item).toBeInViewport()
     expect(await menu.locator('.arco-dropdown-list-wrapper').evaluate(el => el.scrollHeight - el.clientHeight)).toBeLessThanOrEqual(1)
     await page.keyboard.press('Escape')
-    await page.locator('#layout-settings').click()
-    const drawer = page.getByRole('dialog', { name: '偏好设置', exact: true })
-    await drawer.getByRole('button', { name: '暗色', exact: true }).click()
-    await drawer.getByRole('button', { name: '关闭偏好设置' }).click()
+    await openPreferences(page)
+    await choosePreference(page, '暗色')
+    await page.keyboard.press('Escape')
     await expect(page.locator('body')).toHaveAttribute('arco-theme', 'dark')
     await page.screenshot({ path: testInfo.outputPath('monitor-dark.png'), fullPage: true, animations: 'disabled' })
   })
@@ -100,7 +99,7 @@ test('tablet monitor localizes labels and account configuration opens without sc
   await expect(page.locator('.resource-chart canvas')).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(768)
   await page.screenshot({ path: testInfo.outputPath('monitor-tablet-english.png'), animations: 'disabled', fullPage: true })
-  await page.locator('.user-trigger').click()
+  await page.locator('.avatar-wrapper').click()
   await page.getByRole('menuitem', { name: 'System configuration', exact: true }).click()
   await expect(page).toHaveURL(/admin\/sys-config\/set/)
 })

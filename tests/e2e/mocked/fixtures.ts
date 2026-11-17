@@ -1228,3 +1228,20 @@ async function installAccountDefaults(page: Page) {
   await page.route('**/api/v1/account/mfa', route => route.fulfill(json({ code: 200, data: { enabled: false, configured: true, recoveryCodesRemaining: 0 }})))
   await page.route('**/api/v1/account/registration-policy', route => route.fulfill(json({ code: 200, data: { enabled: false, emailConfigured: true, mfaConfigured: true }})))
 }
+
+/**
+ * Opens the preferences drawer the way a reader does: account menu, then
+ * 偏好设置. Returns the drawer.
+ */
+export async function openPreferences(page: Page) {
+  await page.locator('.avatar-wrapper').click()
+  await page.getByRole('menuitem', { name: /^(偏好设置|Preferences)$/ }).click()
+  const drawer = page.getByRole('dialog', { name: /^(偏好设置|Preferences)$/ })
+  await drawer.waitFor({ state: 'visible' })
+  return drawer
+}
+
+/** Picks one option of a segmented preference (theme mode, density, layout...) by its visible label. */
+export async function choosePreference(page: Page, label: string | RegExp) {
+  await page.locator('.preferences-drawer .arco-radio-button').filter({ hasText: label }).click()
+}
