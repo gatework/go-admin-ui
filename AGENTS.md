@@ -134,12 +134,42 @@ Arco 列宽使用数值 `:width`；文字列加 `ellipsis tooltip`。不要再�
 对照的表格）、`card-breakpoint`（默认 `768`）、`panels`（默认 `true`，对话框里置
 `false` 去掉两张卡片）。
 
-`BasicLayout` + `#wrapper` 是旧写法，新页面不要再用。
-
 **组件 `name` 必须与后端菜单配置的 `menu_name` 一致** —— `keep-alive` 的 `include`
 按组件名匹配，而缓存名单存的是路由名。不一致时缓存会静默失效，没有任何报错。
 `<script setup>` 里用 `defineOptions({ name: 'XxxManage' })` 声明。
 （`loadView` 已做运行时兜底，但源码仍应保持一致，便于排查。）
+
+## 新增/修改用 `FormModal`，字典用 `Dict*`
+
+弹窗的外壳（可见性、标题、`a-form` 的 ref/model/rules、加载时禁用、关闭后重置、
+取消/确定页脚与提交中状态）都在 `FormModal` 里，页面只写字段：
+
+```vue
+<FormModal :form="form">
+  <a-form-item :label="$t('demo.name')" field="name">
+    <a-input v-model="form.model.name" />
+  </a-form-item>
+  <a-form-item :label="$t('demo.status')" field="status">
+    <DictRadio v-model="form.model.status" type="sys_normal_disable" />
+  </a-form-item>
+</FormModal>
+```
+
+字段多到弹窗放不下时换 `FormDrawer`，接口相同，宽度用 `size`。
+**不要再手写 `AppModal` + `a-form` + 页脚按钮那一套** —— 那是十八个页面各抄一份、
+各自漏掉一点（有的忘了 `:disabled="form.loading"`，有的忘了 `@close="form.reset"`）的来源。
+
+字典字段用 `DictSelect` / `DictRadio` / `DictTag`，传 `type` 即可，内部走 `useDict`：
+
+```vue
+<DictSelect v-model="table.query.status" type="sys_normal_disable" />
+<DictTag type="sys_normal_disable" :value="row.status" :tones="ENABLED_TONES" />
+```
+
+颜色映射从 `src/config/status-tones.ts` 取；模块自有的状态自己建表，但只从
+绿（正常）/橙（需关注）/红（失败）/蓝（进行中）/灰（关闭或未知）五种里选。
+没列出的值显示为灰色，**不要用 `value === 1 ? 'red' : 'green'` 这种二选一** ——
+后端加一个状态，它就会借用别人的颜色。
 
 ## 列表页用 composables，不要再写 mixin
 
@@ -295,6 +325,40 @@ export function listUser(query: SysUserQuery & PageQuery) {
 标识格式 `模块:资源:操作`，需与后端 `sys_menu` 中的配置一致。
 角色级控制用 `v-permission="['admin']"`。
 
+指令表达不了的条件（某列只给编辑者、操作列宽度随按钮数变化、脚本里的分支）用
+`usePermission`：
+
+```ts
+const { can } = usePermission('network:device')
+const canEdit = computed(() => can('edit'))
+```
+
+**不要再手写 `user.permisaction.some(...)`。** 指令和 `usePermission` 走的是
+`src/utils/permission.ts` 里同一个判定函数，自己写一份迟早和它对不上
+（最常见的是漏掉超级管理员的 `*:*:*`）。
+
+## keep-alive 页面的请求用 `usePageSession`
+
+页面被缓存后切走并不卸载，它发出的请求会落回一个没人在看的页面；退出再登录后，
+还可能落到另一个账户的页面上。不要自己维护 `active` 标志、代数计数器和 token 比较：
+
+```ts
+const session = usePageSession({ onSuspend: closeDialogs, onResume: reload })
+
+const current = session.guard()          // 请求前
+const response = await listThing(query, session.signal)
+if (!current()) return                   // 请求后：页面已切走或换了账户
+```
+
+`session.signal` 在页面离开或账户变化时中止，回来时换新的。
+
+## 下载、空值
+
+- 浏览器下载用 `downloadBlob(content, filename, type)`（`src/utils/download.ts`），
+  按日期命名用 `datedFilename('device-inventory', 'csv')`。
+- 单元格里的空值用 `display(value)`（`src/utils/format.ts`），不要写 `|| '—'`：
+  `||` 会把 `0` 也变成破折号。
+
 ## 路由
 
 页面路由由后端菜单动态生成（`src/stores/permission.ts`），前端只维护
@@ -413,7 +477,7 @@ e2e 的浏览器语言在 `playwright.config.ts` 里钉死为 `zh-CN`。别去�
 无需 import 即可使用：
 
 - 指令：`v-permisaction` `v-permission`
-- 组件：`<BasicLayout>` `<SvgIcon>`；新页面显式 import `PageContainer` / `ProTable`。
+- 组件：`<SvgIcon>`；其余一律显式 import（`PageContainer`、`ProTable`、`FormModal`…）。
 - Arco 图标已全局注册，例如 `<icon-user />`。
 
 工具函数显式 import；字典和表单使用对应 composable：
@@ -476,11 +540,66 @@ scope 写改动落在哪一块——组件名、模块名或目录名，例如
 - 删除组件前先确认零引用（`grep` 文件路径、标签名、全局注册三处）
 - 提交前跑 `pnpm run lint` 与 `pnpm run test:unit`
 
+## 外壳
+
+`src/layout/index.vue` 只做组合，状态在 `src/layout/composables/`：
+
+| 位置 | 文件 | 说明 |
+|---|---|---|
+| 侧栏 | `components/AppSidebar.vue` | 品牌、菜单、可拖拽调宽；窄屏（≤991px）变成抽屉 |
+| 顶栏 | `components/AppHeader.vue` | 折叠按钮、面包屑、菜单搜索入口、语言、明暗切换、账户菜单 |
+| 账户菜单 | `components/UserMenu.vue` | 个人中心、偏好设置、系统配置、全屏、锁屏、退出 |
+| 页签 | `components/AppTabBar.vue` + `composables/useTabs.ts` | 打开/关闭/刷新/持久化 |
+| 菜单搜索 | `components/CommandPalette.vue` | `⌘K` / `Ctrl+K`，空查询列出全部可访问页面 |
+| 快捷键 | `composables/useShortcuts.ts` | `SHORTCUTS` 同时是偏好抽屉里的说明来源 |
+
+**顶栏右侧只放一小时内会用很多次的控件。** 和「我与本次会话」有关的都进账户菜单，
+不要再往顶栏加图标按钮。外壳没有页脚，也没有水印。
+
+折叠状态是偏好（`preferences.menuCollapse`，会被记住）；窄屏抽屉的开合不是
+（`app.drawerOpen`，下一次导航就关）。两者不要混用同一个字段。
+
+## 偏好设置
+
+可调项只有 `src/config/preferences.json` 里的那些。加一项要改三处：
+`preferences.json`（默认值）、`types/preferences.ts`（类型）、
+`config/preference-schema.ts`（抽屉里的那一行）。抽屉按 schema 渲染，没有逐项模板；
+`tests/unit/config/preference-schema.spec.ts` 守着这三处一致。
+
+存储里旧版本留下的、现在已不存在的键会在读取时丢弃（`stores/preferences.ts` 的
+`valid()`），所以删偏好项不需要迁移。**加之前先想清楚它是不是真的需要让每个人各选各的** ——
+上一版有六十个开关，其中大半没人动过，每一个都是外壳里的一条分支。
+
+## 设计 token
+
+颜色只有一个来源：**Arco 的语义变量**（`--color-text-*`、`--color-bg-*`、
+`--color-fill-*`、`--color-border-*`、`rgb(var(--primary-6))`…）。明暗切换和主题色
+都作用在它们上面，所以用它们写的样式不需要再写暗色分支。
+
+`src/styles/tokens.css` 里的 `--motor-*` 只补 Arco 没有名字的东西：
+
+| 用途 | token |
+|---|---|
+| 外壳尺寸 | `--motor-header-height` `--motor-tabs-height` `--motor-page-gutter` |
+| 间距 | `--motor-space-1…6`（紧凑密度下后三档收紧） |
+| 字号 | `--motor-font-size-10…64`（相对基准字号，跟随字号偏好） |
+| 圆角 | `--motor-radius-xs…xl`（跟随圆角偏好） |
+| 表面与文字 | `--motor-app-bg` `--motor-surface` `--motor-surface-soft` `--motor-text-1…3` `--motor-border` `--motor-border-soft` |
+| 状态色调 | `--motor-tone-{ok,warn,danger,info,idle}` 及各自的 `-soft` |
+| 侧栏 | `--rail-*`（`.rail-dark` 是唯一一处写死颜色的地方） |
+
+- **不要写十六进制颜色**，也不要写 `px` 字号——前者不跟随暗色，后者不跟随字号偏好。
+- `--ga-*` 已删除，不要再用。Tailwind 也已移除（全仓零使用）。
+- 读 Arco 变量的 token 声明在 `body` 上而不是 `:root`：Arco 把自己的变量声明在
+  `body`，在 `:root` 上引用它们会解析成空值。
+- 全局样式入口是 `src/styles/index.scss`；`arco.scss` 只放「产品需要和 Arco 不一样」的规则。
+  页面自己的样式写 `<style scoped>`。
+
 ## Arco 边界
 
-Arco 是唯一的 UI 组件库，不注册 `el-*` 别名，不加载 Element CSS 或字体。主题通过 `body[arco-theme="dark"]` 与 Arco 色阶变量切换；业务色彩沿用映射到 Arco 的 `--ga-*` token。
+Arco 是唯一的 UI 组件库，不注册 `el-*` 别名，不加载 Element CSS 或字体。主题通过 `body[arco-theme="dark"]` 与 Arco 色阶变量切换。
 
-- 弹窗和抽屉用 `AppModal` / `AppDrawer`，保留原生 Arco API，并提供对话框名称、卸载和关闭后的焦点回归。
+- 弹窗和抽屉用 `AppModal` / `AppDrawer`，保留原生 Arco API，并提供对话框名称、卸载和关闭后的焦点回归。抽屉宽度用 `size="sm|md|lg|xl"`（440/640/880/1100），窄屏自动全宽，**不要再写 `narrow ? '100%' : N`**。一行指标（数量、状态、最近时间）用 `StatStrip`。
 - 列表旁的范围选择用 `AsideLayout`：宽屏左侧 244px 卡片（随页面吸顶），≤1023px 收进抽屉并在触发按钮上显示当前范围；`collapse="stack"` 改为堆叠在内容上方，`"none"` 交给页面自己的窄屏控件。树形导航用 `TreeNav`（搜索保留路径、单一 Tab 停靠与方向键、计数右对齐、加载/失败留在树内，`pinned` 放「全部」「未分组」这类不随搜索消失的入口）；短的可选列表（已保存查询、草稿、控制器）用 `NavList`，只有第二页时才出现分页。状态值标签用 `StatusTag`，各模块只提供 i18n 前缀和颜色映射。网络管理页通过 `PageContainer` 的 `title` / `description` / `#actions` 统一页头；设备分组树统一用 `src/views/network/shared/group-panel.vue`。
 - 下拉操作菜单用 `AppDropdown`，内容仍是 `a-doption`，它补齐菜单语义、方向键与关闭后的焦点回归。
 - 页签用 `AppTabs`，内容仍是 `a-tab-pane`，它补齐 Arco 2.59 的 tab 语义和方向键。新增原生组件时检查键盘和无障碍行为。

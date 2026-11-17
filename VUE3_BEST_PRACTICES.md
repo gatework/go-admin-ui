@@ -49,7 +49,6 @@
 ```javascript
 // main.js 中的优化
 app.component('SvgIcon', SvgIcon)           // 保持
-app.component('BasicLayout', BasicLayout)   // 保持
 ```
 
 分页和代码编辑器由使用方显式导入。
