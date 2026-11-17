@@ -236,11 +236,11 @@ export interface SysJob {
   /** '1' disabled, '2' normal. Number on the wire; see the api module. */
   status?: number | string
   /**
-   * Snake case, alone among every field in this file: the Go struct tags it
-   * `json:"entry_id"`. Zero means the job is not scheduled with cron right now,
-   * which is what decides between the 启动 and 停止 buttons.
+   * The handle cron gives a scheduled job. Zero means it is not scheduled right
+   * now, which is what decides between the 启动 and 停止 buttons. The backend
+   * sent this as `entry_id` until it unified the spelling (motor d4e180ff).
    */
-  entry_id?: number
+  entryId?: number
   createdAt?: string
 }
 

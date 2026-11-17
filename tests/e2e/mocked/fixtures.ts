@@ -503,8 +503,8 @@ export const dbTableRows = [
 ]
 
 /**
- * Rows served by GET /api/v1/sysjob. One job running (entry_id non-zero), one
- * scheduled but stopped (entry_id 0), one disabled -- the three states the
+ * Rows served by GET /api/v1/sysjob. One job running (entryId non-zero), one
+ * scheduled but stopped (entryId 0), one disabled -- the three states the
  * action column branches on.
  */
 export const jobRows = [
@@ -519,7 +519,7 @@ export const jobRows = [
     misfirePolicy: 1,
     concurrent: 0,
     status: 2,
-    entry_id: 7
+    entryId: 7
   },
   {
     jobId: 2,
@@ -532,7 +532,7 @@ export const jobRows = [
     misfirePolicy: 2,
     concurrent: 1,
     status: 2,
-    entry_id: 0
+    entryId: 0
   },
   {
     jobId: 3,
@@ -545,7 +545,7 @@ export const jobRows = [
     misfirePolicy: 3,
     concurrent: 0,
     status: 1,
-    entry_id: 0
+    entryId: 0
   }
 ]
 

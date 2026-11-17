@@ -16,7 +16,7 @@ const switchTo = async(page: Page, label: string) => {
 }
 
 /**
- * Scheduled jobs. The action column branches on two fields at once: entry_id is
+ * Scheduled jobs. The action column branches on two fields at once: entryId is
  * the handle cron hands back, so zero means the job is not currently scheduled,
  * and a disabled job can be neither started nor stopped.
  */
@@ -36,9 +36,9 @@ test.describe('schedule', () => {
     await expect(page.getByRole('row', { name: /同步用户/ }).getByText('系统')).toBeVisible()
   })
 
-  // entry_id is snake_case, alone among the model's fields. Reading entryId --
-  // which is what the type used to declare -- makes it undefined, and every row
-  // then looks like it is running.
+  // The action depends on entryId, the cron handle. Reading a name the server
+  // does not send (it was entry_id until motor d4e180ff) makes it undefined,
+  // and every row then looks stopped.
   test('offers 停止 for a running job and 启动 for a stopped one', async({ page }) => {
     await installApiMocks(page)
 

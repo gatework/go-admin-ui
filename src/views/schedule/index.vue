@@ -80,19 +80,19 @@
           {{ $t('common.edit') }}
         </a-button>
         <!--
-          entry_id is the handle cron gives a scheduled job, so zero means it is
+          entryId is the handle cron gives a scheduled job, so zero means it is
           not running. A disabled job (status 1) can be neither started nor
           stopped, which is why both buttons check it.
         -->
         <a-button
-          v-if="Number(row.entry_id) !== 0 && Number(row.status) !== 1"
+          v-if="Number(row.entryId) !== 0 && Number(row.status) !== 1"
           v-permisaction="['job:sysJob:remove']"
 
           type="text"
           @click="toggle(row, 'stop')"
         >{{ $t('schedule.stop') }}</a-button>
         <a-button
-          v-else-if="Number(row.entry_id) === 0 && Number(row.status) !== 1"
+          v-else-if="Number(row.entryId) === 0 && Number(row.status) !== 1"
           v-permisaction="['job:sysJob:start']"
 
           type="text"
