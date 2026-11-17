@@ -23,7 +23,7 @@
       </a-form>
     </AppDrawer>
     <component :is="panelTag" v-if="$slots.search && !asCards" class="pro-table__search-panel">
-      <a-form :model="table.query" layout="inline" class="pro-table__search" :style="{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, '--wide-span': Math.min(2, cols) }" :data-visible="collapsed ? collapsible() : 0" @submit-success="table.search">
+      <a-form :model="table.query" layout="inline" class="pro-table__search" :style="{ gridTemplateColumns: searchTracks, '--wide-span': Math.min(2, cols) }" :data-visible="collapsed ? collapsible() : 0" @submit-success="table.search">
         <slot name="search" />
         <div class="pro-table__search-actions">
           <a-button @click="handleReset">{{ $t('common.reset') }}</a-button>
@@ -267,6 +267,14 @@ watch(asCards, () => {
  * only comes up in a very narrow panel on a wide screen.
  */
 const cols = computed(() => colsFor(panelWidth.value))
+/**
+ * The last track holds the buttons on the first row and grows to fit them.
+ * Equal tracks let longer labels (English, a third "Expand" button) spill the
+ * buttons leftward over the field beside them once an aside narrowed the panel.
+ */
+const searchTracks = computed(() => cols.value > 1
+  ? `repeat(${cols.value - 1}, minmax(0, 1fr)) minmax(max-content, 1fr)`
+  : 'minmax(0, 1fr)')
 
 // Both halves are drawn the same way, so what a panel is gets said once.
 const panelTag = computed(() => (props.panels ? ACard : 'div'))
