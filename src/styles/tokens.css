@@ -149,6 +149,25 @@ body[arco-theme='dark'] {
 }
 
 /*
+ * Terminal output (network diagnostics, job logs). Fixed dark in both schemes:
+ * it reads as a console, and its ANSI-like accents were checked for contrast
+ * against this one ground.
+ */
+:root {
+  --motor-terminal-bg: #282a36;
+  --motor-terminal-text: #d8d9e4;
+  --motor-terminal-muted: #aaaebe;
+  --motor-terminal-line: #3e4152;
+  --motor-terminal-hover: #3b3e4e;
+  --motor-terminal-selection: #495678;
+  --motor-terminal-green: #a3dc8c;
+  --motor-terminal-yellow: #e5d378;
+  --motor-terminal-cyan: #6fdae6;
+  --motor-terminal-purple: #c0a5e8;
+  --motor-terminal-red: #ff8b94;
+}
+
+/*
  * The dark rail keeps its own colours in both schemes: it is chrome that sits
  * beside the content, so under the light scheme it is the one inverted surface
  * and under the dark scheme it recedes one step below the page.

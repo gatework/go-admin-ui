@@ -79,17 +79,17 @@ function download() {
 
 <style scoped lang="scss">
 .diagnostic-output {
-  // This local output surface follows the supplied DMIT reference in both app themes.
-  --terminal-bg: #282a36;
-  --terminal-text: #d8d9e4;
-  --terminal-muted: #aaaebe;
-  --terminal-green: #a3dc8c;
-  --terminal-yellow: #e5d378;
-  --terminal-cyan: #6fdae6;
-  --terminal-purple: #c0a5e8;
-  --terminal-red: #ff8b94;
-  --terminal-line: #3e4152;
-  --terminal-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  // Follows the supplied DMIT reference in both app themes; the palette is shared, see tokens.css.
+  --terminal-bg: var(--motor-terminal-bg);
+  --terminal-text: var(--motor-terminal-text);
+  --terminal-muted: var(--motor-terminal-muted);
+  --terminal-green: var(--motor-terminal-green);
+  --terminal-yellow: var(--motor-terminal-yellow);
+  --terminal-cyan: var(--motor-terminal-cyan);
+  --terminal-purple: var(--motor-terminal-purple);
+  --terminal-red: var(--motor-terminal-red);
+  --terminal-line: var(--motor-terminal-line);
+  --terminal-mono: var(--motor-font-mono);
   min-width: 0;
   overflow: hidden;
   border-radius: var(--motor-radius-md);
@@ -104,12 +104,12 @@ function download() {
 .diagnostic-output__actions { display: flex; align-items: center; gap: 4px; }
 .diagnostic-output__actions :deep(.arco-btn + .arco-btn) { margin-left: 0; }
 .diagnostic-output :deep(.arco-btn-text) { color: var(--terminal-muted); border-radius: var(--motor-radius-xs); }
-.diagnostic-output :deep(.arco-btn-text:not(.arco-btn-disabled):hover) { color: var(--terminal-text); background: #3b3e4e; }
+.diagnostic-output :deep(.arco-btn-text:not(.arco-btn-disabled):hover) { color: var(--terminal-text); background: var(--motor-terminal-hover); }
 .diagnostic-output :deep(.arco-btn-disabled) { color: var(--terminal-muted); opacity: .45; }
 .diagnostic-output :deep(.arco-btn:focus-visible), .diagnostic-output__command-details summary:focus-visible { outline: 2px solid var(--terminal-cyan); outline-offset: -2px; }
 .diagnostic-output__viewport { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 12px 24px 24px; font-size: var(--motor-font-size-13); line-height: 1.65; font-variant-numeric: tabular-nums; tab-size: 4; scrollbar-color: #666b80 var(--terminal-bg); }
 .diagnostic-output__viewport:focus-visible { outline: 2px solid var(--terminal-cyan); outline-offset: -2px; }
-.diagnostic-output :deep(::selection) { color: #ffffff; background: #495678; }
+.diagnostic-output :deep(::selection) { color: #fff; background: var(--motor-terminal-selection); }
 .diagnostic-output__command-details { flex-shrink: 0; padding: 4px 24px 0; font: var(--motor-font-size-13)/1.65 var(--terminal-mono); }
 .diagnostic-output__command-details summary { display: flex; align-items: baseline; gap: 8px; padding: 4px 0; cursor: pointer; list-style: none; }
 .diagnostic-output__command-details summary::-webkit-details-marker { display: none; }

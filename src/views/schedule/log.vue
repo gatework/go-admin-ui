@@ -199,28 +199,28 @@ onBeforeUnmount(async() => {
   overflow-y: auto;
   padding: 12px 14px;
   border-radius: var(--motor-radius-md);
-  border: 1px solid var(--color-border-2);
-  background: #0f1720;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  border: 1px solid var(--motor-terminal-line);
+  background: var(--motor-terminal-bg);
+  font-family: var(--motor-font-mono);
   font-size: var(--motor-font-size-12);
   line-height: 1.7;
 }
 
 .job-log__line {
   margin: 0;
-  color: #cfe3f5;
+  color: var(--motor-terminal-text);
   white-space: pre-wrap;
   word-break: break-all;
 }
 
 .job-log__time {
   margin-right: 10px;
-  color: #5d768c;
+  color: var(--motor-terminal-muted);
   font-variant-numeric: tabular-nums;
 }
 
 .job-log__empty {
   margin: 0;
-  color: #5d768c;
+  color: var(--motor-terminal-muted);
 }
 </style>
