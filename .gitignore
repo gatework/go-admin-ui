@@ -41,3 +41,7 @@ CLAUDE.md
 !.claude/skills/
 .claude/skills/*
 !.claude/skills/new-list-page/
+
+# Local tool output: screenshots and browser logs from verification runs
+output/
+.playwright-cli/
