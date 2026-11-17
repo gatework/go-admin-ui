@@ -1,42 +1,36 @@
+/**
+ * The operations overview. Module names and descriptions are read from the
+ * modules' own packs; only the overview's own words live here.
+ */
 export default {
-  metricHelp: 'Metric description',
-  sales: {
-    title: 'Total Sales',
-    weekOnWeek: 'Weekly Change',
-    dayOnDay: 'Daily Change',
-    dailyAverage: 'Daily Average Sales'
+  title: 'Operations Overview',
+  description: 'Size and current state of the network modules. Figures come from each module\'s live endpoints; select one to open its page.',
+  modules: 'Modules',
+  viewAll: 'View all',
+  unavailable: 'Unavailable right now',
+  noModules: 'No network module is enabled for this account',
+  noModulesHelp: 'Ask an administrator to assign menu permissions under Role Management.',
+  device: {
+    total: 'Devices',
+    ungrouped: '{count} ungrouped',
+    sync: 'Inventory sync',
+    lastSync: 'Last success {time}',
+    syncStates: { unconfigured: 'Not configured', idle: 'Idle', running: 'Syncing', succeeded: 'Healthy', failed: 'Failed' }
   },
-  visits: {
-    title: 'Visits',
-    daily: 'Daily Visits'
+  circuit: { total: 'Circuits', monitored: '{count} monitored' },
+  fabric: {
+    total: 'Fabric regions',
+    withIssues: '{count} regions with open issues',
+    title: 'Fabric region status',
+    empty: 'No Fabric regions yet',
+    coverage: 'Evidence {value}%',
+    issues: '{count} issue types'
   },
-  payments: {
-    title: 'Payments',
-    conversion: 'Conversion Rate'
-  },
-  campaign: {
-    title: 'Campaign Performance',
-    // English collapses the 同比 / 环比 distinction the Chinese draws here: both
-    // pairs on this page compare a week and a day, and spelling out
-    // year-on-year against period-on-period would say more than the demo
-    // figures behind them mean.
-    weekComparison: 'Weekly Change',
-    dayOverDay: 'Daily Change'
-  },
-  tabs: {
-    sales: 'Sales'
-  },
-  charts: {
-    salesRanking: 'Sales Ranking',
-    salesTrend: 'Sales Trend',
-    storeRanking: 'Store Sales Ranking',
-    month: 'Month {n}',
-    store: 'Egret Island Store {n}'
-  },
-  panel: {
-    newUsers: 'New Users',
-    messages: 'Messages',
-    amount: 'Amount',
-    volume: 'Sales Volume'
+  wireless: { controllers: 'Wireless controllers' },
+  delivery: {
+    total: 'Delivery orders',
+    title: 'Recent delivery orders',
+    empty: 'No delivery orders yet',
+    progress: '{done} / {total} devices'
   }
 }

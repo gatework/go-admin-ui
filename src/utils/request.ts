@@ -41,6 +41,31 @@ const reported = <E extends Error>(error: E): E & { reported: true } =>
 export const asReportedError = (error: unknown): ReportedError =>
   error instanceof Error ? error : new Error(String(error))
 
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    /** Do not toast a failure; the caller draws it. Sign-in prompts still appear. */
+    silent?: boolean
+  }
+}
+
+let silentScope = false
+
+/**
+ * Runs `call` with error toasts off for every request it starts.
+ *
+ * For a surface that shows failure in place -- an overview tile, a background
+ * poll -- where a toast per failed request would be noise. The api functions
+ * stay as they are: the flag is read when a request is created, and they
+ * create theirs synchronously inside `call`.
+ *
+ * The rejection is unchanged and still marked `reported`, so the caller's
+ * catch behaves as it would for any other request.
+ */
+export function silently<T>(call: () => Promise<T>): Promise<T> {
+  silentScope = true
+  try { return call() } finally { silentScope = false }
+}
+
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
   // withCredentials: true, // send cookies when cross-domain requests
@@ -101,11 +126,13 @@ service.interceptors.response.use(
 
     if (code !== 200) {
       const message = msg?.trim() || i18n.global.t('common.unknownError')
-      Message.error({
-        content: message,
-        // 400/403 carry a message worth reading twice as long
-        duration: code === 400 || code === 403 ? 5 * 1000 : 3 * 1000
-      })
+      if (!response.config.silent) {
+        Message.error({
+          content: message,
+          // 400/403 carry a message worth reading twice as long
+          duration: code === 400 || code === 403 ? 5 * 1000 : 3 * 1000
+        })
+      }
       return Promise.reject(reported(Object.assign(new Error(message), { code })))
     }
 
@@ -128,7 +155,7 @@ service.interceptors.response.use(
       console.log('err' + error) // for debug
     }
 
-    Message.error({ content: message, duration: 5 * 1000 })
+    if (!error.config?.silent) Message.error({ content: message, duration: 5 * 1000 })
     return Promise.reject(reported(error))
   }
 )
@@ -146,6 +173,6 @@ service.interceptors.response.use(
  * shape for the api modules to follow.
  */
 const request = <T = unknown>(config: AxiosRequestConfig): Promise<T> =>
-  service.request(config) as unknown as Promise<T>
+  service.request({ ...config, silent: config.silent ?? silentScope }) as unknown as Promise<T>
 
 export default request

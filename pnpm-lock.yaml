@@ -59,9 +59,6 @@ importers:
       vue-codemirror:
         specifier: ^6.1.1
         version: 6.1.1(codemirror@6.0.2)(vue@3.5.41(typescript@6.0.3))
-      vue-count-to:
-        specifier: 1.0.13
-        version: 1.0.13
       vue-cropper:
         specifier: ^1.1.4
         version: 1.1.4
@@ -2283,9 +2280,6 @@ packages:
   vue-component-type-helpers@3.3.9:
     resolution: {integrity: sha512-3c/UfMe0SqyEfcGTyH7mfshHagJ9QTCbppCb0/uGpHZpFug7+If3GeGZN7I0YheKEExemx3xldQPoO7PQSOLQg==}
 
-  vue-count-to@1.0.13:
-    resolution: {integrity: sha512-6R4OVBVNtQTlcbXu6SJ8ENR35M2/CdWt3Jmv57jOUM+1ojiFmjVGvZPH8DfHpMDSA+ITs+EW5V6qthADxeyYOQ==}
-
   vue-cropper@1.1.4:
     resolution: {integrity: sha512-5m98vBsCEI9rbS4JxELxXidtAui3qNyTHLHg67Qbn7g8cg+E6LcnC+hh3SM/p94x6mFh6KRxT1ttnta+wCYqWA==}
 
@@ -4481,8 +4475,6 @@ snapshots:
       vue: 3.5.41(typescript@6.0.3)
 
   vue-component-type-helpers@3.3.9: {}
-
-  vue-count-to@1.0.13: {}
 
   vue-cropper@1.1.4: {}
 

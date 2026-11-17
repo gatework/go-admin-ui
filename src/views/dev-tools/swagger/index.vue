@@ -1,7 +1,7 @@
 <template>
   <PageContainer card class="swagger-page">
-    <a-spin :loading="loading" class="swagger-page__frame">
-      <iframe :src="src" :title="$t('route.swagger')" @load="loading = false" />
+    <a-spin :loading="loading" class="swagger-page__spin">
+      <iframe class="swagger-page__frame" :src="src" :title="$t('route.swagger')" @load="loading = false" />
     </a-spin>
   </PageContainer>
 </template>
@@ -19,11 +19,12 @@ const loading = ref(true)
 
 <style lang="scss" scoped>
 // Fills what the shell leaves: viewport minus header, tabs, and the page gutter and card padding.
+.swagger-page__spin { display: block; width: 100%; }
+
 .swagger-page__frame {
   display: block;
   width: 100%;
   height: calc(100vh - var(--motor-header-height) - var(--motor-tabs-height) - 80px);
-
-  iframe { display: block; width: 100%; height: 100%; border: 0; }
+  border: 0;
 }
 </style>

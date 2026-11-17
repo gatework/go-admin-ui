@@ -3,11 +3,9 @@
  *
  * None of the packages below ship a `types` field, so TS errors at the import
  * site without these. They are deliberately minimal — just enough to compile —
- * rather than an attempt to model the real API, because three of them are
- * scheduled for replacement in phase P4 of the migration plan:
+ * rather than an attempt to model the real API:
  *
- *   vue-count-to    -> in-house composable (1 usage)
- *   vue-cropper     -> kept (avatar cropping; replacing it is not worth the risk)
+ *   vue-cropper     -> avatar cropping
  *
  * Remove the matching entry as each package is replaced, so stale declarations
  * do not mask genuinely missing types.
@@ -18,11 +16,5 @@ declare module 'vue-cropper' {
   export const VueCropper: DefineComponent<Record<string, unknown>, Record<string, unknown>, unknown>
   const _default: DefineComponent<Record<string, unknown>, Record<string, unknown>, unknown>
   export default _default
-}
-
-declare module 'vue-count-to' {
-  import type { DefineComponent } from 'vue'
-  const CountTo: DefineComponent<Record<string, unknown>, Record<string, unknown>, unknown>
-  export default CountTo
 }
 

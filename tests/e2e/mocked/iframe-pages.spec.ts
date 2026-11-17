@@ -26,7 +26,7 @@ const tookTheSlot = (page: import('@playwright/test').Page) =>
  * reports a height that never changes again.
  */
 const frameHeight = async(page: import('@playwright/test').Page) => {
-  const box = await page.locator('.box-card div[style*="height"]:visible, .form-builder-frame:visible').first().boundingBox()
+  const box = await page.locator('.swagger-page__frame:visible, .form-builder-frame:visible').first().boundingBox()
   return box?.height ?? 0
 }
 

@@ -16,10 +16,13 @@ const year = new Date().getFullYear()
 <style lang="scss" scoped>
 .access-footer {
   display: flex;
+  min-height: 44px;
+  flex: 0 0 auto;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 4px 10px;
+  padding: 14px 12px 2px;
   color: var(--motor-text-3);
   font-size: var(--motor-font-size-12);
   line-height: 1.6;
@@ -28,7 +31,9 @@ const year = new Date().getFullYear()
   &__dot { width: 3px; height: 3px; border-radius: 50%; background: var(--motor-border-strong); }
 }
 
+// Two lines on a phone: the credit, then the tagline.
 @media (width <= 575px) {
+  .access-footer { flex-direction: column; gap: 4px; padding-top: 10px; }
   .access-footer__dot { display: none; }
 }
 </style>

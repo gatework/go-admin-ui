@@ -1,50 +1,36 @@
 /**
- * The admin dashboard: four metric cards, two chart tabs and the panel group.
- *
- * The figures on this page are demo data generated in the component, so the
- * only translatable parts are the labels around them -- including the chart
- * axis and the ranked store names, which are built from a count and therefore
- * use named interpolation rather than concatenation.
- *
- * Every Chinese value is byte-for-byte what the interface renders today (PRD R5).
+ * The operations overview. Module names and descriptions are read from the
+ * modules' own packs; only the overview's own words live here.
  */
 export default {
-  metricHelp: '指标说明',
-  sales: {
-    title: '总销售额',
-    weekOnWeek: '周同比',
-    dayOnDay: '日同比',
-    dailyAverage: '日均销售额'
+  title: '运维总览',
+  description: '网络模块的规模与当前状态。数字来自各模块的实时接口，点击可进入对应页面。',
+  modules: '功能模块',
+  viewAll: '查看全部',
+  unavailable: '暂时无法读取',
+  noModules: '当前账户未开通网络管理模块',
+  noModulesHelp: '请联系管理员在角色管理中分配菜单权限。',
+  device: {
+    total: '设备',
+    ungrouped: '未分组 {count} 台',
+    sync: '台账同步',
+    lastSync: '最近成功 {time}',
+    syncStates: { unconfigured: '未配置', idle: '空闲', running: '同步中', succeeded: '正常', failed: '失败' }
   },
-  visits: {
-    title: '访问量',
-    daily: '日访问量'
+  circuit: { total: '专线', monitored: '已接入监控 {count} 条' },
+  fabric: {
+    total: 'Fabric 区域',
+    withIssues: '{count} 个区域存在待处理问题',
+    title: 'Fabric 区域状态',
+    empty: '尚无 Fabric 区域',
+    coverage: '证据覆盖 {value}%',
+    issues: '{count} 类问题'
   },
-  payments: {
-    title: '支付笔数',
-    conversion: '转化率'
-  },
-  campaign: {
-    title: '运营活动效果',
-    // 同周比 and 日环比, not the 周同比 / 日同比 of the sales card. The wording
-    // differs in the source and is copied as it stands; see PRD R5.
-    weekComparison: '同周比',
-    dayOverDay: '日环比'
-  },
-  tabs: {
-    sales: '销售额'
-  },
-  charts: {
-    salesRanking: '销售额排行',
-    salesTrend: '销售额趋势',
-    storeRanking: '门店销售排行榜',
-    month: '{n}月',
-    store: '白鹭岛 {n} 号店'
-  },
-  panel: {
-    newUsers: '新用户',
-    messages: '消息',
-    amount: '金额',
-    volume: '销量'
+  wireless: { controllers: '无线控制器' },
+  delivery: {
+    total: '下发工单',
+    title: '最近下发工单',
+    empty: '尚无下发工单',
+    progress: '{done} / {total} 台'
   }
 }

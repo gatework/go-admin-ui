@@ -78,6 +78,10 @@ watch([() => route.fullPath, () => preferences.dynamicTitle, locale], () => {
     min-height: 0;
     flex: 1;
     background: var(--motor-app-bg);
+    // A page's negative gutters must not widen the document. `clip`, not
+    // `hidden`: hidden would make this a scroll container and stop a sticky
+    // aside from following the viewport.
+    overflow-x: clip;
   }
 
   &.is-fixed-width &__content > :deep(*) { max-width: 1280px; margin-inline: auto; }
